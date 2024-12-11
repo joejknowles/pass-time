@@ -12,6 +12,10 @@ import {
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
+import { authErrorMessages } from '../signup/authErrorMessages';
 
 
 const validationSchema = Yup.object({
@@ -23,6 +27,8 @@ const validationSchema = Yup.object({
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -34,12 +40,13 @@ const LoginPage = () => {
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    setError(null);
     try {
-      // TODO: Call login API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert(JSON.stringify(data, null, 2));
-    } catch (error) {
-      console.error('Login failed:', error);
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+
+      router.push('/');
+    } catch (error: any) {
+      setError(authErrorMessages[error.code] || error.message);
     } finally {
       setLoading(false);
     }
@@ -99,6 +106,7 @@ const LoginPage = () => {
           >
             {loading ? <CircularProgress size={24} /> : 'Log In'}
           </Button>
+          {error && <Typography color="error">{error}</Typography>}
         </Box>
       </Box>
     </Container>
