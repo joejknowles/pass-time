@@ -13,6 +13,7 @@ import {
   MenuItem,
   Container,
 } from "@mui/material";
+import { Dashboard } from "./components/Dashboard";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
@@ -91,17 +92,16 @@ export default function Home() {
           )}
         </Toolbar>
       </AppBar>
-      <Container>
-        {user ? (
-          <Typography variant="h4" gutterBottom>
-            Welcome, {user?.email}
-          </Typography>
-        ) : (
+
+      {user ? (
+        <Dashboard />
+      ) : (
+        <Container>
           <Typography variant="h5" gutterBottom>
             Please log in or sign up.
           </Typography>
-        )}
-      </Container>
+        </Container>
+      )}
     </>
   );
 }
