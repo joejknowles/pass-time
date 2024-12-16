@@ -15,6 +15,9 @@ import { useRouter } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { authErrorMessages } from './authErrorMessages';
+import { useMutation } from '@apollo/client';
+import { CREATE_USER } from '@/app/lib/graphql/mutations';
+import { withSignedOutLayout } from '../components/SignedOutLayout';
 
 
 const validationSchema = Yup.object({
@@ -29,29 +32,35 @@ type SignUpInputs = {
     password: string;
 };
 
-export default function SignUpPage() {
+function SignUpPage() {
     const { register, handleSubmit, formState: { errors } } = useForm<SignUpInputs>({
         resolver: yupResolver(validationSchema),
     });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const router = useRouter();
 
+
+    const [createUser, { error: graphqlError }] = useMutation(CREATE_USER);
+
     const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
-        setLoading(true);
-        setError(null);
+        setIsSubmitting(true);
+        setFormError(null);
         setSuccess(null);
 
         try {
             await createUserWithEmailAndPassword(auth, data.email, data.password);
+
+            await createUser({ variables: { email: data.email } });
+
             setSuccess('Sign-up successful!');
 
             router.push('/');
         } catch (e: any) {
-            setError(authErrorMessages[e.code] || e.message);
+            setFormError(authErrorMessages[e.code] || e.message);
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -103,14 +112,17 @@ export default function SignUpPage() {
                         variant="contained"
                         color="primary"
                         sx={{ mt: 3, mb: 2 }}
-                        disabled={loading}
+                        disabled={isSubmitting}
                     >
-                        {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+                        {isSubmitting ? <CircularProgress size={24} /> : 'Sign Up'}
                     </Button>
-                    {error && <Typography color="error">{error}</Typography>}
+                    {formError && <Typography color="error">{formError}</Typography>}
+                    {graphqlError && <Typography color="error">{graphqlError.message}</Typography>}
                     {success && <Typography color="primary">{success}</Typography>}
                 </Box>
             </Box>
         </Container>
     );
 }
+
+export default withSignedOutLayout(SignUpPage);

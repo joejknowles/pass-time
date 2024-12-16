@@ -16,6 +16,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { authErrorMessages } from '../signup/authErrorMessages';
+import { withSignedOutLayout } from '../components/SignedOutLayout';
 
 
 const validationSchema = Yup.object({
@@ -113,4 +114,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default withSignedOutLayout(LoginPage);
