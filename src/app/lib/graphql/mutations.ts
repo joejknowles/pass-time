@@ -10,3 +10,19 @@ export const CREATE_USER = gql`
     }
   }
 `;
+
+export const CREATE_TASK = gql`
+  mutation CreateTask($input: CreateTaskInput!) {
+    createTask(input: $input) {
+      id
+      title
+      user {
+        id
+        email
+      }
+      taskInstances {
+        id
+      }
+    }
+  }
+`;

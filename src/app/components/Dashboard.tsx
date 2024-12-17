@@ -2,8 +2,9 @@
 import { Box, Container } from "@mui/material";
 import { Tasks } from "./Tasks";
 import { DayGrid } from "./DayGrid";
+import { withSignedInLayout } from "./SignedInLayout";
 
-export const Dashboard = () => {
+const Dashboard = () => {
     return (
         <Container sx={{ mt: 4 }}>
             <Box
@@ -40,3 +41,5 @@ export const Dashboard = () => {
         </Container>
     );
 };
+
+export default withSignedInLayout(Dashboard);

@@ -41,7 +41,6 @@ function SignUpPage() {
     const [success, setSuccess] = useState<string | null>(null);
     const router = useRouter();
 
-
     const [createUser, { error: graphqlError }] = useMutation(CREATE_USER);
 
     const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {

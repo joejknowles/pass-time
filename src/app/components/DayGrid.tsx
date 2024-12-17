@@ -1,5 +1,7 @@
 import { Box, Container, createTheme } from "@mui/material";
 import { useState } from "react";
+import { CREATE_TASK } from "../lib/graphql/mutations";
+import { useMutation } from "@apollo/client";
 
 const theme = createTheme({
     palette: {
@@ -29,6 +31,8 @@ const HOUR_COLUMN_WIDTH = 50;
 export const DayGrid = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
+    const [createTask, { error: graphqlError }] = useMutation(CREATE_TASK);
+
     const addTask = ({ startHour, startMinute }: { startHour: number, startMinute: number, endHour: number, endMinute: number }) => {
         const newTask: Task = {
             start: {
@@ -37,9 +41,17 @@ export const DayGrid = () => {
             },
             duration: 30,
         }
+
+        createTask({
+            variables: {
+                input: {
+                    title: 'Untitled...',
+                },
+            },
+        })
         setTasks([...tasks, newTask]);
     }
-    console.log(tasks)
+
     return (
         <Box sx={{ height: '100%', width: '100%', overflowY: 'auto', pt: 1 }} >
             <Box sx={{ position: 'relative' }}>

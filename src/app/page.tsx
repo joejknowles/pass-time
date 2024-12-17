@@ -13,7 +13,7 @@ import {
   MenuItem,
   Container,
 } from "@mui/material";
-import { Dashboard } from "./components/Dashboard";
+import Dashboard  from "./components/Dashboard";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);

@@ -1,4 +1,6 @@
+import { Context } from '@apollo/client';
 import { PrismaClient } from '@prisma/client';
+import { GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
 
@@ -28,10 +30,33 @@ export const resolvers = {
 
             return result
         },
-        createTask: async (_: any, args: { userId: number; title: string }) => {
-            return await prisma.task.create({
-                data: { userId: args.userId, title: args.title },
+        createTask: async (
+            _parent: unknown,
+            args: { input: { title: string } },
+            context: Context,
+            _info: GraphQLResolveInfo
+        ) => {
+            const { user } = context;
+
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            const newTask = await prisma.task.create({
+                data: {
+                    title: args.input.title,
+                    userId: user.id,
+                    taskInstances: {
+                        create: [],
+                    },
+                },
+                include: {
+                    user: true,
+                    taskInstances: true,
+                },
             });
+
+            return newTask;
         },
         createTaskInstance: async (
             _: any,

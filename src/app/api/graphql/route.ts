@@ -4,6 +4,9 @@ import { typeDefs } from '@/app/lib/graphql/schema';
 import { resolvers } from '@/app/lib/graphql/resolvers';
 import { admin } from '@/lib/firebaseAdmin';
 import { NextRequest } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const server = new ApolloServer({
   typeDefs,
@@ -21,7 +24,10 @@ const handler = startServerAndCreateNextHandler<NextRequest>(server, {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
-      return { user: { uid: decodedToken.uid, email: decodedToken.email } };
+
+      const user = await prisma.user.findUnique({ where: { firebaseId: decodedToken.uid } });
+
+      return { user };
     } catch (error) {
       console.error('Token verification failed:', error);
       throw new Error('Invalid or expired token');
