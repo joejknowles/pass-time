@@ -50,9 +50,9 @@ function SignUpPage() {
         setSuccess(null);
 
         try {
-            await createUserWithEmailAndPassword(auth, data.email, data.password);
+            const firebaseResponse = await createUserWithEmailAndPassword(auth, data.email, data.password);
 
-            await createUser({ variables: { email: data.email } });
+            await createUser({ variables: { email: data.email, firebaseId: firebaseResponse.user.uid } });
 
             setSuccess('Sign-up successful!');
 

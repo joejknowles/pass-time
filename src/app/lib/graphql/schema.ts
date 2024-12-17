@@ -3,6 +3,7 @@ import { gql } from 'graphql-tag';
 export const typeDefs = gql`
   type User {
     id: Int!
+    firebaseId: String!
     email: String!
     createdAt: String!
     tasks: [Task!]!
@@ -31,7 +32,7 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(email: String!): User!
+    createUser(email: String!, firebaseId: String!): User!
     createTask(userId: Int!, title: String!): Task!
     createTaskInstance(userId: Int!, taskId: Int!, startTime: String!, duration: Int): TaskInstance!
   }

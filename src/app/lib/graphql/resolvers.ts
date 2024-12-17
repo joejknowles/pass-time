@@ -21,13 +21,10 @@ export const resolvers = {
         },
     },
     Mutation: {
-        createUser: async (_: any, args: { email: string }) => {
-            console.log('yikes 4')
-
+        createUser: async (_: any, args: { email: string, firebaseId: string }) => {
             const result = await prisma.user.create({
-                data: { email: args.email },
+                data: { email: args.email, firebaseId: args.firebaseId },
             });
-            console.log('yikes5')
 
             return result
         },
