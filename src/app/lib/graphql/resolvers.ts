@@ -1,5 +1,5 @@
 import { Context } from '@apollo/client';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TaskInstance } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
@@ -18,6 +18,9 @@ export const resolvers = {
         },
         taskInstances: async () => {
             return await prisma.taskInstance.findMany({
+                where: { startTime: {
+                    gt: new Date(new Date().toISOString().split('T')[0])
+                } },
                 include: { user: true, task: true },
             });
         },
@@ -87,7 +90,7 @@ export const resolvers = {
         },
     },
     TaskInstance: {
-        start: (parent: any) => {
+        start: (parent: TaskInstance) => {
             const startTime = new Date(parent.startTime);
             return {
                 date: startTime.toISOString().split('T')[0],

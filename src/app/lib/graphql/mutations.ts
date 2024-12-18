@@ -32,3 +32,27 @@ export const CREATE_TASK_INSTANCE = gql`
     }
   }
 `;
+
+//$input: GetTaskInstacesInput!
+//input: $input
+export const GET_TASK_INSTANCES = gql`
+  query GetTaskInstances {
+    taskInstances {
+      id
+      duration
+      start {
+        date
+        hour
+        minute
+      }
+      user {
+        id
+        email
+      }
+      task {
+        id,
+        title
+      }
+    }
+  }
+`;

@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { Box, createTheme } from "@mui/material";
 import { useCallback, useState } from "react";
-import { CREATE_TASK_INSTANCE } from "../lib/graphql/mutations";
-import { useMutation } from "@apollo/client";
+import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES } from "../lib/graphql/mutations";
+import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "./DraftTaskInstance";
 
 const theme = createTheme({
@@ -47,20 +47,23 @@ interface DraftTaskInstance {
 const HOUR_COLUMN_WIDTH = 50;
 
 export const DayGrid = () => {
-    const [taskInstances, setTaskInstances] = useState<TaskInstance[]>([]);
     const [draftTask, setDraftTask] = useState<DraftTaskInstance | null>(null);
 
     const [createTask, { error: graphqlError }] = useMutation(CREATE_TASK_INSTANCE);
+    const {
+        data: taskInstancesData,
+        error: taskInstancesError,
+        refetch: refetchTaskInstances
+    } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES);
+    const taskInstances = taskInstancesData?.taskInstances;
 
     const finalizeTask = useCallback(async (draftTask: DraftTaskInstance) => {
-        const result = await createTask({
+        await createTask({
             variables: {
                 input: draftTask,
             },
         })
-
-        const newTaskInstance = result.data.createTaskInstance as TaskInstance;
-        setTaskInstances([...taskInstances, newTaskInstance]);
+        await refetchTaskInstances();
         setDraftTask(null);
     }, [draftTask])
 
@@ -118,7 +121,7 @@ export const DayGrid = () => {
                     ))
                 }
 
-                {taskInstances.map((taskInstance, index) => (
+                {taskInstances?.map((taskInstance, index) => (
                     <Box
                         key={index}
                         sx={{
