@@ -30,9 +30,19 @@ export const resolvers = {
 
             return result
         },
-        createTask: async (
+        createTaskInstance: async (
             _parent: unknown,
-            args: { input: { title: string } },
+            args: {
+                input: {
+                    title: string,
+                    start: {
+                        date: string,
+                        hour: number,
+                        minute: number,
+                    },
+                    duration: number,
+                }
+            },
             context: Context,
             _info: GraphQLResolveInfo
         ) => {
@@ -56,20 +66,34 @@ export const resolvers = {
                 },
             });
 
-            return newTask;
-        },
-        createTaskInstance: async (
-            _: any,
-            args: { userId: number; taskId: number; startTime: string; duration?: number }
-        ) => {
-            return await prisma.taskInstance.create({
+            const startTime = new Date(args.input.start.date);
+            startTime.setHours(args.input.start.hour);
+            startTime.setMinutes(args.input.start.minute);
+
+            const newTaskInstance = await prisma.taskInstance.create({
                 data: {
-                    userId: args.userId,
-                    taskId: args.taskId,
-                    startTime: new Date(args.startTime),
-                    duration: args.duration ?? 60,
+                    userId: user.id,
+                    taskId: newTask.id,
+                    startTime,
+                    duration: args.input.duration,
+                },
+                include: {
+                    user: true,
+                    task: true,
                 },
             });
+
+            return newTaskInstance;
+        },
+    },
+    TaskInstance: {
+        start: (parent: any) => {
+            const startTime = new Date(parent.startTime);
+            return {
+                date: startTime.toISOString().split('T')[0],
+                hour: startTime.getUTCHours(),
+                minute: startTime.getUTCMinutes(),
+            };
         },
     },
 };

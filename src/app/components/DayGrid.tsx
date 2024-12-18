@@ -1,7 +1,9 @@
-import { Box, Container, createTheme } from "@mui/material";
-import { useState } from "react";
-import { CREATE_TASK } from "../lib/graphql/mutations";
+/** @jsxImportSource @emotion/react */
+import { Box, createTheme } from "@mui/material";
+import { useCallback, useState } from "react";
+import { CREATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation } from "@apollo/client";
+import { DraftTaskInstance } from "./DraftTaskInstance";
 
 const theme = createTheme({
     palette: {
@@ -14,12 +16,28 @@ const theme = createTheme({
     },
 })
 
-const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
 interface Task {
-    id?: string;
-    title?: string;
+    id: string;
+    title: string;
+}
+
+interface TaskInstance {
+    id: string;
+    task: Task;
     start: {
+        date: string;
+        hour: number;
+        minute: number;
+    };
+    duration: number;
+}
+
+interface DraftTaskInstance {
+    title: string;
+    start: {
+        date: string;
         hour: number;
         minute: number;
     };
@@ -29,34 +47,41 @@ interface Task {
 const HOUR_COLUMN_WIDTH = 50;
 
 export const DayGrid = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [taskInstances, setTaskInstances] = useState<TaskInstance[]>([]);
+    const [draftTask, setDraftTask] = useState<DraftTaskInstance | null>(null);
 
-    const [createTask, { error: graphqlError }] = useMutation(CREATE_TASK);
+    const [createTask, { error: graphqlError }] = useMutation(CREATE_TASK_INSTANCE);
 
-    const addTask = ({ startHour, startMinute }: { startHour: number, startMinute: number, endHour: number, endMinute: number }) => {
-        const newTask: Task = {
+    const finalizeTask = useCallback(async (draftTask: DraftTaskInstance) => {
+        const result = await createTask({
+            variables: {
+                input: draftTask,
+            },
+        })
+
+        const newTaskInstance = result.data.createTaskInstance as TaskInstance;
+        setTaskInstances([...taskInstances, newTaskInstance]);
+        setDraftTask(null);
+    }, [draftTask])
+
+    const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number, endHour: number, endMinute: number }) => {
+        const newTask: DraftTaskInstance = {
+            title: "",
             start: {
+                date: new Date().toISOString().split('T')[0],
                 hour: startHour,
                 minute: startMinute,
             },
             duration: 30,
-        }
-
-        createTask({
-            variables: {
-                input: {
-                    title: 'Untitled...',
-                },
-            },
-        })
-        setTasks([...tasks, newTask]);
+        };
+        setDraftTask(newTask);
     }
 
     return (
         <Box sx={{ height: '100%', width: '100%', overflowY: 'auto', pt: 1 }} >
             <Box sx={{ position: 'relative' }}>
                 {
-                    hours.map((hour) => (
+                    daytimeHours.map((hour) => (
                         <Box key={hour} sx={{ display: 'flex', height: '60px' }}>
                             <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-8px', textAlign: 'right', mr: 1 }}>
                                 {hour}:00
@@ -78,7 +103,7 @@ export const DayGrid = () => {
                                             flex: 1,
                                         }}
                                         onClick={() => {
-                                            addTask({
+                                            addDraftTaskInstance({
                                                 startHour: hour,
                                                 startMinute: quarter,
                                                 endHour: hour,
@@ -93,13 +118,13 @@ export const DayGrid = () => {
                     ))
                 }
 
-                {tasks.map((task, index) => (
+                {taskInstances.map((taskInstance, index) => (
                     <Box
                         key={index}
                         sx={{
                             position: "absolute",
-                            top: `${(((task.start.hour - hours[0]) * 60 + task.start.minute) / (hours.length * 60)) * 100}%`,
-                            height: `${((task.duration) / (hours.length * 60)) * 100}%`,
+                            top: `${(((taskInstance.start.hour - daytimeHours[0]) * 60 + taskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%`,
+                            height: `${((taskInstance.duration) / (daytimeHours.length * 60)) * 100}%`,
                             left: HOUR_COLUMN_WIDTH + 16,
                             width: "80%",
                             backgroundColor: "rgba(63, 81, 181, 0.5)",
@@ -108,9 +133,21 @@ export const DayGrid = () => {
                             boxSizing: "border-box",
                         }}
                     >
-                        {task.title || 'Untitled...'}
+                        {taskInstance.task.title}
                     </Box>
-                ))}</Box>
+                ))}
+
+                {
+                    draftTask && (
+                        <DraftTaskInstance
+                            draftTask={draftTask}
+                            setDraftTask={setDraftTask}
+                            finalizeTask={finalizeTask}
+                        />
+                    )
+                }
+
+            </Box>
         </Box>
     );
 };

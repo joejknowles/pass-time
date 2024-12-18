@@ -18,11 +18,17 @@ export const typeDefs = gql`
   }
 
   type TaskInstance {
-    id: Int!
-    user: User!
-    task: Task!
-    startTime: String!
-    duration: Int!
+      id: ID!
+      task: Task!
+      user: User!
+      start: Start!
+      duration: Int!
+  }
+
+  type Start {
+      date: String!
+      hour: Int!
+      minute: Int!
   }
 
   type Query {
@@ -31,13 +37,20 @@ export const typeDefs = gql`
     taskInstances: [TaskInstance!]!
   }
 
+  input StartInput {
+    date: String!
+    hour: Int!
+    minute: Int!
+  }
+
   input CreateTaskInput {
     title: String!
+    start: StartInput!
+    duration: Int!
   }
 
   type Mutation {
     createUser(email: String!, firebaseId: String!): User!
-    createTask(input: CreateTaskInput!): Task!
-    createTaskInstance(userId: Int!, taskId: Int!, startTime: String!, duration: Int): TaskInstance!
+    createTaskInstance(input: CreateTaskInput!): TaskInstance!
   }
 `;
