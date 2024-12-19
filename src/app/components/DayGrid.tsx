@@ -181,7 +181,15 @@ export const DayGrid = () => {
     }
 
     return (
-        <Box sx={{ height: '100%', width: '100%', overflowY: 'auto', pt: 1, cursor: currentResizingTaskInfo ? 'ns-resize' : '' }} >
+        <Box sx={{
+            height: '100%',
+            width: '100%',
+            overflowY: 'auto',
+            pt: 1,
+            cursor: currentResizingTaskInfo ?
+                currentResizingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
+                : ''
+        }} >
             <Box id="day-grid-container" sx={{ position: 'relative' }}>
                 {daytimeHours.map((hour) => (
                     <Box key={hour} sx={{ display: 'flex', height: '60px' }}>
@@ -249,6 +257,7 @@ export const DayGrid = () => {
                                         cursor: currentResizingTask ? "grabbing" : "grab",
                                         padding: '0 4px',
                                         fontSize: '1.2rem',
+                                        color: 'rgba(256, 256, 256, 0.8)',
                                     }}
                                     onMouseDown={(e) => startResize(taskInstance, e, "both")}>
                                     {"⋯"}
