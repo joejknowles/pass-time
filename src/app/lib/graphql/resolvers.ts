@@ -16,11 +16,16 @@ export const resolvers = {
                 include: { user: true, taskInstances: true },
             });
         },
-        taskInstances: async () => {
+        taskInstances: async (_parent: any, args: {
+            input: {
+                date: string;
+            }
+        }) => {
             return await prisma.taskInstance.findMany({
                 where: {
                     startTime: {
-                        gt: new Date(new Date().toISOString().split('T')[0])
+                        gte: new Date(args.input.date),
+                        lt: new Date(new Date(args.input.date).getTime() + 24 * 60 * 60 * 1000),
                     }
                 },
                 include: { user: true, task: true },

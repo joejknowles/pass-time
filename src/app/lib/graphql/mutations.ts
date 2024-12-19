@@ -55,11 +55,9 @@ export const UPDATE_TASK_INSTANCE = gql`
   }
 `;
 
-//$input: GetTaskInstacesInput!
-//input: $input
 export const GET_TASK_INSTANCES = gql`
-  query GetTaskInstances {
-    taskInstances {
+  query GetTaskInstances($input: GetTaskInstancesInput!) {
+    taskInstances(input: $input) {
       id
       duration
       start {

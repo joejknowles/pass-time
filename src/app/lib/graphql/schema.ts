@@ -34,7 +34,11 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     tasks: [Task!]!
-    taskInstances: [TaskInstance!]!
+    taskInstances(input: GetTaskInstancesInput!): [TaskInstance!]!
+  }
+
+  input GetTaskInstancesInput {
+    date: String!
   }
 
   input StartTimeInput {
