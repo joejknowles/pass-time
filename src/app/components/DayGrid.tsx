@@ -49,62 +49,62 @@ const HOUR_COLUMN_WIDTH = 50;
 type MoveType = "start" | "end" | "both";
 
 export const DayGrid = () => {
-    const [draftTask, setDraftTask] = useState<DraftTaskInstance | null>(null);
-    const [currentResizingTaskInfo, setResizingTask] = useState<{ task: TaskInstance, moveType: MoveType } | null>(null);
+    const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
+    const [movingTaskInfo, setMovingTaskInfo] = useState<{ taskInstance: TaskInstance, moveType: MoveType } | null>(null);
 
-    const [createTask, { error: createTaskError }] = useMutation(CREATE_TASK_INSTANCE);
-    const [updateTask, { error: updateTaskError }] = useMutation(UPDATE_TASK_INSTANCE);
+    const [createTaskInstance, { error: errorFromCreatingTaskInstance }] = useMutation(CREATE_TASK_INSTANCE);
+    const [updateTaskInstance, { error: errorFromUpdatingTaskInstance }] = useMutation(UPDATE_TASK_INSTANCE);
     const {
         data: taskInstancesData,
-        error: taskInstancesError,
+        error: errorFromGetTaskInstances,
         refetch: refetchTaskInstances
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES);
     const taskInstances = taskInstancesData?.taskInstances;
 
-    const startResize = (task: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
-        setResizingTask({ task, moveType });
+    const startMovingTaskInstance = (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
+        setMovingTaskInfo({ taskInstance, moveType });
         document.body.style.userSelect = "none";
         event.stopPropagation();
     };
 
-    const resizeTask = (event: MouseEvent) => {
-        if (currentResizingTaskInfo) {
+    const moveTaskInstance = (event: MouseEvent) => {
+        if (movingTaskInfo) {
             const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
             const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
             const yPosition = event.clientY - gridOffsetTop;
             const minutesFromDaytimeStart = Math.floor(((yPosition + 3) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
-            const { task: resizingTask } = currentResizingTaskInfo;
+            const movingTaskInstance = movingTaskInfo.taskInstance;
 
-            if (currentResizingTaskInfo?.moveType === "end") {
+            if (movingTaskInfo?.moveType === "end") {
 
-                const resizingTaskStart = resizingTask.start;
-                const newDuration = minutesFromDaytimeStart - (resizingTaskStart.hour * 60 + resizingTaskStart.minute - daytimeHours[0] * 60);
+                const taskInstanceStart = movingTaskInstance.start;
+                const newDuration = minutesFromDaytimeStart - (taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60);
 
-                setResizingTask({
-                    moveType: currentResizingTaskInfo.moveType,
-                    task: { ...currentResizingTaskInfo.task, duration: Math.max(newDuration, 15) }
+                setMovingTaskInfo({
+                    moveType: movingTaskInfo.moveType,
+                    taskInstance: { ...movingTaskInstance, duration: Math.max(newDuration, 15) }
                 });
-            } else if (currentResizingTaskInfo?.moveType === "start" || currentResizingTaskInfo?.moveType === "both") {
+            } else if (movingTaskInfo?.moveType === "start" || movingTaskInfo?.moveType === "both") {
                 const minutesFromDayStart = daytimeHours[0] * 60 + minutesFromDaytimeStart;
                 const newStartHour = Math.floor(minutesFromDayStart / 60);
                 const newStartMinute = minutesFromDayStart % 60;
 
-                const originalTask = taskInstances?.find(task => task.id === resizingTask.id) as TaskInstance;
+                const originalTaskInstance = taskInstances?.find(taskInstance => taskInstance.id === movingTaskInstance.id) as TaskInstance;
                 const updatedDuration =
-                    currentResizingTaskInfo?.moveType === "both" ?
-                        originalTask.duration :
-                        originalTask.start.hour * 60 +
-                        originalTask.start.minute +
-                        originalTask.duration -
+                    movingTaskInfo?.moveType === "both" ?
+                        originalTaskInstance.duration :
+                        originalTaskInstance.start.hour * 60 +
+                        originalTaskInstance.start.minute +
+                        originalTaskInstance.duration -
                         minutesFromDayStart;
 
-                setResizingTask(state => state ? ({
+                setMovingTaskInfo(state => state ? ({
                     ...state,
-                    task: {
-                        ...state.task,
+                    taskInstance: {
+                        ...state.taskInstance,
                         duration: Math.max(updatedDuration, 15),
                         start: {
-                            ...state.task.start,
+                            ...state.taskInstance.start,
                             hour: newStartHour,
                             minute: newStartMinute,
                         }
@@ -115,26 +115,26 @@ export const DayGrid = () => {
         }
     };
 
-    const stopResize = async () => {
+    const stopMovingTaskInstance = async () => {
         document.body.style.userSelect = "";
 
-        if (currentResizingTaskInfo) {
-            const { task, moveType } = currentResizingTaskInfo;
-            await updateTask({
+        if (movingTaskInfo) {
+            const { taskInstance, moveType } = movingTaskInfo;
+            await updateTaskInstance({
                 variables: {
                     input: {
-                        id: task.id,
+                        id: taskInstance.id,
                         ...(
                             moveType !== "both" ? {
-                                duration: task.duration,
+                                duration: taskInstance.duration,
                             } : null
                         ),
                         ...(
                             moveType !== "end" ? {
                                 start: {
-                                    date: task.start.date,
-                                    hour: task.start.hour,
-                                    minute: task.start.minute,
+                                    date: taskInstance.start.date,
+                                    hour: taskInstance.start.hour,
+                                    minute: taskInstance.start.minute,
                                 }
                             } : null
                         )
@@ -143,32 +143,32 @@ export const DayGrid = () => {
             });
         }
 
-        setResizingTask(null);
+        setMovingTaskInfo(null);
     };
 
     useEffect(() => {
-        if (currentResizingTaskInfo) {
-            window.addEventListener("mousemove", resizeTask);
-            window.addEventListener("mouseup", stopResize);
+        if (movingTaskInfo) {
+            window.addEventListener("mousemove", moveTaskInstance);
+            window.addEventListener("mouseup", stopMovingTaskInstance);
         }
         return () => {
-            window.removeEventListener("mousemove", resizeTask);
-            window.removeEventListener("mouseup", stopResize);
+            window.removeEventListener("mousemove", moveTaskInstance);
+            window.removeEventListener("mouseup", stopMovingTaskInstance);
         };
-    }, [currentResizingTaskInfo]);
+    }, [movingTaskInfo]);
 
-    const finalizeTask = useCallback(async (draftTask: DraftTaskInstance) => {
-        await createTask({
+    const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
+        await createTaskInstance({
             variables: {
-                input: draftTask,
+                input: draftTaskInstance,
             },
         })
         await refetchTaskInstances();
-        setDraftTask(null);
-    }, [draftTask])
+        setDraftTaskInstance(null);
+    }, [draftTaskInstance])
 
     const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number }) => {
-        const newTask: DraftTaskInstance = {
+        const newTaskInstance: DraftTaskInstance = {
             title: "",
             start: {
                 date: new Date().toISOString().split('T')[0],
@@ -177,7 +177,7 @@ export const DayGrid = () => {
             },
             duration: 30,
         };
-        setDraftTask(newTask);
+        setDraftTaskInstance(newTaskInstance);
     }
 
     return (
@@ -186,8 +186,8 @@ export const DayGrid = () => {
             width: '100%',
             overflowY: 'auto',
             pt: 1,
-            cursor: currentResizingTaskInfo ?
-                currentResizingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
+            cursor: movingTaskInfo ?
+                movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-move'
                 : ''
         }} >
             <Box id="day-grid-container" sx={{ position: 'relative' }}>
@@ -218,10 +218,9 @@ export const DayGrid = () => {
                 ))}
 
                 {taskInstances?.map((taskInstance, index) => {
-                    const currentResizingTask = currentResizingTaskInfo?.task;
-                    const isResizing = currentResizingTask?.id === taskInstance.id;
-                    const effectiveDuration = isResizing ? currentResizingTask?.duration : taskInstance.duration;
-                    const effectiveStart = isResizing ? currentResizingTask?.start : taskInstance.start;
+                    const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
+                    const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
+                    const effectiveStart = isResizing ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
                     return (
                         <Box
                             key={index}
@@ -250,16 +249,17 @@ export const DayGrid = () => {
                                     alignItems: 'center',
                                     overflow: 'hidden',
                                 }}
-                                onMouseDown={(e) => startResize(taskInstance, e, "start")}
+                                onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
                             >
                                 <Box
                                     sx={{
-                                        cursor: currentResizingTask ? "grabbing" : "grab",
+                                        cursor: movingTaskInfo?.moveType === "both" ? "grabbing" :
+                                            movingTaskInfo ? null : "grab",
                                         padding: '0 4px',
                                         fontSize: '1.2rem',
                                         color: 'rgba(256, 256, 256, 0.8)',
                                     }}
-                                    onMouseDown={(e) => startResize(taskInstance, e, "both")}>
+                                    onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}>
                                     {"⋯"}
                                 </Box>
                             </Box>
@@ -273,17 +273,17 @@ export const DayGrid = () => {
                                     height: "8px",
                                     cursor: "ns-resize",
                                 }}
-                                onMouseDown={(e) => startResize(taskInstance, e, "end")}
+                                onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "end")}
                             />
                         </Box>
                     );
                 })}
 
-                {draftTask && (
+                {draftTaskInstance && (
                     <DraftTaskInstance
-                        draftTask={draftTask}
-                        setDraftTask={setDraftTask}
-                        finalizeTask={finalizeTask}
+                        draftTask={draftTaskInstance}
+                        setDraftTask={setDraftTaskInstance}
+                        finalizeTask={finalizeTaskInstance}
                     />
                 )}
 
