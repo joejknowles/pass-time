@@ -46,11 +46,11 @@ interface DraftTaskInstance {
 
 const HOUR_COLUMN_WIDTH = 50;
 
-type ResizeEdge = "top" | "bottom";
+type MoveType = "start" | "end" | "both";
 
 export const DayGrid = () => {
     const [draftTask, setDraftTask] = useState<DraftTaskInstance | null>(null);
-    const [currentResizingTaskInfo, setResizingTask] = useState<{ task: TaskInstance, edge: ResizeEdge } | null>(null);
+    const [currentResizingTaskInfo, setResizingTask] = useState<{ task: TaskInstance, moveType: MoveType } | null>(null);
 
     const [createTask, { error: createTaskError }] = useMutation(CREATE_TASK_INSTANCE);
     const [updateTask, { error: updateTaskError }] = useMutation(UPDATE_TASK_INSTANCE);
@@ -61,8 +61,8 @@ export const DayGrid = () => {
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES);
     const taskInstances = taskInstancesData?.taskInstances;
 
-    const startResize = (task: TaskInstance, event: React.MouseEvent, edge: ResizeEdge) => {
-        setResizingTask({ task, edge });
+    const startResize = (task: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
+        setResizingTask({ task, moveType });
         document.body.style.userSelect = "none";
         event.stopPropagation();
     };
@@ -75,26 +75,28 @@ export const DayGrid = () => {
             const minutesFromDaytimeStart = Math.round((yPosition / containerHeight) * daytimeHours.length * 60 / 15) * 15;
             const { task: resizingTask } = currentResizingTaskInfo;
 
-            if (currentResizingTaskInfo?.edge === "bottom") {
+            if (currentResizingTaskInfo?.moveType === "end") {
 
                 const resizingTaskStart = resizingTask.start;
                 const newDuration = minutesFromDaytimeStart - (resizingTaskStart.hour * 60 + resizingTaskStart.minute - daytimeHours[0] * 60);
 
                 setResizingTask({
-                    edge: currentResizingTaskInfo.edge,
+                    moveType: currentResizingTaskInfo.moveType,
                     task: { ...currentResizingTaskInfo.task, duration: Math.max(newDuration, 15) }
                 });
-            } else if (currentResizingTaskInfo?.edge === "top") {
+            } else if (currentResizingTaskInfo?.moveType === "start" || currentResizingTaskInfo?.moveType === "both") {
                 const minutesFromDayStart = daytimeHours[0] * 60 + minutesFromDaytimeStart;
                 const newStartHour = Math.floor(minutesFromDayStart / 60);
                 const newStartMinute = minutesFromDayStart % 60;
 
                 const originalTask = taskInstances?.find(task => task.id === resizingTask.id) as TaskInstance;
                 const updatedDuration =
-                    originalTask.start.hour * 60 +
-                    originalTask.start.minute +
-                    originalTask.duration -
-                    minutesFromDayStart;
+                    currentResizingTaskInfo?.moveType === "both" ?
+                        originalTask.duration :
+                        originalTask.start.hour * 60 +
+                        originalTask.start.minute +
+                        originalTask.duration -
+                        minutesFromDayStart;
 
                 setResizingTask(state => state ? ({
                     ...state,
@@ -117,14 +119,18 @@ export const DayGrid = () => {
         document.body.style.userSelect = "";
 
         if (currentResizingTaskInfo) {
-            const { task, edge } = currentResizingTaskInfo;
+            const { task, moveType } = currentResizingTaskInfo;
             await updateTask({
                 variables: {
                     input: {
                         id: task.id,
-                        duration: task.duration,
                         ...(
-                            edge === "top" ? {
+                            moveType !== "both" ? {
+                                duration: task.duration,
+                            } : null
+                        ),
+                        ...(
+                            moveType !== "end" ? {
                                 start: {
                                     date: task.start.date,
                                     hour: task.start.hour,
@@ -231,10 +237,23 @@ export const DayGrid = () => {
                                     right: 0,
                                     height: "8px",
                                     cursor: "ns-resize",
-                                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    overflow: 'hidden',
                                 }}
-                                onMouseDown={(e) => startResize(taskInstance, e, "top")}
-                            />
+                                onMouseDown={(e) => startResize(taskInstance, e, "start")}
+                            >
+                                <Box
+                                    sx={{
+                                        cursor: currentResizingTask ? "grabbing" : "grab",
+                                        padding: '0 4px',
+                                        fontSize: '1.2rem',
+                                    }}
+                                    onMouseDown={(e) => startResize(taskInstance, e, "both")}>
+                                    {"⋯"}
+                                </Box>
+                            </Box>
                             {taskInstance.task.title}
                             <Box
                                 sx={{
@@ -244,9 +263,8 @@ export const DayGrid = () => {
                                     right: 0,
                                     height: "8px",
                                     cursor: "ns-resize",
-                                    backgroundColor: "rgba(0, 0, 0, 0.2)",
                                 }}
-                                onMouseDown={(e) => startResize(taskInstance, e, "bottom")}
+                                onMouseDown={(e) => startResize(taskInstance, e, "end")}
                             />
                         </Box>
                     );
