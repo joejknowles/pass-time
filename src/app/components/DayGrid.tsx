@@ -72,7 +72,7 @@ export const DayGrid = () => {
             const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
             const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
             const yPosition = event.clientY - gridOffsetTop;
-            const minutesFromDaytimeStart = Math.round((yPosition / containerHeight) * daytimeHours.length * 60 / 15) * 15;
+            const minutesFromDaytimeStart = Math.floor(((yPosition + 3) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
             const { task: resizingTask } = currentResizingTaskInfo;
 
             if (currentResizingTaskInfo?.moveType === "end") {
