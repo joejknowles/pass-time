@@ -1,5 +1,5 @@
 import { Context } from '@apollo/client';
-import { PrismaClient, TaskInstance } from '@prisma/client';
+import { PrismaClient, TaskInstance, User } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
@@ -18,9 +18,11 @@ export const resolvers = {
         },
         taskInstances: async () => {
             return await prisma.taskInstance.findMany({
-                where: { startTime: {
-                    gt: new Date(new Date().toISOString().split('T')[0])
-                } },
+                where: {
+                    startTime: {
+                        gt: new Date(new Date().toISOString().split('T')[0])
+                    }
+                },
                 include: { user: true, task: true },
             });
         },
@@ -87,6 +89,62 @@ export const resolvers = {
             });
 
             return newTaskInstance;
+        },
+        updateTaskInstance: async (
+            _parent: unknown,
+            args: { input: { id: string; title?: string; duration?: number; start?: { date?: string; hour?: number; minute?: number } } },
+            context: Context & { user: User },
+            _info: GraphQLResolveInfo
+        ) => {
+            const { user } = context;
+            const { id, title, duration, start } = args.input;
+
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            const taskInstanceId = parseInt(id, 10);
+            if (isNaN(taskInstanceId)) {
+                throw new Error('Invalid TaskInstance ID');
+            }
+
+            let taskInstance = await prisma.taskInstance.findUnique({
+                where: { id: taskInstanceId, userId: user.id },
+                include: { user: true, task: true },
+            });
+
+            if (!taskInstance) {
+                throw new Error('Task instance not found');
+            }
+
+            let startTime = null;
+            if (start?.date && start?.hour && start?.minute) {
+                startTime = new Date(start.date);
+                startTime.setHours(start.hour);
+                startTime.setMinutes(start.minute);
+            }
+
+            if (startTime || duration) {
+                taskInstance = await prisma.taskInstance.update({
+                    where: { id: taskInstanceId },
+                    data: {
+                        ...(duration && { duration }),
+                        ...(startTime && { startTime }),
+                    },
+                    include: { task: true, user: true },
+                });
+            }
+
+            if (title) {
+                const task = await prisma.task.update({
+                    where: { id: taskInstance.taskId },
+                    data: { title },
+                    include: { user: true, taskInstances: true },
+                });
+                taskInstance.task = task;
+            }
+
+            return taskInstance;
         },
     },
     TaskInstance: {

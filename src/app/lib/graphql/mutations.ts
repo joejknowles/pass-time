@@ -33,6 +33,28 @@ export const CREATE_TASK_INSTANCE = gql`
   }
 `;
 
+export const UPDATE_TASK_INSTANCE = gql`
+  mutation UpdateTaskInstance($input: UpdateTaskInstanceInput!) {
+    updateTaskInstance(input: $input) {
+      id
+      duration
+      start {
+        date
+        hour
+        minute
+      }
+      task {
+        id
+        title
+      }
+      user {
+        id
+        email
+      }
+    }
+  }
+`;
+
 //$input: GetTaskInstacesInput!
 //input: $input
 export const GET_TASK_INSTANCES = gql`
