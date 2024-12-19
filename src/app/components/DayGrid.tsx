@@ -46,9 +46,11 @@ interface DraftTaskInstance {
 
 const HOUR_COLUMN_WIDTH = 50;
 
+type ResizeEdge = "top" | "bottom";
+
 export const DayGrid = () => {
     const [draftTask, setDraftTask] = useState<DraftTaskInstance | null>(null);
-    const [resizingTask, setResizingTask] = useState<TaskInstance | null>(null);
+    const [currentResizingTaskInfo, setResizingTask] = useState<{ task: TaskInstance, edge: ResizeEdge } | null>(null);
 
     const [createTask, { error: createTaskError }] = useMutation(CREATE_TASK_INSTANCE);
     const [updateTask, { error: updateTaskError }] = useMutation(UPDATE_TASK_INSTANCE);
@@ -59,35 +61,77 @@ export const DayGrid = () => {
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES);
     const taskInstances = taskInstancesData?.taskInstances;
 
-    const startResize = (task: TaskInstance, event: React.MouseEvent) => {
-        setResizingTask(task);
+    const startResize = (task: TaskInstance, event: React.MouseEvent, edge: ResizeEdge) => {
+        setResizingTask({ task, edge });
         document.body.style.userSelect = "none";
         event.stopPropagation();
     };
 
     const resizeTask = (event: MouseEvent) => {
-        if (resizingTask) {
+        if (currentResizingTaskInfo) {
             const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
             const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
             const yPosition = event.clientY - gridOffsetTop;
+            const minutesFromDaytimeStart = Math.round((yPosition / containerHeight) * daytimeHours.length * 60 / 15) * 15;
+            const { task: resizingTask } = currentResizingTaskInfo;
 
-            const minutesFromStart = Math.round((yPosition / containerHeight) * daytimeHours.length * 60 / 15) * 15;
+            if (currentResizingTaskInfo?.edge === "bottom") {
 
-            const newDuration = minutesFromStart - (resizingTask.start.hour * 60 + resizingTask.start.minute - daytimeHours[0] * 60);
+                const resizingTaskStart = resizingTask.start;
+                const newDuration = minutesFromDaytimeStart - (resizingTaskStart.hour * 60 + resizingTaskStart.minute - daytimeHours[0] * 60);
 
-            setResizingTask({ ...resizingTask, duration: Math.max(newDuration, 15) });
+                setResizingTask({
+                    edge: currentResizingTaskInfo.edge,
+                    task: { ...currentResizingTaskInfo.task, duration: Math.max(newDuration, 15) }
+                });
+            } else if (currentResizingTaskInfo?.edge === "top") {
+                const minutesFromDayStart = daytimeHours[0] * 60 + minutesFromDaytimeStart;
+                const newStartHour = Math.floor(minutesFromDayStart / 60);
+                const newStartMinute = minutesFromDayStart % 60;
+
+                const originalTask = taskInstances?.find(task => task.id === resizingTask.id) as TaskInstance;
+                const updatedDuration =
+                    originalTask.start.hour * 60 +
+                    originalTask.start.minute +
+                    originalTask.duration -
+                    minutesFromDayStart;
+
+                setResizingTask(state => state ? ({
+                    ...state,
+                    task: {
+                        ...state.task,
+                        duration: Math.max(updatedDuration, 15),
+                        start: {
+                            ...state.task.start,
+                            hour: newStartHour,
+                            minute: newStartMinute,
+                        }
+                    }
+                }) : state);
+
+            }
         }
     };
 
     const stopResize = async () => {
         document.body.style.userSelect = "";
 
-        if (resizingTask) {
+        if (currentResizingTaskInfo) {
+            const { task, edge } = currentResizingTaskInfo;
             await updateTask({
                 variables: {
                     input: {
-                        id: resizingTask.id,
-                        duration: resizingTask.duration,
+                        id: task.id,
+                        duration: task.duration,
+                        ...(
+                            edge === "top" ? {
+                                start: {
+                                    date: task.start.date,
+                                    hour: task.start.hour,
+                                    minute: task.start.minute,
+                                }
+                            } : null
+                        )
                     },
                 },
             });
@@ -97,7 +141,7 @@ export const DayGrid = () => {
     };
 
     useEffect(() => {
-        if (resizingTask) {
+        if (currentResizingTaskInfo) {
             window.addEventListener("mousemove", resizeTask);
             window.addEventListener("mouseup", stopResize);
         }
@@ -105,7 +149,7 @@ export const DayGrid = () => {
             window.removeEventListener("mousemove", resizeTask);
             window.removeEventListener("mouseup", stopResize);
         };
-    }, [resizingTask]);
+    }, [currentResizingTaskInfo]);
 
     const finalizeTask = useCallback(async (draftTask: DraftTaskInstance) => {
         await createTask({
@@ -131,7 +175,7 @@ export const DayGrid = () => {
     }
 
     return (
-        <Box sx={{ height: '100%', width: '100%', overflowY: 'auto', pt: 1, cursor: resizingTask ? 'ns-resize' : '' }} >
+        <Box sx={{ height: '100%', width: '100%', overflowY: 'auto', pt: 1, cursor: currentResizingTaskInfo ? 'ns-resize' : '' }} >
             <Box id="day-grid-container" sx={{ position: 'relative' }}>
                 {daytimeHours.map((hour) => (
                     <Box key={hour} sx={{ display: 'flex', height: '60px' }}>
@@ -160,14 +204,16 @@ export const DayGrid = () => {
                 ))}
 
                 {taskInstances?.map((taskInstance, index) => {
-                    const isResizing = resizingTask?.id === taskInstance.id;
-                    const effectiveDuration = isResizing ? resizingTask?.duration : taskInstance.duration;
+                    const currentResizingTask = currentResizingTaskInfo?.task;
+                    const isResizing = currentResizingTask?.id === taskInstance.id;
+                    const effectiveDuration = isResizing ? currentResizingTask?.duration : taskInstance.duration;
+                    const effectiveStart = isResizing ? currentResizingTask?.start : taskInstance.start;
                     return (
                         <Box
                             key={index}
                             sx={{
                                 position: "absolute",
-                                top: `${(((taskInstance.start.hour - daytimeHours[0]) * 60 + taskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%`,
+                                top: `${(((effectiveStart.hour - daytimeHours[0]) * 60 + effectiveStart.minute) / (daytimeHours.length * 60)) * 100}%`,
                                 height: `${60 * effectiveDuration / 60}px`,
                                 left: HOUR_COLUMN_WIDTH + 16,
                                 width: "80%",
@@ -177,6 +223,18 @@ export const DayGrid = () => {
                                 boxSizing: "border-box",
                             }}
                         >
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: "8px",
+                                    cursor: "ns-resize",
+                                    backgroundColor: "rgba(0, 0, 0, 0.2)",
+                                }}
+                                onMouseDown={(e) => startResize(taskInstance, e, "top")}
+                            />
                             {taskInstance.task.title}
                             <Box
                                 sx={{
@@ -188,7 +246,7 @@ export const DayGrid = () => {
                                     cursor: "ns-resize",
                                     backgroundColor: "rgba(0, 0, 0, 0.2)",
                                 }}
-                                onMouseDown={(e) => startResize(taskInstance, e)}
+                                onMouseDown={(e) => startResize(taskInstance, e, "bottom")}
                             />
                         </Box>
                     );

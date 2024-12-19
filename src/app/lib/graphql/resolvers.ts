@@ -118,7 +118,7 @@ export const resolvers = {
             }
 
             let startTime = null;
-            if (start?.date && start?.hour && start?.minute) {
+            if (start?.date && start?.hour != null && start?.minute != null) {
                 startTime = new Date(start.date);
                 startTime.setHours(start.hour);
                 startTime.setMinutes(start.minute);
