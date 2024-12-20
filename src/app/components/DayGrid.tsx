@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Button, createTheme, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
+import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "./DraftTaskInstance";
 
@@ -19,8 +19,9 @@ const theme = createTheme({
 const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
 interface Task {
-    id: string;
+    id: number;
     title: string;
+    userId: number;
 }
 
 interface TaskInstance {
@@ -67,6 +68,11 @@ export const DayGrid = () => {
         },
     });
     const taskInstances = taskInstancesData?.taskInstances;
+    const {
+        data: taskData,
+        error: errorFromGetTasks,
+    } = useQuery<{ tasks: Task[] }>(GET_TASKS);
+    const tasks = taskData?.tasks;
 
     const startMovingTaskInstance = (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
         setMovingTaskInfo({ taskInstance, moveType });
@@ -196,9 +202,9 @@ export const DayGrid = () => {
             width: '100%'
             , overflowY: 'hidden',
         }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Button onClick={() => setCurrentDay(new Date(currentDay.getTime() - 24 * 60 * 60 * 1000))}>{"<"}</Button>
-                <Typography variant="h5">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
+                <Typography variant="body2">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
                 <Button onClick={() => setCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
             </Box>
             <Box sx={{
@@ -300,9 +306,10 @@ export const DayGrid = () => {
 
                     {draftTaskInstance && (
                         <DraftTaskInstance
-                            draftTask={draftTaskInstance}
-                            setDraftTask={setDraftTaskInstance}
-                            finalizeTask={finalizeTaskInstance}
+                            draftTaskInstance={draftTaskInstance}
+                            setDraftTaskInstance={setDraftTaskInstance}
+                            finalizeTaskInstance={finalizeTaskInstance}
+                            tasks={tasks}
                         />
                     )}
 

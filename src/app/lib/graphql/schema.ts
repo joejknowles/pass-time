@@ -48,7 +48,8 @@ export const typeDefs = gql`
   }
 
   input CreateTaskInput {
-    title: String!
+    title: String
+    taskId: Int
     start: StartTimeInput!
     duration: Int!
   }

@@ -1,10 +1,10 @@
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { typeDefs } from '@/app/lib/graphql/schema';
-import { resolvers } from '@/app/lib/graphql/resolvers';
+import { Context, resolvers } from '@/app/lib/graphql/resolvers';
 import { admin } from '@/lib/firebaseAdmin';
 import { NextRequest } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -13,7 +13,7 @@ const server = new ApolloServer({
   resolvers,
 });
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, {
+const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
   context: async (req) => {
     const authHeader = req.headers.get('authorization') || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;

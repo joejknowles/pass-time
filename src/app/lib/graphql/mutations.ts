@@ -76,3 +76,24 @@ export const GET_TASK_INSTANCES = gql`
     }
   }
 `;
+
+export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      user {
+        id
+        email
+      }
+      taskInstances {
+        id,
+        start {
+          date
+          hour
+          minute
+        }
+      }
+    }
+  }
+`;

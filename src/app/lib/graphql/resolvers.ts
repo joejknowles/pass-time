@@ -1,8 +1,10 @@
-import { Context } from '@apollo/client';
+import { Context as BaseContext } from '@apollo/client';
 import { PrismaClient, TaskInstance, User } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
+
+export type Context = BaseContext & { user: User | null };
 
 export const resolvers = {
     Query: {
@@ -11,8 +13,12 @@ export const resolvers = {
                 include: { tasks: true, taskInstances: true },
             });
         },
-        tasks: async () => {
+        tasks: async (_parent: any, _args: any, context: Context) => {
+            if (!context.user) {
+                throw new Error('User not authenticated');
+            }
             return await prisma.task.findMany({
+                where: { userId: context.user.id },
                 include: { user: true, taskInstances: true },
             });
         },
@@ -44,7 +50,8 @@ export const resolvers = {
             _parent: unknown,
             args: {
                 input: {
-                    title: string,
+                    title?: string,
+                    taskId?: number,
                     start: {
                         date: string,
                         hour: number,
@@ -62,19 +69,31 @@ export const resolvers = {
                 throw new Error('User not authenticated');
             }
 
-            const newTask = await prisma.task.create({
-                data: {
-                    title: args.input.title,
-                    userId: user.id,
-                    taskInstances: {
-                        create: [],
+            let task = null;
+            if (args.input.title && !args.input.taskId) {
+                const newTask = await prisma.task.create({
+                    data: {
+                        title: args.input.title,
+                        userId: user.id,
+                        taskInstances: {
+                            create: [],
+                        },
                     },
-                },
-                include: {
-                    user: true,
-                    taskInstances: true,
-                },
-            });
+                    include: {
+                        user: true,
+                        taskInstances: true,
+                    },
+                });
+            } else if (args.input.taskId) {
+                task = await prisma.task.findUnique({
+                    where: { id: args.input.taskId, userId: user.id },
+                    include: { user: true, taskInstances: true },
+                });
+            }
+
+            if (!task) {
+                throw new Error('Task not found');
+            }
 
             const startTime = new Date(args.input.start.date);
             startTime.setHours(args.input.start.hour);
@@ -83,7 +102,7 @@ export const resolvers = {
             const newTaskInstance = await prisma.taskInstance.create({
                 data: {
                     userId: user.id,
-                    taskId: newTask.id,
+                    taskId: task?.id,
                     startTime,
                     duration: args.input.duration,
                 },
@@ -98,7 +117,7 @@ export const resolvers = {
         updateTaskInstance: async (
             _parent: unknown,
             args: { input: { id: string; title?: string; duration?: number; start?: { date?: string; hour?: number; minute?: number } } },
-            context: Context & { user: User },
+            context: Context,
             _info: GraphQLResolveInfo
         ) => {
             const { user } = context;
