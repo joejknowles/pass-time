@@ -37,7 +37,7 @@ export const DraftTaskInstance = ({
     draftTaskInstance,
     setDraftTaskInstance,
     finalizeTaskInstance,
-    tasks
+    tasks,
 }: {
     draftTaskInstance: DraftTaskInstance,
     setDraftTaskInstance: (task: DraftTaskInstance) => void,
@@ -74,8 +74,10 @@ export const DraftTaskInstance = ({
             }}
         >
             <Autocomplete
+                key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
                 disablePortal
                 autoFocus
+                openOnFocus
                 options={tasks?.filter((task, index) => {
                     return tasks.findIndex((t) => t.title === task.title) === index;
                 }).map((task) => ({ label: task.title, id: task.id })) || []}
@@ -87,11 +89,13 @@ export const DraftTaskInstance = ({
                     });
                 }}
                 onChange={(_e, selection) => {
-                    setDraftTaskInstance({
+                    const newTask = {
                         ...draftTaskInstance,
                         title: selection?.label || "",
                         taskId: selection?.id,
-                    });
+                    }
+                    setDraftTaskInstance(newTask);
+                    finalizeTaskInstance(draftTaskInstance);
                 }}
                 noOptionsText="Press Enter to create a new task"
                 renderInput={(params) => <TextField
@@ -108,6 +112,7 @@ export const DraftTaskInstance = ({
                         },
                     }}
                     variant="standard"
+                    autoFocus
                 />}
             />
         </Box>

@@ -196,6 +196,19 @@ export const DayGrid = () => {
     const isToday = currentDay.toDateString() === new Date().toDateString();
     const dayOfWeek = currentDay.toLocaleDateString('en-US', { weekday: 'long' });
 
+    const updateCurrentDay = (day: Date) => {
+        setCurrentDay(day);
+        if (draftTaskInstance) {
+            setDraftTaskInstance(dti => dti ? ({
+                ...dti,
+                start: {
+                    ...dti.start,
+                    date: day.toISOString().split('T')[0]
+                }
+            }) : dti);
+        }
+    }
+
     return (
         <Box sx={{
             height: '100%',
@@ -203,9 +216,9 @@ export const DayGrid = () => {
             , overflowY: 'hidden',
         }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Button onClick={() => setCurrentDay(new Date(currentDay.getTime() - 24 * 60 * 60 * 1000))}>{"<"}</Button>
+                <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() - 24 * 60 * 60 * 1000))}>{"<"}</Button>
                 <Typography variant="body2">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
-                <Button onClick={() => setCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
+                <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
             </Box>
             <Box sx={{
                 height: '100%',
