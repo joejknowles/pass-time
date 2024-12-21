@@ -112,9 +112,7 @@ export const DraftTaskInstance = ({
                 disablePortal
                 autoFocus
                 openOnFocus
-                options={tasks?.filter((task, index) => {
-                    return tasks.findIndex((t) => t.title === task.title) === index;
-                }).map((task) => ({ label: task.title, id: task.id })) || []}
+                options={tasks?.map((task) => ({ label: task.title, id: task.id, key: task.id })) || []}
                 size="small"
                 onInputChange={(_e, value) => {
                     setDraftTaskInstance({
@@ -125,7 +123,7 @@ export const DraftTaskInstance = ({
                 slotProps={{
                     listbox: {
                         sx: {
-                            height: 300,
+                            maxHeight: 300,
                         },
                     },
                 }}

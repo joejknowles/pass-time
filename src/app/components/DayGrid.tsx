@@ -183,7 +183,7 @@ export const DayGrid = () => {
                 input: draftTaskInstance,
             },
         })
-        await refetchTaskInstances();
+        await refetchAllTaskData();
         setDraftTaskInstance(null);
     }, [draftTaskInstance])
 
