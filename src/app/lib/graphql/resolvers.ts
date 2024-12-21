@@ -71,7 +71,7 @@ export const resolvers = {
 
             let task = null;
             if (args.input.title && !args.input.taskId) {
-                const newTask = await prisma.task.create({
+                task = await prisma.task.create({
                     data: {
                         title: args.input.title,
                         userId: user.id,
