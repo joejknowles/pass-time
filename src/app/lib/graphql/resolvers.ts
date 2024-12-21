@@ -70,6 +70,11 @@ export const resolvers = {
             }
 
             let task = null;
+
+            if (!args.input.title && !args.input.taskId) {
+                throw new Error('Title or TaskId must be provided');
+            }
+
             if (args.input.title && !args.input.taskId) {
                 task = await prisma.task.create({
                     data: {
@@ -92,7 +97,7 @@ export const resolvers = {
             }
 
             if (!task) {
-                throw new Error('Task not found');
+                throw new Error('No task found or created');
             }
 
             const startTime = new Date(args.input.start.date);
