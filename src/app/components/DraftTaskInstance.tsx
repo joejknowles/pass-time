@@ -100,13 +100,10 @@ export const DraftTaskInstance = ({
                         "& .MuiInput-underline:before": {
                             borderBottom: "none",
                         },
-                        "& .MuiInput-underline:after": {
-                            borderBottom: "none",
-                        },
                         "& .MuiInput-underline:hover:before": {
-                            borderBottom: "none",
+                            borderBottom: "none !important",
                         },
-                        "& .MuiInput-underline:hover:after": {
+                        "& .MuiInput-underline:after": {
                             borderBottom: "none",
                         },
                     }}
