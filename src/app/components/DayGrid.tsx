@@ -248,7 +248,9 @@ export const DayGrid = () => {
                                     <Box
                                         key={quarter}
                                         sx={{ flex: 1 }}
-                                        onClick={() => addDraftTaskInstance({ startHour: hour, startMinute: quarter })}
+                                        onClick={() => {
+                                            addDraftTaskInstance({ startHour: hour, startMinute: quarter })
+                                        }}
                                     />
                                 ))}
                             </Box>

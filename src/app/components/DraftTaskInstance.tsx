@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { Autocomplete, Box, TextField } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { css } from '@emotion/react';
 import { Task } from "@prisma/client";
 
@@ -40,10 +40,12 @@ export const DraftTaskInstance = ({
     tasks,
 }: {
     draftTaskInstance: DraftTaskInstance,
-    setDraftTaskInstance: (task: DraftTaskInstance) => void,
+    setDraftTaskInstance: (task: DraftTaskInstance | null) => void,
     finalizeTaskInstance: (task: DraftTaskInstance) => void,
     tasks?: Task[],
 }) => {
+    const thisRootRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
@@ -58,8 +60,34 @@ export const DraftTaskInstance = ({
         };
     }, [draftTaskInstance]);
 
-    return (
 
+
+    useEffect(() => {
+        const cancelDraftsOnclickAway = (event: MouseEvent) => {
+            const isClickInside = thisRootRef.current?.contains(event.target as Node);
+            if (!isClickInside && draftTaskInstance && !draftTaskInstance.title) {
+                setDraftTaskInstance(null);
+            }
+        };
+        const cancelDraftsOnEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setDraftTaskInstance(null);
+            }
+        };
+        setTimeout(() => {
+            window.addEventListener("click", cancelDraftsOnclickAway);
+            window.addEventListener("keydown", cancelDraftsOnEscape);
+        }, 100);
+
+        return () => {
+            setTimeout(() => {
+                window.removeEventListener("click", cancelDraftsOnclickAway);
+                window.removeEventListener("keydown", cancelDraftsOnEscape);
+            }, 100);
+        }
+    }, []);
+
+    return (
         <Box
             sx={{
                 position: "absolute",
@@ -72,6 +100,7 @@ export const DraftTaskInstance = ({
                 padding: "0 4px",
                 boxSizing: "border-box",
             }}
+            ref={thisRootRef}
         >
             <Autocomplete
                 key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
