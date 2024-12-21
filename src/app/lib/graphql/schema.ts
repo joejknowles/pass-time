@@ -64,6 +64,7 @@ export const typeDefs = gql`
   type Mutation {
     createUser(email: String!, firebaseId: String!): User!
     createTaskInstance(input: CreateTaskInput!): TaskInstance!
+    deleteTaskInstance(id: ID!): Boolean
     updateTaskInstance(input: UpdateTaskInstanceInput!): TaskInstance!
   }
 `;

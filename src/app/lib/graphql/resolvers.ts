@@ -170,6 +170,46 @@ export const resolvers = {
 
             return taskInstance;
         },
+        deleteTaskInstance: async (_: any, args: { id: string }, context: Context) => {
+            const { user } = context;
+            const taskInstanceId = parseInt(args.id, 10);
+
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            if (isNaN(taskInstanceId)) {
+                throw new Error('Invalid TaskInstance ID');
+            }
+
+            const taskInstance = await prisma.taskInstance.findUnique({
+                where: { id: taskInstanceId, userId: user.id },
+                include: {
+                    user: true, task: {
+                        include: { taskInstances: true },
+                    }
+                },
+            });
+
+            if (!taskInstance) {
+                throw new Error('Task instance not found');
+            }
+
+            const taskId = taskInstance.taskId;
+            const wasOnlyInstanceOfTask = taskInstance.task.taskInstances.length === 1;
+
+            await prisma.taskInstance.delete({
+                where: { id: taskInstanceId },
+            });
+
+            if (wasOnlyInstanceOfTask) {
+                await prisma.task.delete({
+                    where: { id: taskId },
+                });
+            }
+
+            return true;
+        },
     },
     TaskInstance: {
         start: (parent: TaskInstance) => {

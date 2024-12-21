@@ -55,6 +55,12 @@ export const UPDATE_TASK_INSTANCE = gql`
   }
 `;
 
+export const DELETE_TASK_INSTANCE = gql`
+  mutation DeleteTaskInstance($id: ID!) {
+    deleteTaskInstance(id: $id)
+  }
+`;
+
 export const GET_TASK_INSTANCES = gql`
   query GetTaskInstances($input: GetTaskInstancesInput!) {
     taskInstances(input: $input) {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "./DraftTaskInstance";
+import { TaskInstanceDetails } from "./TaskInstanceDetails";
 
 const theme = createTheme({
     palette: {
@@ -53,6 +54,7 @@ export const DayGrid = () => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
     const [movingTaskInfo, setMovingTaskInfo] = useState<{ taskInstance: TaskInstance, moveType: MoveType } | null>(null);
+    const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
 
     const [createTaskInstance, { error: errorFromCreatingTaskInstance }] = useMutation(CREATE_TASK_INSTANCE);
     const [updateTaskInstance, { error: errorFromUpdatingTaskInstance }] = useMutation(UPDATE_TASK_INSTANCE);
@@ -71,8 +73,13 @@ export const DayGrid = () => {
     const {
         data: taskData,
         error: errorFromGetTasks,
+        refetch: refetchTasks
     } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const tasks = taskData?.tasks;
+
+    const refetchAllTaskData = useCallback(async () => {
+        await Promise.all([refetchTaskInstances(), refetchTasks()]);
+    }, [refetchTaskInstances, refetchTasks]);
 
     const startMovingTaskInstance = (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
         setMovingTaskInfo({ taskInstance, moveType });
@@ -212,14 +219,40 @@ export const DayGrid = () => {
     return (
         <Box sx={{
             height: '100%',
-            width: '100%'
-            , overflowY: 'hidden',
-        }}>
+            width: '100%',
+            overflowY: 'hidden',
+            position: 'relative',
+        }}
+            id="day-grid-root"
+        >
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() - 24 * 60 * 60 * 1000))}>{"<"}</Button>
                 <Typography variant="body2">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
                 <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
             </Box>
+            {
+                openTaskInstanceId && (
+                    <Box sx={{
+                        position: 'fixed',
+                        left: '10px',
+                        top: `${document.querySelector('#day-grid-root')?.getBoundingClientRect().top}px`,
+                        height: `${document.querySelector('#day-grid-root')?.getBoundingClientRect().height}px`,
+                        width: `calc(${document.querySelector('#day-grid-root')?.getBoundingClientRect().left}px - 10px)`,
+                        backgroundColor: 'white',
+                        border: `1px solid ${theme.palette.grey[300]}`,
+                        borderRadius: '4px',
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                        zIndex: 1000,
+                        overflowY: 'auto',
+                    }}>
+                        <TaskInstanceDetails
+                            taskInstance={taskInstances?.find(ti => ti.id === openTaskInstanceId) as TaskInstance}
+                            onClose={() => setOpenTaskInstanceId(null)}
+                            refetchAllTaskData={refetchAllTaskData}
+                        />
+                    </Box>
+                )
+            }
             <Box sx={{
                 height: '100%',
                 overflowY: 'auto',
@@ -274,6 +307,25 @@ export const DayGrid = () => {
                                     borderRadius: "4px",
                                     padding: "4px",
                                     boxSizing: "border-box",
+                                    cursor: "pointer"
+                                }}
+                                onClick={() => {
+                                    if (movingTaskInfo) {
+                                        const movedVersion = movingTaskInfo.taskInstance
+                                        const hasMoved = movedVersion.id === taskInstance.id &&
+                                            (
+                                                movedVersion.start.hour !== taskInstance.start.hour ||
+                                                movedVersion.start.minute !== taskInstance.start.minute
+                                            )
+                                        if (hasMoved) {
+                                            return
+                                        }
+                                    }
+                                    if (openTaskInstanceId === taskInstance.id) {
+                                        setOpenTaskInstanceId(null)
+                                    } else {
+                                        setOpenTaskInstanceId(taskInstance.id)
+                                    }
                                 }}
                             >
                                 <Box

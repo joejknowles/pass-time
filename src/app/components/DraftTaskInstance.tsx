@@ -122,6 +122,13 @@ export const DraftTaskInstance = ({
                         title: value,
                     });
                 }}
+                slotProps={{
+                    listbox: {
+                        sx: {
+                            height: 300,
+                        },
+                    },
+                }}
                 onChange={(_e, selection) => {
                     isSubmittingWithExistingTask.current = true;
                     const newTask = {
