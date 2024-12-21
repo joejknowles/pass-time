@@ -45,11 +45,16 @@ export const DraftTaskInstance = ({
     tasks?: Task[],
 }) => {
     const thisRootRef = useRef<HTMLDivElement>(null);
+    const isSubmittingWithExistingTask = useRef(false);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
-                finalizeTaskInstance(draftTaskInstance);
+                setTimeout(() => {
+                    if (draftTaskInstance && draftTaskInstance.title && !isSubmittingWithExistingTask.current) {
+                        finalizeTaskInstance(draftTaskInstance);
+                    }
+                }, 100);
             }
         };
 
@@ -118,13 +123,14 @@ export const DraftTaskInstance = ({
                     });
                 }}
                 onChange={(_e, selection) => {
+                    isSubmittingWithExistingTask.current = true;
                     const newTask = {
                         ...draftTaskInstance,
                         title: selection?.label || "",
                         taskId: selection?.id,
                     }
                     setDraftTaskInstance(newTask);
-                    finalizeTaskInstance(draftTaskInstance);
+                    finalizeTaskInstance(newTask);
                 }}
                 noOptionsText="Press Enter to create a new task"
                 renderInput={(params) => <TextField
