@@ -53,7 +53,10 @@ type MoveType = "start" | "end" | "both";
 export const DayGrid = () => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
-    const [movingTaskInfo, setMovingTaskInfo] = useState<{ taskInstance: TaskInstance, moveType: MoveType } | null>(null);
+    const [movingTaskInfo, setMovingTaskInfo] = useState<{
+        taskInstance: TaskInstance, moveType: MoveType, cursorMinutesFromStart?: number
+    } | null
+    >(null);
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
 
     const [createTaskInstance, { error: errorFromCreatingTaskInstance }] = useMutation(CREATE_TASK_INSTANCE);
@@ -92,20 +95,31 @@ export const DayGrid = () => {
             const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
             const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
             const yPosition = event.clientY - gridOffsetTop;
-            const minutesFromDaytimeStart = Math.floor(((yPosition + 3) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
+            const THRESHOLD_OFFSET = 3;
+            const cursorMinutesFromDaytimeStart = Math.floor(((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
             const movingTaskInstance = movingTaskInfo.taskInstance;
 
+
+            const taskInstanceStart = movingTaskInstance.start;
+            const taskInstanceMinutesFromDaytimeStart = taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60;
             if (movingTaskInfo?.moveType === "end") {
 
-                const taskInstanceStart = movingTaskInstance.start;
-                const newDuration = minutesFromDaytimeStart - (taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60);
+                const newDuration = cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
 
                 setMovingTaskInfo({
                     moveType: movingTaskInfo.moveType,
                     taskInstance: { ...movingTaskInstance, duration: Math.max(newDuration, 15) }
                 });
             } else if (movingTaskInfo?.moveType === "start" || movingTaskInfo?.moveType === "both") {
-                const minutesFromDayStart = daytimeHours[0] * 60 + minutesFromDaytimeStart;
+                let startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart;
+                if (movingTaskInfo.moveType === "both") {
+                    if (!movingTaskInfo.cursorMinutesFromStart) {
+                        movingTaskInfo.cursorMinutesFromStart = cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
+                        setMovingTaskInfo({ ...movingTaskInfo });
+                    }
+                    startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart - movingTaskInfo.cursorMinutesFromStart;
+                }
+                const minutesFromDayStart = daytimeHours[0] * 60 + startMinutesFromDaytimeStart;
                 const newStartHour = Math.floor(minutesFromDayStart / 60);
                 const newStartMinute = minutesFromDayStart % 60;
 
@@ -327,6 +341,7 @@ export const DayGrid = () => {
                                         setOpenTaskInstanceId(taskInstance.id)
                                     }
                                 }}
+                                onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
                             >
                                 <Box
                                     sx={{
@@ -343,17 +358,6 @@ export const DayGrid = () => {
                                     }}
                                     onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
                                 >
-                                    <Box
-                                        sx={{
-                                            cursor: movingTaskInfo?.moveType === "both" ? "grabbing" :
-                                                movingTaskInfo ? null : "grab",
-                                            padding: '0 4px',
-                                            fontSize: '1.2rem',
-                                            color: 'rgba(256, 256, 256, 0.8)',
-                                        }}
-                                        onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}>
-                                        {"⋯"}
-                                    </Box>
                                 </Box>
                                 {taskInstance.task.title}
                                 <Box
