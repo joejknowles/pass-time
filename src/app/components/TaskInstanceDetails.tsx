@@ -23,16 +23,17 @@ interface TaskInstanceDetailsProps {
     taskInstance: TaskInstance;
     onClose: () => void;
     refetchAllTaskData: () => void;
+    isMovingATask: boolean;
 }
 
-export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData }: TaskInstanceDetailsProps) => {
+export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData, isMovingATask }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
     const [deleteTaskInstance, { error: errorFromDeletingTaskInstance }] = useMutation(DELETE_TASK_INSTANCE);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
+            if (!isMovingATask && detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
@@ -50,7 +51,7 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData 
             document.removeEventListener("click", handleClickOutside);
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [onClose]);
+    }, [onClose, isMovingATask]);
 
     if (!taskInstance) {
         return null;

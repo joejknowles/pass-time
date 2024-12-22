@@ -263,6 +263,7 @@ export const DayGrid = () => {
                             taskInstance={taskInstances?.find(ti => ti.id === openTaskInstanceId) as TaskInstance}
                             onClose={() => setOpenTaskInstanceId(null)}
                             refetchAllTaskData={refetchAllTaskData}
+                            isMovingATask={!!movingTaskInfo}
                         />
                     </Box>
                 )
