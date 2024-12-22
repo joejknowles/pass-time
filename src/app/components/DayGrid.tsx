@@ -97,8 +97,8 @@ export const DayGrid = () => {
             const yPosition = event.clientY - gridOffsetTop;
             const THRESHOLD_OFFSET = 3;
             const cursorMinutesFromDaytimeStart = Math.floor(((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
+            const preciseCursorMinutesFromDaytimeStart = ((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60;
             const movingTaskInstance = movingTaskInfo.taskInstance;
-
 
             const taskInstanceStart = movingTaskInstance.start;
             const taskInstanceMinutesFromDaytimeStart = taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60;
@@ -114,10 +114,10 @@ export const DayGrid = () => {
                 let startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart;
                 if (movingTaskInfo.moveType === "both") {
                     if (!movingTaskInfo.cursorMinutesFromStart) {
-                        movingTaskInfo.cursorMinutesFromStart = cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
+                        movingTaskInfo.cursorMinutesFromStart = preciseCursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
                         setMovingTaskInfo({ ...movingTaskInfo });
                     }
-                    startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart - movingTaskInfo.cursorMinutesFromStart;
+                    startMinutesFromDaytimeStart = Math.floor((preciseCursorMinutesFromDaytimeStart - movingTaskInfo.cursorMinutesFromStart) / 15) * 15;
                 }
                 const minutesFromDayStart = daytimeHours[0] * 60 + startMinutesFromDaytimeStart;
                 const newStartHour = Math.floor(minutesFromDayStart / 60);
@@ -272,7 +272,7 @@ export const DayGrid = () => {
                 overflowY: 'auto',
                 pt: 1,
                 cursor: movingTaskInfo ?
-                    movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-move'
+                    movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
                     : ''
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
@@ -321,7 +321,9 @@ export const DayGrid = () => {
                                     borderRadius: "4px",
                                     padding: "4px",
                                     boxSizing: "border-box",
-                                    cursor: "pointer"
+                                    cursor: movingTaskInfo ?
+                                        movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
+                                        : 'pointer'
                                 }}
                                 onClick={() => {
                                     if (movingTaskInfo) {
@@ -351,7 +353,8 @@ export const DayGrid = () => {
                                         left: 0,
                                         right: 0,
                                         height: "8px",
-                                        cursor: "ns-resize",
+                                        cursor:
+                                            movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
                                         display: 'flex',
                                         justifyContent: 'center',
                                         alignItems: 'center',
@@ -368,7 +371,8 @@ export const DayGrid = () => {
                                         left: 0,
                                         right: 0,
                                         height: "8px",
-                                        cursor: "ns-resize",
+                                        cursor:
+                                            movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
                                     }}
                                     onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "end")}
                                 />
