@@ -364,9 +364,10 @@ export const DayGrid = () => {
                                     onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
                                 >
                                 </Box>
-                                <Typography variant="body2" sx={{
+                                <Typography variant="body2" color="primary" sx={{
                                     fontSize: '0.8rem',
                                     lineHeight: '1',
+                                    color: theme.palette.primary.contrastText,
                                 }}>{taskInstance.task.title}</Typography>
                                 <Box
                                     sx={{
