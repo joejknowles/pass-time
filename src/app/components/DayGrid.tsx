@@ -54,7 +54,10 @@ export const DayGrid = () => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
     const [movingTaskInfo, setMovingTaskInfo] = useState<{
-        taskInstance: TaskInstance, moveType: MoveType, cursorMinutesFromStart?: number
+        taskInstance: TaskInstance,
+        moveType: MoveType,
+        cursorMinutesFromStart?: number,
+        hasChanged?: boolean,
     } | null
     >(null);
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
@@ -104,18 +107,22 @@ export const DayGrid = () => {
             const taskInstanceMinutesFromDaytimeStart = taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60;
             if (movingTaskInfo?.moveType === "end") {
 
-                const newDuration = cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
+                const newDuration = Math.max(cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart, 15);
 
                 setMovingTaskInfo({
                     moveType: movingTaskInfo.moveType,
-                    taskInstance: { ...movingTaskInstance, duration: Math.max(newDuration, 15) }
+                    taskInstance: { ...movingTaskInstance, duration: newDuration },
+                    hasChanged: movingTaskInfo.hasChanged ||
+                        newDuration !== movingTaskInstance.duration,
                 });
             } else if (movingTaskInfo?.moveType === "start" || movingTaskInfo?.moveType === "both") {
                 let startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart;
                 if (movingTaskInfo.moveType === "both") {
                     if (!movingTaskInfo.cursorMinutesFromStart) {
                         movingTaskInfo.cursorMinutesFromStart = preciseCursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
-                        setMovingTaskInfo({ ...movingTaskInfo });
+                        setMovingTaskInfo({
+                            ...movingTaskInfo,
+                        });
                     }
                     startMinutesFromDaytimeStart = Math.floor((preciseCursorMinutesFromDaytimeStart - movingTaskInfo.cursorMinutesFromStart) / 15) * 15;
                 }
@@ -124,25 +131,31 @@ export const DayGrid = () => {
                 const newStartMinute = minutesFromDayStart % 60;
 
                 const originalTaskInstance = taskInstances?.find(taskInstance => taskInstance.id === movingTaskInstance.id) as TaskInstance;
-                const updatedDuration =
+                const updatedDuration = Math.max(
                     movingTaskInfo?.moveType === "both" ?
                         originalTaskInstance.duration :
                         originalTaskInstance.start.hour * 60 +
                         originalTaskInstance.start.minute +
                         originalTaskInstance.duration -
-                        minutesFromDayStart;
+                        minutesFromDayStart,
+                    15);
 
                 setMovingTaskInfo(state => state ? ({
                     ...state,
                     taskInstance: {
                         ...state.taskInstance,
-                        duration: Math.max(updatedDuration, 15),
+                        duration: updatedDuration,
                         start: {
                             ...state.taskInstance.start,
                             hour: newStartHour,
                             minute: newStartMinute,
                         }
-                    }
+                    },
+                    hasChanged: movingTaskInfo.hasChanged ||
+                        (updatedDuration !== movingTaskInstance.duration ||
+                            newStartHour !== movingTaskInstance.start.hour ||
+                            newStartMinute !== movingTaskInstance.start.minute
+                        )
                 }) : state);
 
             }
@@ -260,6 +273,7 @@ export const DayGrid = () => {
                         overflowY: 'auto',
                     }}>
                         <TaskInstanceDetails
+                            key={openTaskInstanceId}
                             taskInstance={taskInstances?.find(ti => ti.id === openTaskInstanceId) as TaskInstance}
                             onClose={() => setOpenTaskInstanceId(null)}
                             refetchAllTaskData={refetchAllTaskData}
@@ -327,17 +341,8 @@ export const DayGrid = () => {
                                         : 'pointer'
                                 }}
                                 onClick={() => {
-                                    if (movingTaskInfo) {
-                                        const movedVersion = movingTaskInfo.taskInstance
-                                        const hasMoved = movedVersion.id === taskInstance.id &&
-                                            (
-                                                movedVersion.start.hour !== taskInstance.start.hour ||
-                                                movedVersion.start.minute !== taskInstance.start.minute ||
-                                                movedVersion.duration !== effectiveDuration
-                                            )
-                                        if (hasMoved) {
-                                            return
-                                        }
+                                    if (movingTaskInfo?.hasChanged) {
+                                        return;
                                     }
                                     if (openTaskInstanceId === taskInstance.id) {
                                         setOpenTaskInstanceId(null)
