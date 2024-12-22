@@ -329,7 +329,8 @@ export const DayGrid = () => {
                                         const hasMoved = movedVersion.id === taskInstance.id &&
                                             (
                                                 movedVersion.start.hour !== taskInstance.start.hour ||
-                                                movedVersion.start.minute !== taskInstance.start.minute
+                                                movedVersion.start.minute !== taskInstance.start.minute ||
+                                                movedVersion.duration !== taskInstance.duration
                                             )
                                         if (hasMoved) {
                                             return
