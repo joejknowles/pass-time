@@ -319,7 +319,7 @@ export const DayGrid = () => {
                                     width: "80%",
                                     backgroundColor: "rgba(63, 81, 181, 0.5)",
                                     borderRadius: "4px",
-                                    padding: "4px",
+                                    padding: effectiveDuration === 15 ? "1px 4px" : "4px",
                                     boxSizing: "border-box",
                                     cursor: movingTaskInfo ?
                                         movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
@@ -332,7 +332,7 @@ export const DayGrid = () => {
                                             (
                                                 movedVersion.start.hour !== taskInstance.start.hour ||
                                                 movedVersion.start.minute !== taskInstance.start.minute ||
-                                                movedVersion.duration !== taskInstance.duration
+                                                movedVersion.duration !== effectiveDuration
                                             )
                                         if (hasMoved) {
                                             return
@@ -352,7 +352,7 @@ export const DayGrid = () => {
                                         top: 0,
                                         left: 0,
                                         right: 0,
-                                        height: "8px",
+                                        height: effectiveDuration === 15 ? "3px" : "5px",
                                         cursor:
                                             movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
                                         display: 'flex',
@@ -363,14 +363,17 @@ export const DayGrid = () => {
                                     onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
                                 >
                                 </Box>
-                                {taskInstance.task.title}
+                                <Typography variant="body2" sx={{
+                                    fontSize: '0.8rem',
+                                    lineHeight: '1',
+                                }}>{taskInstance.task.title}</Typography>
                                 <Box
                                     sx={{
                                         position: "absolute",
                                         bottom: 0,
                                         left: 0,
                                         right: 0,
-                                        height: "8px",
+                                        height: effectiveDuration === 15 ? "3px" : "5px",
                                         cursor:
                                             movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
                                     }}
