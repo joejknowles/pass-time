@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { Autocomplete, Box, TextField } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Task } from "@prisma/client";
 
 interface DraftTaskInstance {
@@ -30,6 +30,7 @@ export const DraftTaskInstance = ({
 }) => {
     const thisRootRef = useRef<HTMLDivElement>(null);
     const isSubmittingWithOnChangeCallback = useRef(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     useEffect(() => {
         const cancelDraftsOnclickAway = (event: MouseEvent) => {
@@ -73,17 +74,24 @@ export const DraftTaskInstance = ({
         >
             <Autocomplete
                 key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
+                value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
                 disablePortal
                 autoFocus
                 openOnFocus
                 options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
                 size="small"
-                onInputChange={(_e, value) => {
-                    setDraftTaskInstance({
-                        ...draftTaskInstance,
-                        title: value,
-                    });
+                onInputChange={(_e, value, reason) => {
+                    if (reason === "input") {
+                        setDraftTaskInstance({
+                            ...draftTaskInstance,
+                            title: value,
+                        });
+                        if (selectedTask && selectedTask.title !== value) {
+                            setSelectedTask(null);
+                        }
+                    }
                 }}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 slotProps={{
                     listbox: {
                         sx: {
@@ -91,20 +99,27 @@ export const DraftTaskInstance = ({
                         },
                     },
                 }}
+                inputValue={draftTaskInstance.title}
                 onChange={(_e, selection) => {
-                    isSubmittingWithOnChangeCallback.current = true;
-                    const newTask = {
-                        ...draftTaskInstance,
-                        title: selection?.label || "",
-                        taskId: selection?.id,
-                    };
-                    setDraftTaskInstance(newTask);
-                    finalizeTaskInstance(newTask);
+                    if (selection) {
+                        setSelectedTask(tasks?.find((task) => task.id === selection?.id) || null);
+
+                        const newTask = {
+                            ...draftTaskInstance,
+                            title: selection?.label || draftTaskInstance.title,
+                            taskId: selection?.id,
+                        };
+                        setDraftTaskInstance(newTask);
+
+                        isSubmittingWithOnChangeCallback.current = true;
+                        finalizeTaskInstance(newTask);
+                    }
                 }}
                 noOptionsText="Press Enter to create a new task"
                 renderInput={(params) => (
                     <TextField
                         {...params}
+                        value={draftTaskInstance.title}
                         sx={{
                             "& .MuiInput-underline:before": {
                                 borderBottom: "none",
@@ -142,6 +157,19 @@ export const DraftTaskInstance = ({
                                     finalizeTaskInstance(newTask);
                                 }, 100);
                                 event.preventDefault();
+                            } else if (event.key === "Tab") {
+                                const firstMatchingTask = tasks?.find((task) =>
+                                    task.title.toLowerCase().includes(draftTaskInstance.title.toLowerCase())
+                                );
+                                if (firstMatchingTask && firstMatchingTask.title !== draftTaskInstance.title) {
+                                    setDraftTaskInstance({
+                                        ...draftTaskInstance,
+                                        title: firstMatchingTask.title,
+                                        taskId: firstMatchingTask.id,
+                                    });
+                                    setSelectedTask(firstMatchingTask);
+                                    event.preventDefault();
+                                }
                             }
                         }}
                     />
