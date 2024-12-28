@@ -1,10 +1,10 @@
+import { NextRequest } from 'next/server';
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { typeDefs } from '@/app/lib/graphql/schema';
 import { Context, resolvers } from '@/app/lib/graphql/resolvers';
 import { admin } from '@/lib/firebaseAdmin';
-import { NextRequest } from 'next/server';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ const server = new ApolloServer({
 });
 
 const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
-  context: async (req) => {
+  context: async (req: NextRequest) => {
     const authHeader = req.headers.get('authorization') || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -24,9 +24,9 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
-
-      const user = await prisma.user.findUnique({ where: { firebaseId: decodedToken.uid } });
-
+      const user = await prisma.user.findUnique({
+        where: { firebaseId: decodedToken.uid },
+      });
       return { user };
     } catch (error) {
       console.error('Token verification failed:', error);
@@ -35,4 +35,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
   },
 });
 
-export { handler as GET, handler as POST };
+export async function GET(req: NextRequest, _context: any) {
+  return handler(req);
+}
+
+export async function POST(req: NextRequest, _context: any) {
+  return handler(req);
+}

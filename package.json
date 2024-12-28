@@ -9,7 +9,8 @@
     "lint": "next lint",
     "migrate": "npx prisma migrate dev --name",
     "generate-prisma-client": "npx prisma generate",
-    "gc": "yarn generate-prisma-client"
+    "gc": "yarn generate-prisma-client",
+    "ts-check": "tsc --noEmit"
   },
   "dependencies": {
     "@apollo/client": "^3.12.3",
