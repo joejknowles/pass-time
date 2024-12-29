@@ -313,7 +313,7 @@ export const DayGrid = () => {
                                     top: `CALC(1px + ${(((effectiveStart.hour - daytimeHours[0]) * 60 + effectiveStart.minute) / (daytimeHours.length * 60)) * 100}%)`,
                                     height: `${60 * effectiveDuration / 60 - 1}px`,
                                     left: HOUR_COLUMN_WIDTH + 16,
-                                    width: "80%",
+                                    right: 16,
                                     backgroundColor: "rgba(63, 81, 181, 0.5)",
                                     borderRadius: "4px",
                                     padding: effectiveDuration === 15 ? "1px 4px" : "4px",
