@@ -4,44 +4,44 @@ import { Tasks } from "./Tasks";
 import { withSignedInLayout } from "./SignedInLayout";
 
 const Dashboard = () => {
-    const isSmallScreen = useMediaQuery("(max-width:710px)");
+    const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
     return (
         <Container sx={{ mt: 4 }}>
-            {isSmallScreen ? (
-                <Box>
-                    <Box sx={{ p: 2 }}>
-                        <DayGrid />
-                    </Box>
-                </Box>
-            ) : (
+            <Box
+                sx={
+                    isNarrowScreen
+                        ? undefined
+                        : {
+                              display: "flex",
+                              height: "80vh",
+                              justifyContent: "center",
+                          }
+                }
+            >
+                {!isNarrowScreen && (
+                    <>
+                        <Box sx={{ width: "250px", p: 2 }}>
+                            <Tasks />
+                        </Box>
+                        <Box
+                            sx={{
+                                width: "1px",
+                                bgcolor: "grey.200",
+                            }}
+                        />
+                    </>
+                )}
                 <Box
                     sx={{
-                        display: "flex",
-                        height: "80vh",
-                        justifyContent: "center",
+                        flexGrow: 1,
+                        p: 2,
+                        maxWidth: isNarrowScreen ? undefined : "400px",
                     }}
                 >
-                    <Box sx={{ width: "250px", p: 2 }}>
-                        <Tasks />
-                    </Box>
-                    <Box
-                        sx={{
-                            width: "1px",
-                            bgcolor: "grey.200",
-                        }}
-                    />
-                    <Box
-                        sx={{
-                            flexGrow: 1,
-                            p: 2,
-                            maxWidth: "400px",
-                        }}
-                    >
-                        <DayGrid />
-                    </Box>
+                    <DayGrid />
                 </Box>
-            )}
+            </Box>
         </Container>
     );
 };

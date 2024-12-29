@@ -1,6 +1,6 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
-import { useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 
 interface Task {
     id: number;
@@ -37,10 +37,57 @@ const TaskInstanceModal = ({
 
     const isOpen = !!openTaskInstanceId;
 
-    useEffect(() => {
-        document.body.style.overflow = isOpen ? "hidden" : "auto";
+    const [modalStyles, setModalStyles] = useState({
+        top: "0px",
+        left: "10px",
+        height: "100%",
+        width: "100%",
+    });
+
+    const calculateStyles = () => {
+        if (isNarrowScreen) {
+            setModalStyles({
+                top: "10vh",
+                left: "10px",
+                height: "80vh",
+                width: "calc(100% - 20px)",
+            });
+        } else {
+            const dayGridRoot = document.querySelector("#day-grid-root");
+            if (dayGridRoot) {
+                const rect = dayGridRoot.getBoundingClientRect();
+                setModalStyles({
+                    top: `${rect.top}px`,
+                    left: "10px",
+                    height: `${rect.height}px`,
+                    width: `calc(${rect.left}px - 20px)`,
+                });
+            }
+        }
+    };
+
+    useLayoutEffect(() => {
+        calculateStyles();
+
+        const handleResize = () => calculateStyles();
+        window.addEventListener("resize", handleResize);
+
         return () => {
-            document.body.style.overflow = "auto";
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [isNarrowScreen]);
+
+    useLayoutEffect(() => {
+        if (isOpen) {
+            document.documentElement.style.overflow = "hidden";
+            document.body.style.overflow = "hidden";
+        } else {
+            document.documentElement.style.overflow = "";
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.documentElement.style.overflow = "";
+            document.body.style.overflow = "";
         };
     }, [isOpen]);
 
@@ -50,16 +97,10 @@ const TaskInstanceModal = ({
         <Box
             sx={{
                 position: "fixed",
-                top: isNarrowScreen
-                    ? "10vh"
-                    : `${document.querySelector("#day-grid-root")?.getBoundingClientRect().top}px`,
-                left: "10px",
-                height: isNarrowScreen
-                    ? "80vh"
-                    : `${document.querySelector("#day-grid-root")?.getBoundingClientRect().height}px`,
-                width: isNarrowScreen
-                    ? "calc(100% - 20px)"
-                    : `calc(${document.querySelector("#day-grid-root")?.getBoundingClientRect().left}px - 20px)`,
+                top: modalStyles.top,
+                left: modalStyles.left,
+                height: modalStyles.height,
+                width: modalStyles.width,
                 backgroundColor: "white",
                 border: `1px solid ${theme.palette.grey[300]}`,
                 borderRadius: isNarrowScreen ? "8px" : "4px",
