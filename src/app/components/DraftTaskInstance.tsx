@@ -64,7 +64,7 @@ export const DraftTaskInstance = ({
                 top: `${(((draftTaskInstance.start.hour - daytimeHours[0]) * 60 + draftTaskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%`,
                 height: `${((draftTaskInstance.duration) / (daytimeHours.length * 60)) * 100}%`,
                 left: HOUR_COLUMN_WIDTH + 16,
-                width: "80%",
+                right: 16,
                 backgroundColor: "rgba(63, 81, 181, 0.7)",
                 borderRadius: "4px",
                 padding: "0 4px",

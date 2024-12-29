@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Button, createTheme, Typography } from "@mui/material";
+import { Box, Button, createTheme, Typography, useMediaQuery } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
@@ -61,6 +61,7 @@ export const DayGrid = () => {
     } | null
     >(null);
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
+    const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
     const [createTaskInstance, { error: errorFromCreatingTaskInstance }] = useMutation(CREATE_TASK_INSTANCE);
     const [updateTaskInstance, { error: errorFromUpdatingTaskInstance }] = useMutation(UPDATE_TASK_INSTANCE);
@@ -243,6 +244,8 @@ export const DayGrid = () => {
         }
     }
 
+    const hourBlockHeight = isNarrowScreen ? 120 : 60;
+
     return (
         <Box sx={{
             height: '100%',
@@ -274,7 +277,7 @@ export const DayGrid = () => {
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
                     {daytimeHours.map((hour) => (
-                        <Box key={hour} sx={{ display: 'flex', height: '60px' }}>
+                        <Box key={hour} sx={{ display: 'flex', height: hourBlockHeight }}>
                             <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-8px', textAlign: 'right', mr: 1 }}>
                                 {hour}:00
                             </Box>
@@ -311,7 +314,7 @@ export const DayGrid = () => {
                                 sx={{
                                     position: "absolute",
                                     top: `CALC(1px + ${(((effectiveStart.hour - daytimeHours[0]) * 60 + effectiveStart.minute) / (daytimeHours.length * 60)) * 100}%)`,
-                                    height: `${60 * effectiveDuration / 60 - 1}px`,
+                                    height: `${hourBlockHeight * effectiveDuration / 60 - 1}px`,
                                     left: HOUR_COLUMN_WIDTH + 16,
                                     right: 16,
                                     backgroundColor: "rgba(63, 81, 181, 0.5)",
