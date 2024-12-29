@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "./DraftTaskInstance";
-import { TaskInstanceDetails } from "./TaskInstanceDetails";
+import TaskInstanceModal from "./TaskInstanceModal";
 
 const theme = createTheme({
     palette: {
@@ -257,31 +257,13 @@ export const DayGrid = () => {
                 <Typography variant="body2">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
                 <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
             </Box>
-            {
-                openTaskInstanceId && (
-                    <Box sx={{
-                        position: 'fixed',
-                        left: '10px',
-                        top: `${document.querySelector('#day-grid-root')?.getBoundingClientRect().top}px`,
-                        height: `${document.querySelector('#day-grid-root')?.getBoundingClientRect().height}px`,
-                        width: `calc(${document.querySelector('#day-grid-root')?.getBoundingClientRect().left}px - 10px)`,
-                        backgroundColor: 'white',
-                        border: `1px solid ${theme.palette.grey[300]}`,
-                        borderRadius: '4px',
-                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                        zIndex: 1000,
-                        overflowY: 'auto',
-                    }}>
-                        <TaskInstanceDetails
-                            key={openTaskInstanceId}
-                            taskInstance={taskInstances?.find(ti => ti.id === openTaskInstanceId) as TaskInstance}
-                            onClose={() => setOpenTaskInstanceId(null)}
-                            refetchAllTaskData={refetchAllTaskData}
-                            isMovingATask={!!movingTaskInfo}
-                        />
-                    </Box>
-                )
-            }
+            <TaskInstanceModal
+                openTaskInstanceId={openTaskInstanceId}
+                taskInstances={taskInstances}
+                setOpenTaskInstanceId={setOpenTaskInstanceId}
+                refetchAllTaskData={refetchAllTaskData}
+                movingTaskInfo={movingTaskInfo}
+            />
             <Box sx={{
                 height: '100%',
                 overflowY: 'auto',
