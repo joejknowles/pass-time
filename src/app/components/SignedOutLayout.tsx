@@ -1,10 +1,10 @@
-import DataProvider from "./DataProvider";
+import EverywhereProviders from "./EverywhereProviders";
 
 export const SignedOutLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <DataProvider>
+        <EverywhereProviders>
             {children}
-        </DataProvider>
+        </EverywhereProviders>
     );
 };
 

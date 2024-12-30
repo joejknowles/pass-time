@@ -1,21 +1,10 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Button, createTheme, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "./DraftTaskInstance";
 import TaskInstanceModal from "./TaskInstanceModal";
-
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#1976d2',
-        },
-        secondary: {
-            main: '#dc004e',
-        },
-    },
-});
 
 const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
@@ -51,6 +40,8 @@ const HOUR_COLUMN_WIDTH = 50;
 type MoveType = "start" | "end" | "both";
 
 export const DayGrid = () => {
+    const theme = useTheme();
+
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
     const [movingTaskInfo, setMovingTaskInfo] = useState<{
@@ -60,6 +51,7 @@ export const DayGrid = () => {
         hasChanged?: boolean,
     } | null
     >(null);
+
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
@@ -245,7 +237,6 @@ export const DayGrid = () => {
     }
 
     const hourBlockHeight = isNarrowScreen ? 120 : 60;
-
     return (
         <Box sx={{
             height: '100%',
