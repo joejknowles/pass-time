@@ -238,7 +238,7 @@ export const DayGrid = () => {
         }
     }
 
-    const hourBlockHeight = isNarrowScreen ? 120 : 60;
+    const hourBlockHeight = isNarrowScreen ? 60 : 60;
     return (
         <Box sx={{
             height: '100%',
