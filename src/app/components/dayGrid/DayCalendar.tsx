@@ -6,7 +6,8 @@ import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstance } from "../DraftTaskInstance";
 import TaskInstanceModal from "../TaskInstanceModal";
 import CurrentTimeBar from "./CurrentTimeBar";
-import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts"
+import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
+import HourGrid from "./HourGrid";
 
 interface Task {
     id: number;
@@ -285,34 +286,7 @@ export const DayCalendar = () => {
                     : ''
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
-                    {daytimeHours.map((hour) => (
-                        <Box key={hour} sx={{ display: 'flex', height: hourBlockHeight }}>
-                            <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-8px', textAlign: 'right', mr: 1 }}>
-                                {hour}:00
-                            </Box>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    height: "100%",
-                                    flexGrow: 1,
-                                    borderTop: `1px solid ${theme.palette.grey[200]}`,
-                                    position: "relative",
-                                }}
-                            >
-                                {[0, 15, 30, 45].map((quarter) => (
-                                    <Box
-                                        key={quarter}
-                                        sx={{ flex: 1 }}
-                                        onClick={() => {
-                                            addDraftTaskInstance({ startHour: hour, startMinute: quarter })
-                                        }}
-                                    />
-                                ))}
-                            </Box>
-                        </Box>
-                    ))}
-
+                    <HourGrid addDraftTaskInstance={addDraftTaskInstance} hourBlockHeight={hourBlockHeight} />
                     {taskInstances?.map((taskInstance, index) => {
                         const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
                         const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
