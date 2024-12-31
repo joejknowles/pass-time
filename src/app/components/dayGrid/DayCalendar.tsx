@@ -19,16 +19,20 @@ export const DayCalendar = () => {
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
 
+    const [isSubmittingTaskInstance, setIsSubmittingTaskInstance] = useState(false);
+
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
-    const [createTaskInstance, { error: errorFromCreatingTaskInstance }] = useMutation(CREATE_TASK_INSTANCE);
+    const [createTaskInstance, {
+        error: errorFromCreatingTaskInstance
+    }] = useMutation(CREATE_TASK_INSTANCE);
     const [updateTaskInstance, { error: errorFromUpdatingTaskInstance }] = useMutation(UPDATE_TASK_INSTANCE);
     const {
         data: taskInstancesData,
         error: errorFromGetTaskInstances,
         loading: loadingTaskInstances,
-        refetch: refetchTaskInstances
+        refetch: refetchTaskInstances,
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES, {
         variables: {
             input: {
@@ -69,6 +73,7 @@ export const DayCalendar = () => {
     }, []);
 
     const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
+        setIsSubmittingTaskInstance(true);
         const newTaskInstance = await createTaskInstance({
             variables: {
                 input: draftTaskInstance,
@@ -77,6 +82,7 @@ export const DayCalendar = () => {
         setOpenTaskInstanceId(newTaskInstance.data?.createTaskInstance.id);
         await refetchAllTaskData();
         setDraftTaskInstance(null);
+        setIsSubmittingTaskInstance(false);
     }, [draftTaskInstance])
 
     const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number }) => {
@@ -183,6 +189,7 @@ export const DayCalendar = () => {
                             setDraftTaskInstance={setDraftTaskInstance}
                             finalizeTaskInstance={finalizeTaskInstance}
                             tasks={tasks}
+                            isSubmittingTaskInstance={isSubmittingTaskInstance}
                         />
                     )}
 
