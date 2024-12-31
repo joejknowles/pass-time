@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, LinearProgress, useMediaQuery, useTheme, Typography } from "@mui/material";
+import { Box, LinearProgress, useMediaQuery, Typography } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
@@ -15,8 +15,6 @@ import type { DraftTaskInstance, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 
 export const DayCalendar = () => {
-    const theme = useTheme();
-
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
@@ -111,7 +109,11 @@ export const DayCalendar = () => {
     const hourBlockHeight = isNarrowScreen ? 60 : 60;
 
     if (errorFromGetTaskInstances || errorFromGetTasks) {
-        return <Typography color="error">Error loading data</Typography>;
+        return <Typography color="error">Error loading data, please reload the page or contact us</Typography>;
+    }
+
+    if (errorFromCreatingTaskInstance || errorFromUpdatingTaskInstance) {
+        return <Typography color="error">Error saving data. Please refresh and try again.</Typography>;
     }
 
     return (
