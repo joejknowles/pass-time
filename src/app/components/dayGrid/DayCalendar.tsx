@@ -37,7 +37,7 @@ interface DraftTaskInstance {
 
 type MoveType = "start" | "end" | "both";
 
-export const DayGrid = () => {
+export const DayCalendar = () => {
     const theme = useTheme();
 
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));

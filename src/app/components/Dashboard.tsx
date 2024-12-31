@@ -1,5 +1,5 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
-import { DayGrid } from "./dayGrid/DayGrid";
+import { DayCalendar } from "./dayGrid/DayCalendar";
 import { Tasks } from "./Tasks";
 import { withSignedInLayout } from "./SignedInLayout";
 
@@ -39,7 +39,7 @@ const Dashboard = () => {
                         maxWidth: isNarrowScreen ? undefined : "400px",
                     }}
                 >
-                    <DayGrid />
+                    <DayCalendar />
                 </Box>
             </Box>
         </Container>
