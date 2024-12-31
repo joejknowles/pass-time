@@ -43,6 +43,7 @@ export const DayGrid = () => {
     const theme = useTheme();
 
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
+    const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
     const [movingTaskInfo, setMovingTaskInfo] = useState<{
         taskInstance: TaskInstance,
@@ -198,6 +199,23 @@ export const DayGrid = () => {
             window.removeEventListener("mouseup", stopMovingTaskInstance);
         };
     }, [movingTaskInfo]);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | undefined;
+        const nextMinuteStartsInMs = (60 - new Date().getSeconds()) * 1000;
+        const initialTimeout = setTimeout(() => {
+            setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
+
+            interval = setInterval(() => {
+                setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
+            }, 60 * 1000);
+        }, nextMinuteStartsInMs);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(initialTimeout);
+        };
+    }, []);
 
     const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
         await createTaskInstance({
@@ -377,6 +395,28 @@ export const DayGrid = () => {
                         />
                     )}
 
+                    {isToday && (
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: `CALC(1px + ${(((nowMinuteOfDay - (daytimeHours[0] * 60)) / (daytimeHours.length * 60)) * 100)}%)`,
+                                height: "1px",
+                                left: HOUR_COLUMN_WIDTH + 8,
+                                right: 0,
+                                backgroundColor: 'hsl(187, 80%, 75%)',
+                                ":before": {
+                                    content: '""',
+                                    position: "absolute",
+                                    top: "-4px",
+                                    left: "-4px",
+                                    width: "8px",
+                                    height: "8px",
+                                    backgroundColor: 'hsl(187, 80%, 75%)',
+                                    borderRadius: "50%",
+                                },
+                            }}
+                        />
+                    )}
                 </Box>
             </Box>
         </Box>
