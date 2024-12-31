@@ -109,24 +109,34 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                 ref={detailsRef}
                 sx={{
                     backgroundColor: "white",
-                    padding: 2,
+                    padding: 3,
                     width: "100%",
                     height: "100%",
                     position: "relative",
                 }}
             >
-                <IconButton
-                    onClick={() => setIsHeaderMenuOpen(prev => !prev)}
+                <Box
                     sx={{
                         position: "absolute",
-                        top: 8,
-                        right: 40,
+                        top: 16,
+                        right: 16,
+                        display: "flex",
+                        gap: 1,
                         zIndex: 10,
                     }}
-                    ref={headerMenuAnchorEl}
                 >
-                    <MoreVertIcon />
-                </IconButton>
+                    <IconButton
+                        onClick={() => setIsHeaderMenuOpen(prev => !prev)}
+                        ref={headerMenuAnchorEl}
+                    >
+                        <MoreVertIcon />
+                    </IconButton>
+                    <IconButton
+                        onClick={onClose}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </Box>
                 <Menu
                     anchorEl={headerMenuAnchorEl.current}
                     open={isHeaderMenuOpen}
@@ -158,18 +168,7 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                         Delete
                     </MenuItem>
                 </Menu>
-                <IconButton
-                    onClick={onClose}
-                    sx={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        zIndex: 10,
-                    }}
-                >
-                    <CloseIcon />
-                </IconButton>
-                <Typography variant="h6">{taskInstance.task.title}</Typography>
+                <Typography variant="h6" sx={{ marginBottom: 3 }}>{taskInstance.task.title}</Typography>
                 {
                     !isEditingTime ? (
                         <Box
