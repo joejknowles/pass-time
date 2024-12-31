@@ -167,7 +167,8 @@ export const DraftTaskInstanceCard = ({
                                 }
                             }}
                         />
-                    )} sx={{
+                    )}
+                    sx={{
                         "& .MuiAutocomplete-inputRoot": {
                             color: "white",
                             "WebkitTextFillColor": "white !important",

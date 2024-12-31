@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, useMediaQuery } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -36,6 +36,7 @@ const cleanApolloEntity = (entity: any) => {
 export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData, isMovingATask }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
+    const isNarrowScreen = useMediaQuery("(max-width: 720px)");
     const [isEditingTime, setIsEditingTime] = useState(false);
     const headerMenuAnchorEl = useRef(null);
     const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
@@ -173,11 +174,15 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                     !isEditingTime ? (
                         <Box
                             sx={{
-                                display: "flex",
+                                display: "inline-flex",
                                 alignItems: "center",
                                 gap: 1,
                                 marginBottom: 2,
+                                "&:hover .MuiIconButton-root": {
+                                    visibility: "visible",
+                                }
                             }}
+                            onClick={() => setIsEditingTime(true)}
                         >
                             <Typography variant="body1">
                                 {`${getFormattedStartTime()} - ${getFormattedEndTime()}`}{" "}
@@ -187,7 +192,10 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                             </Typography>
                             <IconButton
                                 onClick={() => setIsEditingTime(true)}
-                                sx={{ padding: 1 }}
+                                sx={{
+                                    padding: 1,
+                                    visibility: isNarrowScreen ? undefined : "hidden",
+                                }}
                                 size="small"
                             >
                                 <EditIcon />
