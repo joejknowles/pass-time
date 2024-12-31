@@ -157,7 +157,12 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                                         value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
                                         onChange={handleStartChange}
                                         size="small"
-                                        MenuProps={{ disablePortal: true }}
+                                        MenuProps={{
+                                            disablePortal: true,
+                                            sx: {
+                                                maxHeight: 350,
+                                            },
+                                        }}
                                     >
                                         {Array.from({ length: 24 * 4 }, (_, i) => {
                                             const hour = Math.floor(i / 4);
