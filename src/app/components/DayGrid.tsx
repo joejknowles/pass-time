@@ -49,6 +49,7 @@ export const DayGrid = () => {
         moveType: MoveType,
         cursorMinutesFromStart?: number,
         hasChanged?: boolean,
+        isSubmitting?: boolean,
     } | null
     >(null);
 
@@ -87,7 +88,7 @@ export const DayGrid = () => {
     };
 
     const moveTaskInstance = (event: MouseEvent) => {
-        if (movingTaskInfo) {
+        if (movingTaskInfo && !movingTaskInfo.isSubmitting) {
             const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
             const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
             const yPosition = event.clientY - gridOffsetTop;
@@ -160,6 +161,7 @@ export const DayGrid = () => {
 
         if (movingTaskInfo) {
             const { taskInstance, moveType } = movingTaskInfo;
+            setMovingTaskInfo({ ...movingTaskInfo, isSubmitting: true });
             await updateTaskInstance({
                 variables: {
                     input: {
