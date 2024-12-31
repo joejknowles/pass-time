@@ -11,7 +11,8 @@ import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
 import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
-import type { DraftTaskInstance, MoveType, Task, TaskInstance } from "./types";
+import type { DraftTaskInstance, Task, TaskInstance } from "./types";
+import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 
 export const DayCalendar = () => {
     const theme = useTheme();
@@ -19,14 +20,6 @@ export const DayCalendar = () => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
-    const [movingTaskInfo, setMovingTaskInfo] = useState<{
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null
-    >(null);
 
     const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
@@ -56,123 +49,7 @@ export const DayCalendar = () => {
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
 
-    const startMovingTaskInstance = (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
-        setMovingTaskInfo({ taskInstance, moveType });
-        document.body.style.userSelect = "none";
-        event.stopPropagation();
-    };
-
-    const moveTaskInstance = (event: MouseEvent) => {
-        if (movingTaskInfo && !movingTaskInfo.isSubmitting) {
-            const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
-            const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
-            const yPosition = event.clientY - gridOffsetTop;
-            const THRESHOLD_OFFSET = 3;
-            const cursorMinutesFromDaytimeStart = Math.floor(((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
-            const preciseCursorMinutesFromDaytimeStart = ((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60;
-            const movingTaskInstance = movingTaskInfo.taskInstance;
-
-            const taskInstanceStart = movingTaskInstance.start;
-            const taskInstanceMinutesFromDaytimeStart = taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60;
-            if (movingTaskInfo?.moveType === "end") {
-
-                const newDuration = Math.max(cursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart, 15);
-
-                setMovingTaskInfo({
-                    moveType: movingTaskInfo.moveType,
-                    taskInstance: { ...movingTaskInstance, duration: newDuration },
-                    hasChanged: movingTaskInfo.hasChanged ||
-                        newDuration !== movingTaskInstance.duration,
-                });
-            } else if (movingTaskInfo?.moveType === "start" || movingTaskInfo?.moveType === "both") {
-                let startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart;
-                if (movingTaskInfo.moveType === "both") {
-                    if (!movingTaskInfo.cursorMinutesFromStart) {
-                        movingTaskInfo.cursorMinutesFromStart = preciseCursorMinutesFromDaytimeStart - taskInstanceMinutesFromDaytimeStart;
-                        setMovingTaskInfo({
-                            ...movingTaskInfo,
-                        });
-                    }
-                    startMinutesFromDaytimeStart = Math.floor((preciseCursorMinutesFromDaytimeStart - movingTaskInfo.cursorMinutesFromStart) / 15) * 15;
-                }
-                const minutesFromDayStart = daytimeHours[0] * 60 + startMinutesFromDaytimeStart;
-                const newStartHour = Math.floor(minutesFromDayStart / 60);
-                const newStartMinute = minutesFromDayStart % 60;
-
-                const originalTaskInstance = taskInstances?.find(taskInstance => taskInstance.id === movingTaskInstance.id) as TaskInstance;
-                const updatedDuration = Math.max(
-                    movingTaskInfo?.moveType === "both" ?
-                        originalTaskInstance.duration :
-                        originalTaskInstance.start.hour * 60 +
-                        originalTaskInstance.start.minute +
-                        originalTaskInstance.duration -
-                        minutesFromDayStart,
-                    15);
-
-                setMovingTaskInfo(state => state ? ({
-                    ...state,
-                    taskInstance: {
-                        ...state.taskInstance,
-                        duration: updatedDuration,
-                        start: {
-                            ...state.taskInstance.start,
-                            hour: newStartHour,
-                            minute: newStartMinute,
-                        }
-                    },
-                    hasChanged: movingTaskInfo.hasChanged ||
-                        (updatedDuration !== movingTaskInstance.duration ||
-                            newStartHour !== movingTaskInstance.start.hour ||
-                            newStartMinute !== movingTaskInstance.start.minute
-                        )
-                }) : state);
-
-            }
-        }
-    };
-
-    const stopMovingTaskInstance = async () => {
-        document.body.style.userSelect = "";
-
-        if (movingTaskInfo) {
-            const { taskInstance, moveType } = movingTaskInfo;
-            setMovingTaskInfo({ ...movingTaskInfo, isSubmitting: true });
-            await updateTaskInstance({
-                variables: {
-                    input: {
-                        id: taskInstance.id,
-                        ...(
-                            moveType !== "both" ? {
-                                duration: taskInstance.duration,
-                            } : null
-                        ),
-                        ...(
-                            moveType !== "end" ? {
-                                start: {
-                                    date: taskInstance.start.date,
-                                    hour: taskInstance.start.hour,
-                                    minute: taskInstance.start.minute,
-                                }
-                            } : null
-                        )
-                    },
-                },
-            });
-        }
-
-        setMovingTaskInfo(null);
-    };
-
-    useEffect(() => {
-        if (movingTaskInfo) {
-            window.addEventListener("mousemove", moveTaskInstance);
-            window.addEventListener("mouseup", stopMovingTaskInstance);
-        }
-        return () => {
-            window.removeEventListener("mousemove", moveTaskInstance);
-            window.removeEventListener("mouseup", stopMovingTaskInstance);
-        };
-    }, [movingTaskInfo]);
+    const { movingTaskInfo, startMovingTaskInstance, setMovingTaskInfo } = useTaskInstanceMovement(taskInstances, updateTaskInstance);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
