@@ -8,6 +8,8 @@ import TaskInstanceModal from "../TaskInstanceModal";
 import CurrentTimeBar from "./CurrentTimeBar";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
+import CurrentDayHeader from "./CurrentDayHeader";
+import { isToday } from "./utils";
 
 interface Task {
     id: number;
@@ -239,8 +241,7 @@ export const DayCalendar = () => {
         setDraftTaskInstance(newTaskInstance);
     }
 
-    const isToday = currentDay.toDateString() === new Date().toDateString();
-    const dayOfWeek = currentDay.toLocaleDateString('en-US', { weekday: 'long' });
+    const isViewingToday = isToday(currentDay);
 
     const updateCurrentDay = (day: Date) => {
         setCurrentDay(day);
@@ -265,11 +266,10 @@ export const DayCalendar = () => {
         }}
             id="day-grid-root"
         >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() - 24 * 60 * 60 * 1000))}>{"<"}</Button>
-                <Typography variant="body2">{isToday ? `Today (${dayOfWeek})` : dayOfWeek}</Typography>
-                <Button onClick={() => updateCurrentDay(new Date(currentDay.getTime() + 24 * 60 * 60 * 1000))}>{">"}</Button>
-            </Box>
+            <CurrentDayHeader
+                currentDay={currentDay}
+                updateCurrentDay={updateCurrentDay}
+            />
             <TaskInstanceModal
                 openTaskInstanceId={openTaskInstanceId}
                 taskInstances={taskInstances}
@@ -367,7 +367,7 @@ export const DayCalendar = () => {
                         />
                     )}
 
-                    {isToday && (
+                    {isViewingToday && (
                         <CurrentTimeBar nowMinuteOfDay={nowMinuteOfDay} />
                     )}
                 </Box>
