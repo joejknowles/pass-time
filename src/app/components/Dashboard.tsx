@@ -1,5 +1,5 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
-import { DayGrid } from "./DayGrid";
+import { DayGrid } from "./dayGrid/DayGrid";
 import { Tasks } from "./Tasks";
 import { withSignedInLayout } from "./SignedInLayout";
 

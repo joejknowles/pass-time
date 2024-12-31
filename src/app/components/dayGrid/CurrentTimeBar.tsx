@@ -1,7 +1,5 @@
 import { Box } from "@mui/material";
-
-const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-const HOUR_COLUMN_WIDTH = 50;
+import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 
 interface CurrentTimeBarProps {
     nowMinuteOfDay: number;

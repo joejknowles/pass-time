@@ -1,13 +1,12 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
+import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
-import { DraftTaskInstance } from "./DraftTaskInstance";
-import TaskInstanceModal from "./TaskInstanceModal";
+import { DraftTaskInstance } from "../DraftTaskInstance";
+import TaskInstanceModal from "../TaskInstanceModal";
 import CurrentTimeBar from "./CurrentTimeBar";
-
-const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts"
 
 interface Task {
     id: number;
@@ -35,8 +34,6 @@ interface DraftTaskInstance {
     };
     duration: number;
 }
-
-const HOUR_COLUMN_WIDTH = 50;
 
 type MoveType = "start" | "end" | "both";
 
