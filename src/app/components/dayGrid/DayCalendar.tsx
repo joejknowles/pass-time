@@ -1,44 +1,17 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
-import { DraftTaskInstance } from "../DraftTaskInstance";
+import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
 import TaskInstanceModal from "../TaskInstanceModal";
 import CurrentTimeBar from "./CurrentTimeBar";
-import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
+import { daytimeHours } from "./consts";
 import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
+import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
-
-interface Task {
-    id: number;
-    title: string;
-    userId: number;
-}
-
-interface TaskInstance {
-    id: string;
-    task: Task;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
-    duration: number;
-}
-
-interface DraftTaskInstance {
-    title: string;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
-    duration: number;
-}
-
-type MoveType = "start" | "end" | "both";
+import type { DraftTaskInstance, MoveType, Task, TaskInstance } from "./types";
 
 export const DayCalendar = () => {
     const theme = useTheme();
@@ -292,74 +265,22 @@ export const DayCalendar = () => {
                         const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
                         const effectiveStart = isResizing ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
                         return (
-                            <Box
+                            <TaskInstanceCard
                                 key={index}
-                                sx={{
-                                    position: "absolute",
-                                    top: `CALC(1px + ${(((effectiveStart.hour - daytimeHours[0]) * 60 + effectiveStart.minute) / (daytimeHours.length * 60)) * 100}%)`,
-                                    height: `${hourBlockHeight * effectiveDuration / 60 - 1}px`,
-                                    left: HOUR_COLUMN_WIDTH + 16,
-                                    right: 16,
-                                    backgroundColor: "rgba(63, 81, 181, 0.5)",
-                                    borderRadius: "4px",
-                                    padding: effectiveDuration === 15 ? "1px 4px" : "4px",
-                                    boxSizing: "border-box",
-                                    cursor: movingTaskInfo ?
-                                        movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
-                                        : 'pointer'
-                                }}
-                                onClick={() => {
-                                    if (movingTaskInfo?.hasChanged) {
-                                        return;
-                                    }
-                                    if (openTaskInstanceId === taskInstance.id) {
-                                        setOpenTaskInstanceId(null)
-                                    } else {
-                                        setOpenTaskInstanceId(taskInstance.id)
-                                    }
-                                }}
-                                onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
-                            >
-                                <Box
-                                    sx={{
-                                        position: "absolute",
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: effectiveDuration === 15 ? "3px" : "5px",
-                                        cursor:
-                                            movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        overflow: 'hidden',
-                                    }}
-                                    onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
-                                >
-                                </Box>
-                                <Typography variant="body2" color="primary" sx={{
-                                    fontSize: '0.8rem',
-                                    lineHeight: '1',
-                                    color: theme.palette.primary.contrastText,
-                                }}>{taskInstance.task.title}</Typography>
-                                <Box
-                                    sx={{
-                                        position: "absolute",
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: effectiveDuration === 15 ? "3px" : "5px",
-                                        cursor:
-                                            movingTaskInfo?.moveType === "both" ? "grabbing" : 'ns-resize',
-                                    }}
-                                    onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "end")}
-                                />
-                            </Box>
+                                taskInstance={taskInstance}
+                                effectiveStart={effectiveStart}
+                                effectiveDuration={effectiveDuration}
+                                movingTaskInfo={movingTaskInfo}
+                                startMovingTaskInstance={startMovingTaskInstance}
+                                openTaskInstanceId={openTaskInstanceId}
+                                setOpenTaskInstanceId={setOpenTaskInstanceId}
+                                hourBlockHeight={hourBlockHeight}
+                            />
                         );
                     })}
 
                     {draftTaskInstance && (
-                        <DraftTaskInstance
+                        <DraftTaskInstanceCard
                             draftTaskInstance={draftTaskInstance}
                             setDraftTaskInstance={setDraftTaskInstance}
                             finalizeTaskInstance={finalizeTaskInstance}
