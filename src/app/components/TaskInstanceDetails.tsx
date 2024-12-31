@@ -1,9 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Typography, IconButton, Button, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useRef } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
+import { parse } from "path";
 
 interface TaskInstance {
     id: string;
@@ -34,6 +36,8 @@ const cleanApolloEntity = (entity: any) => {
 export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData, isMovingATask }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
+    const [isEditingTime, setIsEditingTime] = useState(false);
+
     const [deleteTaskInstance] = useMutation(DELETE_TASK_INSTANCE);
     const [updateTaskInstance] = useMutation(UPDATE_TASK_INSTANCE);
 
@@ -49,24 +53,22 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
         };
     }, [onClose, isMovingATask]);
 
-    const createHandleStartChange = (key: "hour" | "minute") => async (event: SelectChangeEvent<number>) => {
+    const handleStartChange = async (event: SelectChangeEvent<string>) => {
+        let [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
         await updateTaskInstance({
             variables: {
                 input: {
                     id: taskInstance.id,
                     start: {
                         ...cleanApolloEntity(taskInstance.start),
-                        [key]: event.target.value,
+                        hour,
+                        minute,
                     },
                 },
             },
         });
         await refetchAllTaskData();
     }
-
-    const handleHourChange = createHandleStartChange("hour");
-
-    const handleMinuteChange = createHandleStartChange("minute");
 
     const closeIfNotMoving = () => {
         if (!isMovingATask) {
@@ -76,6 +78,26 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
 
     if (!taskInstance) {
         return null;
+    }
+
+    const getFormattedTime = (dateTime: Date) => {
+        return `${dateTime.getHours().toString().padStart(2, "0")}:${dateTime.getMinutes().toString().padStart(2, "0")}`;
+    }
+    const getDateTimeFromCustomTime = (customTime: { date: string, hour: number, minute: number }) => {
+        const dateTime = new Date(customTime.date);
+        dateTime.setHours(customTime.hour);
+        dateTime.setMinutes(customTime.minute);
+        return dateTime;
+    }
+    const getStartDateTime = () => {
+        return getDateTimeFromCustomTime(taskInstance.start);
+    }
+    const getFormattedStartTime = () => {
+        return getFormattedTime(getStartDateTime());
+    }
+    const getFormattedEndTime = () => {
+        const end = new Date(getStartDateTime().getTime() + taskInstance.duration * 60 * 1000);
+        return getFormattedTime(end);
     }
 
     return (
@@ -102,44 +124,55 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                     <CloseIcon />
                 </IconButton>
                 <Typography variant="h6">{taskInstance.task.title}</Typography>
-                <Typography variant="body2">Start:</Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, marginBottom: 2 }}>
-                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
-                        <InputLabel>Hour</InputLabel>
-                        <Select
-                            value={taskInstance.start.hour}
-                            onChange={handleHourChange}
-                            label="Hour"
-                            size="small"
-                            MenuProps={{ disablePortal: true }}
+                {
+                    !isEditingTime ? (
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                marginBottom: 2,
+                            }}
                         >
-                            {Array.from({ length: 24 }, (_, i) => (
-                                <MenuItem key={i} value={i}>
-                                    {i}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <FormControl size="small" variant="standard" sx={{ minWidth: 120 }}>
-                        <InputLabel>Minutes</InputLabel>
-                        <Select
-                            value={taskInstance.start.minute}
-                            onChange={handleMinuteChange}
-                            label="Minutes"
-                            size="small"
-                            MenuProps={{ disablePortal: true }}
-                        >
-                            {[0, 15, 30, 45].map((minute) => (
-                                <MenuItem key={minute} value={minute}>
-                                    {minute.toString().padStart(2, "0")}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Typography variant="body2" sx={{ marginBottom: "8px" }}>
-                    Duration: {taskInstance.duration} minutes
-                </Typography>
+                            <Typography variant="body1">
+                                {`${getFormattedStartTime()} - ${getFormattedEndTime()}`}{" "}
+                                <Typography variant="body2" component="span" sx={{ color: "grey.600" }}>
+                                    ({taskInstance.duration} minutes)
+                                </Typography>
+                            </Typography>
+                            <IconButton
+                                onClick={() => setIsEditingTime(true)}
+                                sx={{ padding: 1 }}
+                                size="small"
+                            >
+                                <EditIcon />
+                            </IconButton>
+                        </Box>
+                    ) : (
+                        <ClickAwayListener onClickAway={() => setIsEditingTime(false)}>
+                            <Box sx={{ marginBottom: 2 }}>
+                                <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                    <InputLabel>From</InputLabel>
+                                    <Select
+                                        value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
+                                        onChange={handleStartChange}
+                                        size="small"
+                                        MenuProps={{ disablePortal: true }}
+                                    >
+                                        {Array.from({ length: 24 * 4 }, (_, i) => {
+                                            const hour = Math.floor(i / 4);
+                                            const minute = (i % 4) * 15;
+                                            return (
+                                                <MenuItem key={`${hour}:${minute}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
+                                                    {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                        </ClickAwayListener>
+                    )}
                 <Button
                     variant="contained"
                     color="primary"
