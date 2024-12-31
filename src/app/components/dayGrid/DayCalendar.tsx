@@ -69,11 +69,12 @@ export const DayCalendar = () => {
     }, []);
 
     const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
-        await createTaskInstance({
+        const newTaskInstance = await createTaskInstance({
             variables: {
                 input: draftTaskInstance,
             },
         })
+        setOpenTaskInstanceId(newTaskInstance.data?.createTaskInstance.id);
         await refetchAllTaskData();
         setDraftTaskInstance(null);
     }, [draftTaskInstance])
