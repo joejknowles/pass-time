@@ -167,7 +167,29 @@ export const DraftTaskInstanceCard = ({
                                 }
                             }}
                         />
-                    )}
+                    )} sx={{
+                        "& .MuiAutocomplete-inputRoot": {
+                            color: "white",
+                            "WebkitTextFillColor": "white !important",
+                        },
+                        "& .MuiAutocomplete-listbox": {
+                            backgroundColor: "rgba(63, 81, 181, 0.9)",
+                        },
+                        "& .MuiAutocomplete-endAdornment .MuiButtonBase-root": {
+                            color: "white",
+                            "WebkitTextFillColor": "white !important",
+                        },
+                        "& .MuiInputBase-input.Mui-disabled, & .MuiAutocomplete-inputRoot.Mui-disabled": {
+                            color: "white !important",
+                            "WebkitTextFillColor": "white !important",
+                        },
+                        "& .MuiAutocomplete-endAdornment .MuiButtonBase-root.Mui-disabled": {
+                            color: "white",
+                        },
+                        "& .MuiInput-underline:before, & .MuiInput-underline:hover:before, & .MuiInput-underline:after, & .MuiInput-underline.Mui-disabled:before": {
+                            borderBottom: "none !important",
+                        },
+                    }}
                 />
             </Box>
         </ClickAwayListener>
