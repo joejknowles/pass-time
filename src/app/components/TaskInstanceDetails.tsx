@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, Button, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
-import { parse } from "path";
 
 interface TaskInstance {
     id: string;
@@ -37,6 +37,8 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
     const [isEditingTime, setIsEditingTime] = useState(false);
+    const headerMenuAnchorEl = useRef(null);
+    const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
 
     const [deleteTaskInstance] = useMutation(DELETE_TASK_INSTANCE);
     const [updateTaskInstance] = useMutation(UPDATE_TASK_INSTANCE);
@@ -112,6 +114,49 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                     position: "relative",
                 }}
             >
+                <IconButton
+                    onClick={() => setIsHeaderMenuOpen(prev => !prev)}
+                    sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 40,
+                        zIndex: 10,
+                    }}
+                    ref={headerMenuAnchorEl}
+                >
+                    <MoreVertIcon />
+                </IconButton>
+                <Menu
+                    anchorEl={headerMenuAnchorEl.current}
+                    open={isHeaderMenuOpen}
+                    onClose={() => setIsHeaderMenuOpen(false)}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                maxHeight: 48 * 4.5,
+                                width: '20ch',
+                            },
+                        },
+                    }}
+                >
+                    <MenuItem
+                        onClick={async () => {
+                            onClose();
+                            await deleteTaskInstance({ variables: { id: taskInstance.id } });
+                            await refetchAllTaskData();
+                        }}
+                    >
+                        Delete
+                    </MenuItem>
+                </Menu>
                 <IconButton
                     onClick={onClose}
                     sx={{
@@ -267,23 +312,6 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                             </Box>
                         </ClickAwayListener>
                     )}
-                <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                        position: "absolute",
-                        bottom: 8,
-                        right: 8,
-                        zIndex: 10,
-                    }}
-                    onClick={async () => {
-                        await deleteTaskInstance({ variables: { id: taskInstance.id } });
-                        await refetchAllTaskData();
-                        onClose();
-                    }}
-                >
-                    Delete
-                </Button>
             </Box>
         </ClickAwayListener>
     );
