@@ -151,30 +151,119 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                     ) : (
                         <ClickAwayListener onClickAway={() => setIsEditingTime(false)}>
                             <Box sx={{ marginBottom: 2 }}>
-                                <FormControl variant="standard" sx={{ minWidth: 80 }} >
-                                    <InputLabel>From</InputLabel>
-                                    <Select
-                                        value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
-                                        onChange={handleStartChange}
-                                        size="small"
-                                        MenuProps={{
-                                            disablePortal: true,
-                                            sx: {
-                                                maxHeight: 350,
-                                            },
+                                <Box sx={{ marginBottom: 2 }}>
+
+                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                        <InputLabel>From</InputLabel>
+                                        <Select
+                                            value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
+                                            onChange={handleStartChange}
+                                            size="small"
+                                            MenuProps={{
+                                                disablePortal: true,
+                                                sx: {
+                                                    maxHeight: 350,
+                                                },
+                                            }}
+                                        >
+                                            {Array.from({ length: 24 * 4 }, (_, i) => {
+                                                const hour = Math.floor(i / 4);
+                                                const minute = (i % 4) * 15;
+                                                return (
+                                                    <MenuItem key={`${hour}:${minute}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
+                                                        {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
+                                <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center" }}>
+                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                        <InputLabel>Duration</InputLabel>
+                                        <Select
+                                            value={taskInstance.duration}
+                                            onChange={async (event) => {
+                                                const duration = parseInt(event.target.value as string);
+                                                await updateTaskInstance({
+                                                    variables: {
+                                                        input: {
+                                                            id: taskInstance.id,
+                                                            duration,
+                                                        },
+                                                    },
+                                                });
+                                                await refetchAllTaskData();
+                                            }}
+                                            size="small"
+                                            MenuProps={{
+                                                disablePortal: true,
+                                                sx: {
+                                                    maxHeight: 350,
+                                                },
+                                            }}
+                                        >
+                                            {Array.from({ length: 18 * 4 }, (_, i) => {
+                                                const duration = (i + 1) * 15;
+                                                const hours = Math.floor(duration / 60);
+                                                const minutes = duration % 60;
+                                                const display = `${hours > 0 ? `${hours}h ` : ""}${minutes > 0 ? `${minutes}m` : ""}`;
+                                                return (
+                                                    <MenuItem key={duration} value={duration}>
+                                                        {display}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                    <Box
+                                        sx={{
+                                            width: "1px",
+                                            bgcolor: "grey.300",
+                                            margin: "0 24px",
+                                            height: 32,
                                         }}
-                                    >
-                                        {Array.from({ length: 24 * 4 }, (_, i) => {
-                                            const hour = Math.floor(i / 4);
-                                            const minute = (i % 4) * 15;
-                                            return (
-                                                <MenuItem key={`${hour}:${minute}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
-                                                    {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
-                                                </MenuItem>
-                                            );
-                                        })}
-                                    </Select>
-                                </FormControl>
+                                    />
+                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                        <InputLabel>To</InputLabel>
+                                        <Select
+                                            value={getFormattedEndTime()}
+                                            onChange={async (event) => {
+                                                const [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
+                                                const end = new Date(getStartDateTime().getTime());
+                                                end.setHours(hour);
+                                                end.setMinutes(minute);
+                                                const duration = (end.getTime() - getStartDateTime().getTime()) / (60 * 1000);
+                                                await updateTaskInstance({
+                                                    variables: {
+                                                        input: {
+                                                            id: taskInstance.id,
+                                                            duration,
+                                                        },
+                                                    },
+                                                });
+                                                await refetchAllTaskData();
+                                            }}
+                                            size="small"
+                                            MenuProps={{
+                                                disablePortal: true,
+                                                sx: {
+                                                    maxHeight: 350,
+                                                },
+                                            }}
+                                        >
+                                            {Array.from({ length: 24 * 4 }, (_, i) => {
+                                                const hour = Math.floor(i / 4);
+                                                const minute = (i % 4) * 15;
+                                                return (
+                                                    <MenuItem key={`${hour}:${minute}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
+                                                        {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </Box>
                             </Box>
                         </ClickAwayListener>
                     )}
