@@ -1,12 +1,12 @@
 /** @jsxImportSource @emotion/react */
-import { Box, useMediaQuery, useTheme } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { Box, LinearProgress, useMediaQuery, useTheme, Typography } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
 import TaskInstanceModal from "../TaskInstanceModal";
 import CurrentTimeBar from "./CurrentTimeBar";
-import { daytimeHours } from "./consts";
+import { HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
 import TaskInstanceCard from "./TaskInstanceCard";
@@ -29,6 +29,7 @@ export const DayCalendar = () => {
     const {
         data: taskInstancesData,
         error: errorFromGetTaskInstances,
+        loading: loadingTaskInstances,
         refetch: refetchTaskInstances
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES, {
         variables: {
@@ -41,6 +42,7 @@ export const DayCalendar = () => {
     const {
         data: taskData,
         error: errorFromGetTasks,
+        loading: loadingTasks,
         refetch: refetchTasks
     } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const tasks = taskData?.tasks;
@@ -91,7 +93,7 @@ export const DayCalendar = () => {
         setDraftTaskInstance(newTaskInstance);
     }
 
-    const isViewingToday = isToday(currentDay);
+    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay]);
 
     const updateCurrentDay = (day: Date) => {
         setCurrentDay(day);
@@ -107,6 +109,11 @@ export const DayCalendar = () => {
     }
 
     const hourBlockHeight = isNarrowScreen ? 60 : 60;
+
+    if (errorFromGetTaskInstances || errorFromGetTasks) {
+        return <Typography color="error">Error loading data</Typography>;
+    }
+
     return (
         <Box sx={{
             height: '100%',
@@ -136,6 +143,17 @@ export const DayCalendar = () => {
                     : ''
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
+                    {(loadingTaskInstances || loadingTasks) && (
+                        <LinearProgress
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: HOUR_COLUMN_WIDTH + 8,
+                                width: '100%',
+                                height: '2px',
+                            }}
+                        />
+                    )}
                     <HourGrid addDraftTaskInstance={addDraftTaskInstance} hourBlockHeight={hourBlockHeight} />
                     {taskInstances?.map((taskInstance, index) => {
                         const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
