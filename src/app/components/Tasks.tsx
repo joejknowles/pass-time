@@ -16,7 +16,6 @@ export const Tasks = () => {
 
     useEffect(() => {
         if (data) setTaskOrder(data.tasks.map((task) => ({ id: `${task.id}`, title: task.title })));
-        console.log(data?.tasks);
     }, [data?.tasks]);
 
     const handleDragEnd = (result: DropResult) => {
