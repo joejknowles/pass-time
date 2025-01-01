@@ -13,10 +13,10 @@ const Dashboard = () => {
                     isNarrowScreen
                         ? undefined
                         : {
-                              display: "flex",
-                              height: "80vh",
-                              justifyContent: "center",
-                          }
+                            display: "flex",
+                            height: "80vh",
+                            justifyContent: "center",
+                        }
                 }
             >
                 {!isNarrowScreen && (
@@ -40,6 +40,13 @@ const Dashboard = () => {
                     }}
                 >
                     <DayCalendar />
+                    {
+                        isNarrowScreen && (
+                            <Box sx={{ mt: 2 }}>
+                                <Tasks />
+                            </Box>
+                        )
+                    }
                 </Box>
             </Box>
         </Container>

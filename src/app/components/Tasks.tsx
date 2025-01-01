@@ -12,7 +12,7 @@ interface Task {
 
 export const Tasks = () => {
     const { data } = useQuery<{ tasks: Task[] }>(GET_TASKS);
-    const [taskOrder, setTaskOrder] = useState<Task[]>(data?.tasks || []);
+    const [taskOrder, setTaskOrder] = useState<Task[]>(data?.tasks.map((task) => ({ id: `${task.id}`, title: task.title })) || []);
 
     useEffect(() => {
         if (data) setTaskOrder(data.tasks.map((task) => ({ id: `${task.id}`, title: task.title })));
