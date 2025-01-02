@@ -19,19 +19,23 @@ interface TaskInstance {
     duration: number;
 }
 
+interface TaskInstanceModalProps {
+    openTaskInstanceId: string | null;
+    taskInstances: TaskInstance[] | undefined;
+    setOpenTaskInstanceId: (id: string | null) => void;
+    refetchAllTaskData: () => void;
+    movingTaskInfo: any;
+    setCurrentDay: (day: Date) => void;
+}
+
 const TaskInstanceModal = ({
     openTaskInstanceId,
     taskInstances,
     setOpenTaskInstanceId,
     refetchAllTaskData,
     movingTaskInfo,
-}: {
-    openTaskInstanceId: string | null;
-    taskInstances: TaskInstance[] | undefined;
-    setOpenTaskInstanceId: (id: string | null) => void;
-    refetchAllTaskData: () => void;
-    movingTaskInfo: any;
-}) => {
+    setCurrentDay
+}: TaskInstanceModalProps) => {
     const theme = useTheme();
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
@@ -115,6 +119,7 @@ const TaskInstanceModal = ({
                 onClose={() => setOpenTaskInstanceId(null)}
                 refetchAllTaskData={refetchAllTaskData}
                 isMovingATask={!!movingTaskInfo}
+                setCurrentDay={setCurrentDay}
             />
         </Box>
     );

@@ -26,6 +26,7 @@ interface TaskInstanceDetailsProps {
     onClose: () => void;
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
+    setCurrentDay: (day: Date) => void;
 }
 
 const cleanApolloEntity = (entity: any) => {
@@ -33,7 +34,13 @@ const cleanApolloEntity = (entity: any) => {
     return cleanedEntity;
 };
 
-export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData, isMovingATask }: TaskInstanceDetailsProps) => {
+export const TaskInstanceDetails = ({
+    taskInstance,
+    onClose,
+    refetchAllTaskData,
+    isMovingATask,
+    setCurrentDay,
+}: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
     const isNarrowScreen = useMediaQuery("(max-width: 720px)");

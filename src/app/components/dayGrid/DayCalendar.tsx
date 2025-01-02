@@ -142,6 +142,7 @@ export const DayCalendar = () => {
                 setOpenTaskInstanceId={setOpenTaskInstanceId}
                 refetchAllTaskData={refetchAllTaskData}
                 movingTaskInfo={movingTaskInfo}
+                setCurrentDay={setCurrentDay}
             />
             <Box sx={{
                 height: '100%',
