@@ -99,6 +99,7 @@ export const DayCalendar = () => {
         await refetchAllTaskData();
         setDraftTaskInstance(null);
         setIsSubmittingTaskInstance(false);
+        setOpenTaskInstanceId(newTaskId);
     }, [draftTaskInstance])
 
     const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number }) => {
