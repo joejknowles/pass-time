@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, useMediaQuery } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, useMediaQuery, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -27,6 +27,7 @@ interface TaskInstanceDetailsProps {
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
     setCurrentDay: (day: Date) => void;
+
 }
 
 const cleanApolloEntity = (entity: any) => {
@@ -35,13 +36,19 @@ const cleanApolloEntity = (entity: any) => {
 };
 
 export const TaskInstanceDetails = ({
-    taskInstance,
+    taskInstance: liveTaskInstance,
     onClose,
     refetchAllTaskData,
     isMovingATask,
     setCurrentDay,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
+    const lastPresentTaskInstance = useRef(liveTaskInstance);
+    // This 'hack' helps to keep displaying the task while changing its date 
+    if (liveTaskInstance) {
+        lastPresentTaskInstance.current = liveTaskInstance;
+    }
+    const taskInstance = lastPresentTaskInstance.current;
 
     const isNarrowScreen = useMediaQuery("(max-width: 720px)");
     const [isEditingTime, setIsEditingTime] = useState(false);
@@ -63,14 +70,6 @@ export const TaskInstanceDetails = ({
         };
     }, [onClose, isMovingATask]);
 
-
-    useEffect(() => {
-        if (!taskInstance) {
-            onClose();
-        }
-    }, [taskInstance]);
-
-
     if (!taskInstance) {
         return null;
     }
@@ -91,6 +90,26 @@ export const TaskInstanceDetails = ({
         });
         await refetchAllTaskData();
     }
+
+    const handleDateChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newDate = event.target.value;
+        if (newDate && taskInstance) {
+            await updateTaskInstance({
+                variables: {
+                    input: {
+                        id: taskInstance.id,
+                        start: {
+                            ...cleanApolloEntity(taskInstance.start),
+                            date: newDate,
+                        },
+                    },
+                },
+            });
+            await refetchAllTaskData();
+            setCurrentDay(new Date(newDate));
+            await refetchAllTaskData(); // Add this line to ensure data is refetched for the new date
+        }
+    };
 
     const closeIfNotMoving = () => {
         if (!isMovingATask) {
@@ -236,9 +255,18 @@ export const TaskInstanceDetails = ({
                         <ClickAwayListener onClickAway={() => setIsEditingTime(false)}>
                             <Box sx={{ marginBottom: 2, display: "inline-block" }}>
                                 <Box sx={{ marginBottom: 2 }}>
-                                    <Typography variant="body1">
-                                        {getFormattedDate(getStartDateTime())}
-                                    </Typography>
+                                    <TextField
+                                        label="Date"
+                                        type="date"
+                                        value={taskInstance.start.date}
+                                        onChange={handleDateChange}
+                                        variant="standard"
+                                        slotProps={{
+                                            inputLabel: {
+                                                shrink: true,
+                                            },
+                                        }}
+                                    />
                                 </Box>
                                 <Box sx={{ marginBottom: 2 }}>
                                     <FormControl variant="standard" sx={{ minWidth: 80 }} >
