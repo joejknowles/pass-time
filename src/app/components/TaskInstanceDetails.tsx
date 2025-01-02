@@ -371,7 +371,7 @@ export const TaskInstanceDetails = ({
                                                 const hour = Math.floor(i / 4);
                                                 const minute = (i % 4) * 15;
                                                 return (
-                                                    <MenuItem key={`${hour}:${minute}`} value={`${hour}:${minute.toString().padStart(2, '0')}`}>
+                                                    <MenuItem key={`${hour}:${minute}`} value={`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}>
                                                         {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
                                                     </MenuItem>
                                                 );
