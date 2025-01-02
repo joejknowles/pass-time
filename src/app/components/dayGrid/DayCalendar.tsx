@@ -21,8 +21,19 @@ export const DayCalendar = () => {
 
     const [isSubmittingTaskInstance, setIsSubmittingTaskInstance] = useState(false);
 
-    const [openTaskInstanceId, setOpenTaskInstanceId] = useState<string | null>(null);
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
+
+    const [openTaskInstanceId, setOpenTaskInstanceIdRaw] = useState<string | null>(null);
+    const setOpenTaskInstanceId = (id: string | null) => {
+        setOpenTaskInstanceIdRaw(id);
+        if (isNarrowScreen) {
+            const taskInstanceCard = document.getElementById(`task-instance-calendar-card-${id}`);
+            if (taskInstanceCard) {
+                const topOffset = taskInstanceCard.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + 100;
+                window.scrollTo({ top: topOffset, behavior: 'smooth' });
+            }
+        }
+    }
 
     const [createTaskInstance, {
         error: errorFromCreatingTaskInstance
@@ -53,7 +64,7 @@ export const DayCalendar = () => {
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
 
-    const { movingTaskInfo, startMovingTaskInstance, setMovingTaskInfo } = useTaskInstanceMovement(taskInstances, updateTaskInstance);
+    const { movingTaskInfo, startMovingTaskInstance } = useTaskInstanceMovement(taskInstances, updateTaskInstance);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
@@ -83,7 +94,8 @@ export const DayCalendar = () => {
                 input: draftTaskInstance,
             },
         })
-        setOpenTaskInstanceId(newTaskInstance.data?.createTaskInstance.id);
+        const newTaskId = newTaskInstance.data?.createTaskInstance.id
+        setOpenTaskInstanceId(newTaskId);
         await refetchAllTaskData();
         setDraftTaskInstance(null);
         setIsSubmittingTaskInstance(false);

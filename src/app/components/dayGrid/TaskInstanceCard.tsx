@@ -50,6 +50,7 @@ const TaskInstanceCard = ({
                 }
             }}
             onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
+            id={`task-instance-calendar-card-${taskInstance.id}`}
         >
             <Box
                 sx={{

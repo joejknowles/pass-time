@@ -41,8 +41,14 @@ const TaskInstanceModal = ({
 
     const isOpen = !!openTaskInstanceId;
 
-    const [modalStyles, setModalStyles] = useState({
-        top: "0px",
+    const [modalStyles, setModalStyles] = useState<{
+        top?: string;
+        bottom?: string;
+        left: string;
+        height: string;
+        width: string;
+    }>({
+        top: "10vh",
         left: "10px",
         height: "100%",
         width: "100%",
@@ -51,9 +57,10 @@ const TaskInstanceModal = ({
     const calculateStyles = () => {
         if (isNarrowScreen) {
             setModalStyles({
-                top: "10vh",
+                top: undefined,
+                bottom: "10px",
                 left: "10px",
-                height: "80vh",
+                height: "50vh",
                 width: "calc(100% - 20px)",
             });
         } else {
@@ -76,13 +83,17 @@ const TaskInstanceModal = ({
         const handleResize = () => calculateStyles();
         window.addEventListener("resize", handleResize);
 
+        if (isNarrowScreen) {
+            document.documentElement.style.overflow = "";
+            document.body.style.overflow = "";
+        }
         return () => {
             window.removeEventListener("resize", handleResize);
         };
     }, [isNarrowScreen]);
 
     useLayoutEffect(() => {
-        if (isOpen) {
+        if (isOpen && !isNarrowScreen) {
             document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
         } else {
@@ -100,11 +111,8 @@ const TaskInstanceModal = ({
     return (
         <Box
             sx={{
+                ...modalStyles,
                 position: "fixed",
-                top: modalStyles.top,
-                left: modalStyles.left,
-                height: modalStyles.height,
-                width: modalStyles.width,
                 backgroundColor: "white",
                 border: `1px solid ${theme.palette.grey[300]}`,
                 borderRadius: isNarrowScreen ? "8px" : "4px",
