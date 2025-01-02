@@ -22,7 +22,7 @@ interface TaskInstance {
 }
 
 interface TaskInstanceDetailsProps {
-    taskInstance: TaskInstance;
+    taskInstance?: TaskInstance;
     onClose: () => void;
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
@@ -56,14 +56,26 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
         };
     }, [onClose, isMovingATask]);
 
+
+    useEffect(() => {
+        if (!taskInstance) {
+            onClose();
+        }
+    }, [taskInstance]);
+
+
+    if (!taskInstance) {
+        return null;
+    }
+
     const handleStartChange = async (event: SelectChangeEvent<string>) => {
         let [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
         await updateTaskInstance({
             variables: {
                 input: {
-                    id: taskInstance.id,
+                    id: taskInstance?.id,
                     start: {
-                        ...cleanApolloEntity(taskInstance.start),
+                        ...cleanApolloEntity(taskInstance?.start),
                         hour,
                         minute,
                     },
@@ -77,10 +89,6 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
         if (!isMovingATask) {
             onClose();
         }
-    }
-
-    if (!taskInstance) {
-        return null;
     }
 
     const getFormattedTime = (dateTime: Date) => {
@@ -101,6 +109,12 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
     const getFormattedEndTime = () => {
         const end = new Date(getStartDateTime().getTime() + taskInstance.duration * 60 * 1000);
         return getFormattedTime(end);
+    }
+    const getFormattedDate = (dateTime: Date) => {
+        const today = new Date();
+        const isToday = dateTime.toDateString() === today.toDateString();
+        const options = { weekday: 'long' } as const;
+        return isToday ? `Today (${dateTime.toLocaleDateString(undefined, options)})` : dateTime.toLocaleDateString();
     }
 
     return (
@@ -174,7 +188,7 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                         <Box
                             sx={{
                                 display: "inline-flex",
-                                alignItems: "center",
+                                flexDirection: "column",
                                 gap: 1,
                                 marginBottom: 2,
                                 "&:hover .MuiIconButton-root": {
@@ -184,27 +198,42 @@ export const TaskInstanceDetails = ({ taskInstance, onClose, refetchAllTaskData,
                             onClick={() => setIsEditingTime(true)}
                         >
                             <Typography variant="body1">
-                                {`${getFormattedStartTime()} - ${getFormattedEndTime()}`}{" "}
-                                <Typography variant="body2" component="span" sx={{ color: "grey.600" }}>
-                                    ({taskInstance.duration} minutes)
-                                </Typography>
+                                {getFormattedDate(getStartDateTime())}
                             </Typography>
-                            <IconButton
-                                onClick={() => setIsEditingTime(true)}
+                            <Box
                                 sx={{
-                                    padding: 1,
-                                    visibility: isNarrowScreen ? undefined : "hidden",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 1,
                                 }}
-                                size="small"
                             >
-                                <EditIcon />
-                            </IconButton>
+                                <Typography variant="body1">
+                                    {`${getFormattedStartTime()} - ${getFormattedEndTime()}`}{" "}
+                                    <Typography variant="body2" component="span" sx={{ color: "grey.600" }}>
+                                        ({taskInstance.duration} minutes)
+                                    </Typography>
+                                </Typography>
+                                <IconButton
+                                    onClick={() => setIsEditingTime(true)}
+                                    sx={{
+                                        padding: 1,
+                                        visibility: isNarrowScreen ? undefined : "hidden",
+                                    }}
+                                    size="small"
+                                >
+                                    <EditIcon />
+                                </IconButton>
+                            </Box>
                         </Box>
                     ) : (
                         <ClickAwayListener onClickAway={() => setIsEditingTime(false)}>
-                            <Box sx={{ marginBottom: 2 }}>
+                            <Box sx={{ marginBottom: 2, display: "inline-block" }}>
                                 <Box sx={{ marginBottom: 2 }}>
-
+                                    <Typography variant="body1">
+                                        {getFormattedDate(getStartDateTime())}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ marginBottom: 2 }}>
                                     <FormControl variant="standard" sx={{ minWidth: 80 }} >
                                         <InputLabel>From</InputLabel>
                                         <Select
