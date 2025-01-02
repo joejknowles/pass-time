@@ -72,6 +72,10 @@ export const DayCalendar = () => {
         };
     }, []);
 
+    useEffect(() => {
+        refetchAllTaskData();
+    }, [currentDay]);
+
     const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
         setIsSubmittingTaskInstance(true);
         const newTaskInstance = await createTaskInstance({

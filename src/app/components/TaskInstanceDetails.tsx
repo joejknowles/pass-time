@@ -107,7 +107,6 @@ export const TaskInstanceDetails = ({
             });
             await refetchAllTaskData();
             setCurrentDay(new Date(newDate));
-            await refetchAllTaskData(); // Add this line to ensure data is refetched for the new date
         }
     };
 
