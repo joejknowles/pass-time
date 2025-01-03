@@ -13,7 +13,7 @@ const HourGrid: React.FC<HourGridProps> = ({ addDraftTaskInstance, hourBlockHeig
         <>
             {daytimeHours.map((hour) => (
                 <Box key={hour} sx={{ display: 'flex', height: hourBlockHeight }}>
-                    <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-8px', textAlign: 'right', mr: 1 }}>
+                    <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-12px', textAlign: 'right', mr: 1 }}>
                         {hour}:00
                     </Box>
                     <Box
