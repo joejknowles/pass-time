@@ -8,8 +8,8 @@ const TaskInstanceCard = ({
     effectiveDuration,
     movingTaskInfo,
     startMovingTaskInstance,
-    openTaskInstanceId,
-    setOpenTaskInstanceId,
+    isThisTaskDetailsOpen,
+    handleClick,
     hourBlockHeight,
 }: {
     taskInstance: TaskInstance,
@@ -17,8 +17,8 @@ const TaskInstanceCard = ({
     effectiveDuration: number,
     movingTaskInfo: any,
     startMovingTaskInstance: (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => void,
-    openTaskInstanceId: string | null,
-    setOpenTaskInstanceId: (id: string | null) => void,
+    isThisTaskDetailsOpen: boolean,
+    handleClick: () => void,
     hourBlockHeight: number,
 }) => {
     const theme = useTheme();
@@ -31,24 +31,16 @@ const TaskInstanceCard = ({
                 height: `${hourBlockHeight * effectiveDuration / 60 - 1}px`,
                 left: HOUR_COLUMN_WIDTH + 16,
                 right: 16,
-                backgroundColor: "rgba(63, 81, 181, 0.5)",
+                backgroundColor: isThisTaskDetailsOpen ? "rgba(4, 70, 190, 0.9)" : "rgba(53, 61, 209, 0.68)",
                 borderRadius: "4px",
                 padding: effectiveDuration === 15 ? "1px 4px" : "4px",
                 boxSizing: "border-box",
                 cursor: movingTaskInfo ?
                     movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
-                    : 'pointer'
+                    : 'pointer',
+                boxShadow: isThisTaskDetailsOpen ? "2px 2px 10px 1px rgba(123, 158, 206, 0.9)" : "",
             }}
-            onClick={() => {
-                if (movingTaskInfo?.hasChanged) {
-                    return;
-                }
-                if (openTaskInstanceId === taskInstance.id) {
-                    setOpenTaskInstanceId(null)
-                } else {
-                    setOpenTaskInstanceId(taskInstance.id)
-                }
-            }}
+            onClick={handleClick}
             onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
             id={`task-instance-calendar-card-${taskInstance.id}`}
         >

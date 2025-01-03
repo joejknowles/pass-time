@@ -199,8 +199,17 @@ export const DayCalendar = () => {
                                 effectiveDuration={effectiveDuration}
                                 movingTaskInfo={movingTaskInfo}
                                 startMovingTaskInstance={startMovingTaskInstance}
-                                openTaskInstanceId={openTaskInstanceId}
-                                setOpenTaskInstanceId={setOpenTaskInstanceId}
+                                isThisTaskDetailsOpen={openTaskInstanceId === taskInstance.id}
+                                handleClick={() => {
+                                    if (movingTaskInfo?.hasChanged) {
+                                        return;
+                                    }
+                                    if (openTaskInstanceId === taskInstance.id) {
+                                        setOpenTaskInstanceId(null)
+                                    } else {
+                                        setOpenTaskInstanceId(taskInstance.id)
+                                    }
+                                }}
                                 hourBlockHeight={hourBlockHeight}
                             />
                         );
