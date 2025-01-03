@@ -207,7 +207,11 @@ export const TaskInstanceDetails = ({
                         Delete
                     </MenuItem>
                 </Menu>
-                <Typography variant="h6" sx={{ marginBottom: 3 }}>{taskInstance.task.title}</Typography>
+                <Typography variant="h6"
+                    sx={{ marginBottom: 3, marginRight: "76px" }}
+                >
+                    {taskInstance.task.title}
+                </Typography>
                 {
                     !isEditingTime ? (
                         <Box
