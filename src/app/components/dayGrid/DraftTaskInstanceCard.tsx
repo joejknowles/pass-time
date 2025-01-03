@@ -50,7 +50,10 @@ export const DraftTaskInstanceCard = ({
     }, []);
 
     return (
-        <ClickAwayListener onClickAway={() => setDraftTaskInstance(null)}>
+        <ClickAwayListener onClickAway={(e) => {
+            e.preventDefault();
+            setDraftTaskInstance(null);
+        }}>
             <Box
                 sx={{
                     position: "absolute",
@@ -58,10 +61,11 @@ export const DraftTaskInstanceCard = ({
                     height: `${((draftTaskInstance.duration) / (daytimeHours.length * 60)) * 100}%`,
                     left: HOUR_COLUMN_WIDTH + 16,
                     right: 16,
-                    backgroundColor: "rgba(63, 81, 181, 0.7)",
+                    backgroundColor: "rgba(4, 70, 190, 0.9)",
                     borderRadius: "4px",
                     padding: "0 4px",
                     boxSizing: "border-box",
+                    boxShadow: "2px 2px 10px 1px rgba(123, 158, 206, 0.9)"
                 }}
                 ref={thisRootRef}
             >
