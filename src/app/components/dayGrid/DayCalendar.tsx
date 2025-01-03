@@ -14,6 +14,8 @@ import { isToday } from "./utils";
 import type { DraftTaskInstance, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 
+const minutesToMs = (minutes: number) => minutes * 60 * 1000;
+
 export const DayCalendar = () => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
@@ -50,6 +52,7 @@ export const DayCalendar = () => {
                 date: currentDay.toISOString().split('T')[0],
             },
         },
+        pollInterval: minutesToMs(15)
     });
     const taskInstances = taskInstancesData?.taskInstances;
     const {
@@ -57,7 +60,9 @@ export const DayCalendar = () => {
         error: errorFromGetTasks,
         loading: loadingTasks,
         refetch: refetchTasks
-    } = useQuery<{ tasks: Task[] }>(GET_TASKS);
+    } = useQuery<{ tasks: Task[] }>(GET_TASKS, {
+        pollInterval: minutesToMs(15)
+    });
     const tasks = taskData?.tasks;
 
     const refetchAllTaskData = useCallback(async () => {
