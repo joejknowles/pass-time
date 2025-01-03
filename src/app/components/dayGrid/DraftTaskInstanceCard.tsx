@@ -57,8 +57,8 @@ export const DraftTaskInstanceCard = ({
             <Box
                 sx={{
                     position: "absolute",
-                    top: `${(((draftTaskInstance.start.hour - daytimeHours[0]) * 60 + draftTaskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%`,
-                    height: `${((draftTaskInstance.duration) / (daytimeHours.length * 60)) * 100}%`,
+                    top: `CALC(1px + ${(((draftTaskInstance.start.hour - daytimeHours[0]) * 60 + draftTaskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%)`,
+                    height: `CALC(${((draftTaskInstance.duration) / (daytimeHours.length * 60)) * 100}% - 1px)`,
                     left: HOUR_COLUMN_WIDTH + 16,
                     right: 16,
                     backgroundColor: "rgba(4, 70, 190, 0.9)",
