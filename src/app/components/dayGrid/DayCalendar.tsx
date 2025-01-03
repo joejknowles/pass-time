@@ -73,18 +73,32 @@ export const DayCalendar = () => {
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
-        const nextMinuteStartsInMs = (60 - new Date().getSeconds()) * 1000;
-        const initialTimeout = setTimeout(() => {
-            setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
 
-            interval = setInterval(() => {
-                setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
-            }, 60 * 1000);
-        }, nextMinuteStartsInMs);
+        const updateNowMinuteOfDay = () => {
+            setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
+        };
+
+        const setUpInterval = () => {
+            clearInterval(interval);
+            updateNowMinuteOfDay();
+            interval = setInterval(updateNowMinuteOfDay, 60 * 1000);
+        };
+
+        const nextMinuteStartsInMs = (60 - new Date().getSeconds()) * 1000;
+        const initialTimeout = setTimeout(setUpInterval, nextMinuteStartsInMs);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                setUpInterval();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
             clearInterval(interval);
             clearTimeout(initialTimeout);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
     }, []);
 
