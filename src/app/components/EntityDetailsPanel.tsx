@@ -19,27 +19,29 @@ interface TaskInstance {
     duration: number;
 }
 
-interface TaskInstanceModalProps {
-    openTaskInstanceId: string | null;
+interface EntityDetailsPanelProps {
+    openDetailsPanelEntity: { id: string, type: "Task" | "TaskInstance" } | null;
     taskInstances: TaskInstance[] | undefined;
-    setOpenTaskInstanceId: (id: string | null) => void;
+    setOpenDetailsPanelEntity: (
+        entity: { id: string, type: "Task" | "TaskInstance" } | null
+    ) => void;
     refetchAllTaskData: () => void;
     movingTaskInfo: any;
     setCurrentDay: (day: Date) => void;
 }
 
-const TaskInstanceModal = ({
-    openTaskInstanceId,
+const EntityDetailsPanel = ({
+    openDetailsPanelEntity,
     taskInstances,
-    setOpenTaskInstanceId,
+    setOpenDetailsPanelEntity,
     refetchAllTaskData,
     movingTaskInfo,
     setCurrentDay
-}: TaskInstanceModalProps) => {
+}: EntityDetailsPanelProps) => {
     const theme = useTheme();
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
-    const isOpen = !!openTaskInstanceId;
+    const isOpen = !!openDetailsPanelEntity;
 
     const [modalStyles, setModalStyles] = useState<{
         top?: string;
@@ -121,16 +123,19 @@ const TaskInstanceModal = ({
                 overflowY: "auto",
             }}
         >
-            <TaskInstanceDetails
-                key={openTaskInstanceId}
-                taskInstance={taskInstances?.find((ti) => ti.id === openTaskInstanceId) as TaskInstance}
-                onClose={() => setOpenTaskInstanceId(null)}
-                refetchAllTaskData={refetchAllTaskData}
-                isMovingATask={!!movingTaskInfo}
-                setCurrentDay={setCurrentDay}
-            />
+            {
+                openDetailsPanelEntity?.type === "TaskInstance" &&
+                <TaskInstanceDetails
+                    key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
+                    taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
+                    onClose={() => setOpenDetailsPanelEntity(null)}
+                    refetchAllTaskData={refetchAllTaskData}
+                    isMovingATask={!!movingTaskInfo}
+                    setCurrentDay={setCurrentDay}
+                />
+            }
         </Box>
     );
 };
 
-export default TaskInstanceModal;
+export default EntityDetailsPanel;

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
-import TaskInstanceModal from "../TaskInstanceModal";
+import EntityDetailsPanel from "../EntityDetailsPanel";
 import CurrentTimeBar from "./CurrentTimeBar";
 import { HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
@@ -25,11 +25,12 @@ export const DayCalendar = () => {
 
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
-    const [openTaskInstanceId, setOpenTaskInstanceIdRaw] = useState<string | null>(null);
-    const setOpenTaskInstanceId = (id: string | null) => {
-        setOpenTaskInstanceIdRaw(id);
-        if (isNarrowScreen) {
-            const taskInstanceCard = document.getElementById(`task-instance-calendar-card-${id}`);
+    const [openDetailsPanelEntity, setOpenDetailsPanelEntityRaw] = useState<{ id: string, type: "Task" | "TaskInstance" } | null>(null);
+
+    const setOpenDetailsPanelEntity = (newOpenEntity: { id: string, type: "Task" | "TaskInstance" } | null) => {
+        setOpenDetailsPanelEntityRaw(newOpenEntity);
+        if (newOpenEntity?.type === "TaskInstance" && isNarrowScreen) {
+            const taskInstanceCard = document.getElementById(`task-instance-calendar-card-${newOpenEntity.id}`);
             if (taskInstanceCard) {
                 const topOffset = taskInstanceCard.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + 100;
                 window.scrollTo({ top: topOffset, behavior: 'smooth' });
@@ -113,12 +114,19 @@ export const DayCalendar = () => {
                 input: draftTaskInstance,
             },
         })
-        const newTaskId = newTaskInstance.data?.createTaskInstance.id
-        setOpenTaskInstanceId(newTaskId);
+        const newTaskId: string = newTaskInstance.data?.createTaskInstance.id
+        setOpenDetailsPanelEntity({
+            id: newTaskId,
+            type: "TaskInstance"
+        });
         await refetchAllTaskData();
         setDraftTaskInstance(null);
         setIsSubmittingTaskInstance(false);
-        setOpenTaskInstanceId(newTaskId);
+        // repeats to make sure the scroll happens
+        setOpenDetailsPanelEntity({
+            id: newTaskId,
+            type: "TaskInstance"
+        });
     }, [draftTaskInstance])
 
     const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number }) => {
@@ -172,10 +180,10 @@ export const DayCalendar = () => {
                 currentDay={currentDay}
                 updateCurrentDay={updateCurrentDay}
             />
-            <TaskInstanceModal
-                openTaskInstanceId={openTaskInstanceId}
+            <EntityDetailsPanel
+                openDetailsPanelEntity={openDetailsPanelEntity}
                 taskInstances={taskInstances}
-                setOpenTaskInstanceId={setOpenTaskInstanceId}
+                setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                 refetchAllTaskData={refetchAllTaskData}
                 movingTaskInfo={movingTaskInfo}
                 setCurrentDay={setCurrentDay}
@@ -205,6 +213,10 @@ export const DayCalendar = () => {
                         const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
                         const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
                         const effectiveStart = isResizing ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
+
+                        const isCurrentlyOpen =
+                            openDetailsPanelEntity?.type === "TaskInstance" &&
+                            openDetailsPanelEntity.id === taskInstance.id;
                         return (
                             <TaskInstanceCard
                                 key={index}
@@ -213,15 +225,18 @@ export const DayCalendar = () => {
                                 effectiveDuration={effectiveDuration}
                                 movingTaskInfo={movingTaskInfo}
                                 startMovingTaskInstance={startMovingTaskInstance}
-                                isThisTaskDetailsOpen={openTaskInstanceId === taskInstance.id}
+                                isThisTaskDetailsOpen={isCurrentlyOpen}
                                 handleClick={() => {
                                     if (movingTaskInfo?.hasChanged) {
                                         return;
                                     }
-                                    if (openTaskInstanceId === taskInstance.id) {
-                                        setOpenTaskInstanceId(null)
+                                    if (isCurrentlyOpen) {
+                                        setOpenDetailsPanelEntity(null)
                                     } else {
-                                        setOpenTaskInstanceId(taskInstance.id)
+                                        setOpenDetailsPanelEntity({
+                                            id: taskInstance.id,
+                                            type: "TaskInstance"
+                                        })
                                     }
                                 }}
                                 hourBlockHeight={hourBlockHeight}
