@@ -148,6 +148,7 @@ const EntityDetailsPanel = ({
                         onClose={() => setOpenDetailsPanelEntity(null)}
                         refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
+                        tasks={tasks as Task[]}
                     />
                 )
             }

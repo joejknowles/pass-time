@@ -4,14 +4,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef } from "react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_TASK } from "../../lib/graphql/mutations";
-
-interface TaskDetails {
-    id: string;
-    title: string;
-}
+import { Task } from "../dayGrid/types";
 
 interface TaskInstanceDetailsProps {
-    task: TaskDetails;
+    task: Task;
+    tasks: Task[];
     onClose: () => void;
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
@@ -19,6 +16,7 @@ interface TaskInstanceDetailsProps {
 
 export const TaskDetails = ({
     task,
+    tasks,
     onClose,
     refetchAllTaskData,
     isMovingATask,
