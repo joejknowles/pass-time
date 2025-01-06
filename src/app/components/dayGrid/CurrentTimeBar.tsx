@@ -25,6 +25,7 @@ const CurrentTimeBar: React.FC<CurrentTimeBarProps> = ({ nowMinuteOfDay }) => {
                     backgroundColor: 'hsl(187, 80%, 75%)',
                     borderRadius: "50%",
                 },
+                pointerEvents: "none",
             }}
         />
     );

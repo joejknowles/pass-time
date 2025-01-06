@@ -134,7 +134,7 @@ export const DayCalendar = () => {
         setDraftTaskInstance(newTaskInstance);
     }
 
-    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay]);
+    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
 
     const updateCurrentDay = (day: Date) => {
         setCurrentDay(day);
