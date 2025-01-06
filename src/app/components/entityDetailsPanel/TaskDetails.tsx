@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, useMediaQuery, TextField } from "@mui/material";
+import { Box, Typography, IconButton, ClickAwayListener, TextField, Autocomplete, Chip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useRef } from "react";
 import { useMutation } from "@apollo/client";
@@ -83,6 +83,50 @@ export const TaskDetails = ({
                 >
                     {task.title}
                 </Typography>
+                <Autocomplete
+                    options={tasks.map((task) => ({ label: task.title, id: task.id }))}
+                    size="small"
+                    onChange={async (_e, selection) => {
+                        if (selection) {
+                            await updateTask({
+                                variables: {
+                                    input: {
+                                        id: task.id,
+                                        parentTaskId: selection.id,
+                                    },
+                                },
+                            });
+                            await refetchAllTaskData();
+                        }
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Parent Task"
+                            variant="standard"
+                        />
+                    )}
+                />
+                {task.parentTasks.length > 0 && (
+                    <Box sx={{ marginTop: 2 }}>
+                        <Typography variant="subtitle2" color="textSecondary">
+                            Parent Tasks:
+                        </Typography>
+                        {task.parentTasks.map((parentTask) => (
+                            <Chip key={parentTask.id} label={parentTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
+                        ))}
+                    </Box>
+                )}
+                {task.childTasks.length > 0 && (
+                    <Box sx={{ marginTop: 2 }}>
+                        <Typography variant="subtitle2" color="textSecondary">
+                            Child Tasks:
+                        </Typography>
+                        {task.childTasks.map((childTask) => (
+                            <Chip key={childTask.id} label={childTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
+                        ))}
+                    </Box>
+                )}
             </Box>
         </ClickAwayListener>
     );

@@ -19,7 +19,7 @@ export const resolvers = {
             }
             return await prisma.task.findMany({
                 where: { userId: context.user.id },
-                include: { user: true, taskInstances: true },
+                include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
             });
         },
         taskInstances: async (_parent: any, args: {
@@ -87,12 +87,14 @@ export const resolvers = {
                     include: {
                         user: true,
                         taskInstances: true,
+                        parentTasks: true,
+                        childTasks: true
                     },
                 });
             } else if (args.input.taskId) {
                 task = await prisma.task.findUnique({
                     where: { id: args.input.taskId, userId: user.id },
-                    include: { user: true, taskInstances: true },
+                    include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 });
             }
 
@@ -168,7 +170,7 @@ export const resolvers = {
                 const task = await prisma.task.update({
                     where: { id: taskInstance.taskId },
                     data: { title },
-                    include: { user: true, taskInstances: true },
+                    include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 });
                 taskInstance.task = task;
             }
@@ -214,6 +216,60 @@ export const resolvers = {
             }
 
             return true;
+        },
+        updateTask: async (
+            _parent: unknown,
+            args: { input: { id: string; title?: string; parentTaskId?: number } },
+            context: Context,
+            _info: GraphQLResolveInfo
+        ) => {
+            const { user } = context;
+            const { id, title, parentTaskId } = args.input;
+
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            const taskId = parseInt(id, 10);
+            if (isNaN(taskId)) {
+                throw new Error('Invalid Task ID');
+            }
+
+            let task = await prisma.task.findUnique({
+                where: { id: taskId, userId: user.id },
+                include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
+            });
+
+            if (!task) {
+                throw new Error('Task not found');
+            }
+
+            if (title) {
+                task = await prisma.task.update({
+                    where: { id: taskId },
+                    data: { title },
+                    include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
+                });
+            }
+
+            if (parentTaskId) {
+                await prisma.task.update({
+                    where: { id: parentTaskId },
+                    data: {
+                        childTasks: {
+                            connect: { id: taskId },
+                        },
+                    },
+                });
+
+
+                task = await prisma.task.findUnique({
+                    where: { id: taskId, userId: user.id },
+                    include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
+                });
+            }
+
+            return task;
         },
     },
     TaskInstance: {

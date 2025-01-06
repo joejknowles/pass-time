@@ -1,6 +1,8 @@
 export interface Task {
     id: string;
     title: string;
+    parentTasks: Task[];
+    childTasks: Task[];
 }
 
 export interface TaskInstance {

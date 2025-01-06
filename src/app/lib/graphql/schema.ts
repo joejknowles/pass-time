@@ -15,6 +15,8 @@ export const typeDefs = gql`
     title: String!
     user: User!
     taskInstances: [TaskInstance!]!
+    parentTasks: [Task!]!
+    childTasks: [Task!]!
   }
 
   type TaskInstance {
@@ -61,10 +63,17 @@ export const typeDefs = gql`
     start: StartTimeInput
   }
 
+  input UpdateTaskInput {
+    id: ID!
+    title: String
+    parentTaskId: Int
+  }
+
   type Mutation {
     createUser(email: String!, firebaseId: String!): User!
     createTaskInstance(input: CreateTaskInput!): TaskInstance!
     deleteTaskInstance(id: ID!): Boolean
     updateTaskInstance(input: UpdateTaskInstanceInput!): TaskInstance!
+    updateTask(input: UpdateTaskInput!): Task!
   }
 `;

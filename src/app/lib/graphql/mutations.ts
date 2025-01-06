@@ -92,6 +92,14 @@ export const GET_TASKS = gql`
         id
         email
       }
+      parentTasks {
+        id
+        title
+      }
+      childTasks {
+        id
+        title
+      }
       taskInstances {
         id,
         start {
@@ -105,10 +113,18 @@ export const GET_TASKS = gql`
 `;
 
 export const UPDATE_TASK = gql`
-  mutation UpdateTaskInstance($input: UpdateTaskInstanceInput!) {
-    updateTaskInstance(input: $input) {
+  mutation UpdateTask($input: UpdateTaskInput!) {
+    updateTask(input: $input) {
       id
       title
+      parentTasks {
+        id
+        title
+      }
+      childTasks {
+        id
+        title
+      }
     }
   }
 `;
