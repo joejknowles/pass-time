@@ -13,6 +13,9 @@ git pull origin main
 echo "Installing dependencies..."
 yarn install
 
+echo "generating prisma client..."
+yarn gc
+
 echo "Building the project..."
 yarn build
 
