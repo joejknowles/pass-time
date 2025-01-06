@@ -5,7 +5,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../lib/graphql/mutations";
+import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 
 interface TaskInstance {
     id: string;

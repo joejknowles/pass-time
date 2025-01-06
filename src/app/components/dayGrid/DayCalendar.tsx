@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
-import EntityDetailsPanel from "../EntityDetailsPanel";
+import EntityDetailsPanel from "../entityDetailsPanel/EntityDetailsPanel";
 import CurrentTimeBar from "./CurrentTimeBar";
 import { HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
