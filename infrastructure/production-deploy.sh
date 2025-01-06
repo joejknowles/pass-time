@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ "$(basename $(pwd))" != "pass-time" ]; then
     cd "./pass-time" || {
         echo "Error: Could not find or enter the 'pass-time' directory."
