@@ -4,13 +4,20 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Card, CardContent } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { GET_TASKS } from "../lib/graphql/mutations";
+import { OpenDetailsPanelEntity } from "./dayGrid/types";
 
 interface Task {
     id: string;
     title: string;
 }
 
-export const Tasks = () => {
+interface TasksProps {
+    setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
+}
+
+export const Tasks = ({
+    setOpenDetailsPanelEntity,
+}: TasksProps) => {
     const { data } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const [taskOrder, setTaskOrder] = useState<Task[]>(data?.tasks.map((task) => ({ id: `${task.id}`, title: task.title })) || []);
 
@@ -39,12 +46,20 @@ export const Tasks = () => {
                                             ref={provided.innerRef}
                                             sx={{
                                                 ...provided.draggableProps.style,
-                                                cursor: 'pointer',
+
                                             }}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
                                         >
-                                            <Card sx={{ mb: 1, backgroundColor: 'white' }}>
+                                            <Card
+                                                onClick={() => {
+                                                    setOpenDetailsPanelEntity({ id: task.id, type: "Task" });
+                                                }}
+                                                sx={{
+                                                    mb: 1, backgroundColor: 'white',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
                                                 <CardContent>
                                                     {task.title}
                                                 </CardContent>

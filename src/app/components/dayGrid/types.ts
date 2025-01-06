@@ -1,7 +1,6 @@
 export interface Task {
-    id: number;
+    id: string;
     title: string;
-    userId: number;
 }
 
 export interface TaskInstance {
@@ -26,3 +25,8 @@ export interface DraftTaskInstance {
 }
 
 export type MoveType = "start" | "end" | "both";
+
+export interface OpenDetailsPanelEntity {
+    id: string;
+    type: "Task" | "TaskInstance";
+}

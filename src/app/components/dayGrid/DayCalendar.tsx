@@ -11,12 +11,21 @@ import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
 import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
-import type { DraftTaskInstance, Task, TaskInstance } from "./types";
+import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
-export const DayCalendar = () => {
+
+interface DayCalendarProps {
+    openDetailsPanelEntity: OpenDetailsPanelEntity | null;
+    setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
+}
+
+export const DayCalendar = ({
+    openDetailsPanelEntity,
+    setOpenDetailsPanelEntity,
+}: DayCalendarProps) => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
@@ -24,19 +33,6 @@ export const DayCalendar = () => {
     const [isSubmittingTaskInstance, setIsSubmittingTaskInstance] = useState(false);
 
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
-
-    const [openDetailsPanelEntity, setOpenDetailsPanelEntityRaw] = useState<{ id: string, type: "Task" | "TaskInstance" } | null>(null);
-
-    const setOpenDetailsPanelEntity = (newOpenEntity: { id: string, type: "Task" | "TaskInstance" } | null) => {
-        setOpenDetailsPanelEntityRaw(newOpenEntity);
-        if (newOpenEntity?.type === "TaskInstance" && isNarrowScreen) {
-            const taskInstanceCard = document.getElementById(`task-instance-calendar-card-${newOpenEntity.id}`);
-            if (taskInstanceCard) {
-                const topOffset = taskInstanceCard.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + 100;
-                window.scrollTo({ top: topOffset, behavior: 'smooth' });
-            }
-        }
-    }
 
     const [createTaskInstance, {
         error: errorFromCreatingTaskInstance
@@ -183,6 +179,7 @@ export const DayCalendar = () => {
             <EntityDetailsPanel
                 openDetailsPanelEntity={openDetailsPanelEntity}
                 taskInstances={taskInstances}
+                tasks={tasks}
                 setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                 refetchAllTaskData={refetchAllTaskData}
                 movingTaskInfo={movingTaskInfo}
@@ -249,7 +246,7 @@ export const DayCalendar = () => {
                             draftTaskInstance={draftTaskInstance}
                             setDraftTaskInstance={setDraftTaskInstance}
                             finalizeTaskInstance={finalizeTaskInstance}
-                            tasks={tasks}
+                            tasks={tasks as Task[]}
                             isSubmittingTaskInstance={isSubmittingTaskInstance}
                         />
                     )}

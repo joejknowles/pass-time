@@ -103,3 +103,12 @@ export const GET_TASKS = gql`
     }
   }
 `;
+
+export const UPDATE_TASK = gql`
+  mutation UpdateTaskInstance($input: UpdateTaskInstanceInput!) {
+    updateTaskInstance(input: $input) {
+      id
+      title
+    }
+  }
+`;

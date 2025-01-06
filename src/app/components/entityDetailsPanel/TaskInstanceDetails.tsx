@@ -11,7 +11,6 @@ interface TaskInstance {
     id: string;
     task: {
         title: string;
-        userId: number;
     };
     start: {
         date: string;

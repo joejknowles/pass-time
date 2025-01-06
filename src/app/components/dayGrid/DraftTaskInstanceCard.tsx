@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Autocomplete, Box, ClickAwayListener, TextField, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { Task } from "@prisma/client";
+import { Task } from "./types";
 
 interface DraftTaskInstance {
     title: string;
@@ -11,7 +11,7 @@ interface DraftTaskInstance {
         minute: number;
     };
     duration: number;
-    taskId?: number;
+    taskId?: string;
 }
 
 const daytimeHours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];

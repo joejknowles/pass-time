@@ -1,11 +1,12 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
 import { useLayoutEffect, useState } from "react";
+import { TaskDetails } from "./TaskDetails";
+import { OpenDetailsPanelEntity } from "../dayGrid/types";
 
 interface Task {
-    id: number;
+    id: string;
     title: string;
-    userId: number;
 }
 
 interface TaskInstance {
@@ -20,10 +21,11 @@ interface TaskInstance {
 }
 
 interface EntityDetailsPanelProps {
-    openDetailsPanelEntity: { id: string, type: "Task" | "TaskInstance" } | null;
+    openDetailsPanelEntity: OpenDetailsPanelEntity | null;
     taskInstances: TaskInstance[] | undefined;
+    tasks: Task[] | undefined;
     setOpenDetailsPanelEntity: (
-        entity: { id: string, type: "Task" | "TaskInstance" } | null
+        entity: OpenDetailsPanelEntity | null
     ) => void;
     refetchAllTaskData: () => void;
     movingTaskInfo: any;
@@ -33,10 +35,11 @@ interface EntityDetailsPanelProps {
 const EntityDetailsPanel = ({
     openDetailsPanelEntity,
     taskInstances,
+    tasks,
     setOpenDetailsPanelEntity,
     refetchAllTaskData,
     movingTaskInfo,
-    setCurrentDay
+    setCurrentDay,
 }: EntityDetailsPanelProps) => {
     const theme = useTheme();
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
@@ -125,14 +128,28 @@ const EntityDetailsPanel = ({
         >
             {
                 openDetailsPanelEntity?.type === "TaskInstance" &&
-                <TaskInstanceDetails
-                    key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
-                    taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
-                    onClose={() => setOpenDetailsPanelEntity(null)}
-                    refetchAllTaskData={refetchAllTaskData}
-                    isMovingATask={!!movingTaskInfo}
-                    setCurrentDay={setCurrentDay}
-                />
+                (
+                    <TaskInstanceDetails
+                        key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
+                        taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
+                        onClose={() => setOpenDetailsPanelEntity(null)}
+                        refetchAllTaskData={refetchAllTaskData}
+                        isMovingATask={!!movingTaskInfo}
+                        setCurrentDay={setCurrentDay}
+                    />
+                )
+            }
+            {
+                openDetailsPanelEntity?.type === "Task" &&
+                (
+                    <TaskDetails
+                        key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
+                        task={tasks?.find((t) => t.id == openDetailsPanelEntity.id) as Task}
+                        onClose={() => setOpenDetailsPanelEntity(null)}
+                        refetchAllTaskData={refetchAllTaskData}
+                        isMovingATask={!!movingTaskInfo}
+                    />
+                )
             }
         </Box>
     );
