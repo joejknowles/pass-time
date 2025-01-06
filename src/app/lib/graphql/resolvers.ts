@@ -8,11 +8,6 @@ export type Context = BaseContext & { user: User | null };
 
 export const resolvers = {
     Query: {
-        users: async () => {
-            return await prisma.user.findMany({
-                include: { tasks: true, taskInstances: true },
-            });
-        },
         tasks: async (_parent: any, _args: any, context: Context) => {
             if (!context.user) {
                 throw new Error('User not authenticated');
@@ -34,7 +29,14 @@ export const resolvers = {
                         lt: new Date(new Date(args.input.date).getTime() + 24 * 60 * 60 * 1000),
                     }
                 },
-                include: { user: true, task: true },
+                include: {
+                    user: true, task: {
+                        include: {
+                            parentTasks: true,
+                            childTasks: true,
+                        },
+                    }
+                },
             });
         },
     },
@@ -193,7 +195,11 @@ export const resolvers = {
                 where: { id: taskInstanceId, userId: user.id },
                 include: {
                     user: true, task: {
-                        include: { taskInstances: true },
+                        include: {
+                            taskInstances: true,
+                            parentTasks: true,
+                            childTasks: true,
+                        },
                     }
                 },
             });
@@ -203,13 +209,16 @@ export const resolvers = {
             }
 
             const taskId = taskInstance.taskId;
-            const wasOnlyInstanceOfTask = taskInstance.task.taskInstances.length === 1;
+            const wasOnlyUseOfTask =
+                taskInstance.task.taskInstances.length === 1 &&
+                taskInstance.task.parentTasks.length === 0 &&
+                taskInstance.task.childTasks.length === 0;
 
             await prisma.taskInstance.delete({
                 where: { id: taskInstanceId },
             });
 
-            if (wasOnlyInstanceOfTask) {
+            if (wasOnlyUseOfTask) {
                 await prisma.task.delete({
                     where: { id: taskId },
                 });
