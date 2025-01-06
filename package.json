@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "npx prisma migrate dev --name",
-    "prisma-deploy": "npx prisma deploy",
+    "prisma-deploy": "npx prisma migrate deploy",
     "generate-prisma-client": "npx prisma generate",
     "gc": "yarn generate-prisma-client",
     "ts-check": "tsc --noEmit"

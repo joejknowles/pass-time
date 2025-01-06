@@ -6,6 +6,59 @@ const prisma = new PrismaClient();
 
 export type Context = BaseContext & { user: User | null };
 
+const isTaskHierarchyValid = async (
+    taskId: number,
+    parentTaskId: number,
+    userId: number
+) => {
+    const checkUpwards = async (parentTaskId: number, mainTaskId: number, depth: number): Promise<number> => {
+        if (parentTaskId === mainTaskId) {
+            throw new Error('Cyclic task hierarchy detected');
+        }
+
+        const task = await prisma.task.findUnique({
+            where: { id: parentTaskId, userId },
+            include: { parentTasks: true },
+        });
+
+        let maxDepth = depth;
+        if (task) {
+            for (const parent of task.parentTasks) {
+                maxDepth = Math.max(maxDepth, await checkUpwards(parent.id, mainTaskId, depth + 1));
+            }
+        }
+        return maxDepth;
+    };
+
+    const checkDownwards = async (childTaskId: number, requestedParentTaskId: number, depth: number): Promise<number> => {
+        if (requestedParentTaskId === childTaskId) {
+            throw new Error('Cyclic task hierarchy detected');
+        }
+
+        const task = await prisma.task.findUnique({
+            where: { id: childTaskId, userId },
+            include: { childTasks: true },
+        });
+
+        let maxDepth = depth;
+        if (task) {
+            for (const child of task.childTasks) {
+                maxDepth = Math.max(maxDepth, await checkDownwards(child.id, requestedParentTaskId, depth + 1));
+            }
+        }
+        return maxDepth;
+    };
+
+    const upwardDepth = await checkUpwards(parentTaskId, taskId, 1);
+    const downwardDepth = await checkDownwards(taskId, parentTaskId, 1);
+
+    if (upwardDepth + downwardDepth - 1 > 20) {
+        throw new Error('Task hierarchy chain exceeds 20 tasks');
+    }
+
+    return true;
+}
+
 export const resolvers = {
     Query: {
         tasks: async (_parent: any, _args: any, context: Context) => {
@@ -21,13 +74,18 @@ export const resolvers = {
             input: {
                 date: string;
             }
-        }) => {
+        }, context: Context) => {
+            if (!context.user) {
+                throw new Error('User not authenticated');
+            }
+
             return await prisma.taskInstance.findMany({
                 where: {
                     startTime: {
                         gte: new Date(args.input.date),
                         lt: new Date(new Date(args.input.date).getTime() + 24 * 60 * 60 * 1000),
-                    }
+                    },
+                    userId: context.user.id
                 },
                 include: {
                     user: true, task: {
@@ -41,7 +99,10 @@ export const resolvers = {
         },
     },
     Mutation: {
-        createUser: async (_: any, args: { email: string, firebaseId: string }) => {
+        createUser: async (_: any, args: { email: string, firebaseId: string }, context: Context) => {
+            if (!context.user) {
+                throw new Error('User not authenticated');
+            }
             const result = await prisma.user.create({
                 data: { email: args.email, firebaseId: args.firebaseId },
             });
@@ -159,7 +220,7 @@ export const resolvers = {
 
             if (startTime || duration) {
                 taskInstance = await prisma.taskInstance.update({
-                    where: { id: taskInstanceId },
+                    where: { id: taskInstanceId, userId: user.id },
                     data: {
                         ...(duration && { duration }),
                         ...(startTime && { startTime }),
@@ -170,7 +231,7 @@ export const resolvers = {
 
             if (title) {
                 const task = await prisma.task.update({
-                    where: { id: taskInstance.taskId },
+                    where: { id: taskInstance.taskId, userId: user.id },
                     data: { title },
                     include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 });
@@ -215,12 +276,12 @@ export const resolvers = {
                 taskInstance.task.childTasks.length === 0;
 
             await prisma.taskInstance.delete({
-                where: { id: taskInstanceId },
+                where: { id: taskInstanceId, userId: user.id },
             });
 
             if (wasOnlyUseOfTask) {
                 await prisma.task.delete({
-                    where: { id: taskId },
+                    where: { id: taskId, userId: user.id },
                 });
             }
 
@@ -255,15 +316,17 @@ export const resolvers = {
 
             if (title) {
                 task = await prisma.task.update({
-                    where: { id: taskId },
+                    where: { id: taskId, userId: user.id },
                     data: { title },
                     include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 });
             }
 
             if (parentTaskId) {
+                const hasValidHierarchy = await isTaskHierarchyValid(taskId, parentTaskId, user.id);
+
                 await prisma.task.update({
-                    where: { id: parentTaskId },
+                    where: { id: parentTaskId, userId: user.id },
                     data: {
                         childTasks: {
                             connect: { id: taskId },

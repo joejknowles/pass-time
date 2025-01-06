@@ -77,7 +77,15 @@ export const GET_TASK_INSTANCES = gql`
       }
       task {
         id,
-        title
+        title,
+        parentTasks {
+          id
+          title
+        }
+        childTasks {
+          id
+          title
+        }
       }
     }
   }
