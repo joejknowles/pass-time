@@ -2,12 +2,7 @@ import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
 import { useLayoutEffect, useState } from "react";
 import { TaskDetails } from "./TaskDetails";
-import { OpenDetailsPanelEntity } from "../dayGrid/types";
-
-interface Task {
-    id: string;
-    title: string;
-}
+import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 
 interface TaskInstance {
     id: string;

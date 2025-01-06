@@ -14,7 +14,7 @@ echo "Installing dependencies..."
 yarn install
 
 echo "Building the project..."
-yarn build --no-lint
+yarn build
 
 echo "Restarting the server..."
 pm2 restart nextjs
