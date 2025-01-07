@@ -73,7 +73,7 @@ export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets 
                     </TextField>
                     <Autocomplete
                         options={taskData?.tasks.map((task: any) => ({ label: task.title, id: task.id })) || []}
-                        onChange={(_e, selection) => setNewTarget({ ...newTarget, taskId: selection?.id || '' })}
+                        onChange={(_e, selection: { id: string, label: string } | null) => setNewTarget({ ...newTarget, taskId: selection?.id || '' })}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
