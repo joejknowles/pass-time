@@ -97,6 +97,7 @@ export const resolvers = {
             return await prisma.task.findMany({
                 where: { userId: context.user.id },
                 include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
+                orderBy: { taskInstances: { _count: 'desc' } },
             });
         },
         taskInstances: async (_parent: any, args: {
