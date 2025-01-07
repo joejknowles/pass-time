@@ -23,7 +23,8 @@ export const TaskDetails = ({
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
-    const [updateTask] = useMutation(UPDATE_TASK);
+    const [updateTask, { error: taskUpdateErrorRaw }] = useMutation(UPDATE_TASK);
+    const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -47,7 +48,6 @@ export const TaskDetails = ({
             onClose();
         }
     }
-
 
     return (
         <ClickAwayListener onClickAway={closeIfNotMoving}>
@@ -83,6 +83,11 @@ export const TaskDetails = ({
                 >
                     {task.title}
                 </Typography>
+                {taskUpdateError && !taskUpdateError.extensions?.fieldName && (
+                    <Typography variant="subtitle2" color="error">
+                        {taskUpdateError.message}
+                    </Typography>
+                )}
                 <Autocomplete
                     options={tasks.map((task) => ({ label: task.title, id: task.id }))}
                     size="small"
@@ -104,6 +109,8 @@ export const TaskDetails = ({
                             {...params}
                             label="Parent Task"
                             variant="standard"
+                            error={taskUpdateError?.extensions?.fieldName === "parentTaskId"}
+                            helperText={taskUpdateError?.extensions?.fieldName === "parentTaskId" && taskUpdateError.message}
                         />
                     )}
                 />

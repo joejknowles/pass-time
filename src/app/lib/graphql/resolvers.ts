@@ -1,7 +1,7 @@
 import { admin } from '@/lib/firebaseAdmin';
 import { Context as BaseContext } from '@apollo/client';
 import { PrismaClient, TaskInstance, User } from '@prisma/client';
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
 
@@ -12,9 +12,23 @@ const isTaskHierarchyValid = async (
     parentTaskId: number,
     userId: number
 ) => {
+    if (taskId === parentTaskId) {
+        throw new GraphQLError('Task cannot be parent of itself', {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+                fieldName: 'parentTaskId',
+            },
+        });
+    }
+
     const checkUpwards = async (parentTaskId: number, mainTaskId: number, depth: number): Promise<number> => {
         if (parentTaskId === mainTaskId) {
-            throw new Error('Cyclic task hierarchy detected');
+            throw new GraphQLError('Cyclic task hierarchy detected', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    fieldName: 'parentTaskId',
+                },
+            });
         }
 
         const task = await prisma.task.findUnique({
@@ -33,7 +47,12 @@ const isTaskHierarchyValid = async (
 
     const checkDownwards = async (childTaskId: number, requestedParentTaskId: number, depth: number): Promise<number> => {
         if (requestedParentTaskId === childTaskId) {
-            throw new Error('Cyclic task hierarchy detected');
+            throw new GraphQLError('Cyclic task hierarchy detected', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    fieldName: 'parentTaskId',
+                },
+            });
         }
 
         const task = await prisma.task.findUnique({
@@ -54,7 +73,12 @@ const isTaskHierarchyValid = async (
     const downwardDepth = await checkDownwards(taskId, parentTaskId, 1);
 
     if (upwardDepth + downwardDepth - 1 > 20) {
-        throw new Error('Task hierarchy chain exceeds 20 tasks');
+        throw new GraphQLError("Can't be added – task hierarchies can't be more than 20 tasks long", {
+            extensions: {
+                code: 'BAD_USER_INPUT',
+                fieldName: 'parentTaskId',
+            },
+        });
     }
 
     return true;
@@ -64,7 +88,11 @@ export const resolvers = {
     Query: {
         tasks: async (_parent: any, _args: any, context: Context) => {
             if (!context.user) {
-                throw new Error('User not authenticated');
+                throw new GraphQLError('User not authenticated', {
+                    extensions: {
+                        code: 'UNAUTHENTICATED',
+                    },
+                })
             }
             return await prisma.task.findMany({
                 where: { userId: context.user.id },
@@ -328,6 +356,10 @@ export const resolvers = {
 
             if (parentTaskId) {
                 const hasValidHierarchy = await isTaskHierarchyValid(taskId, parentTaskId, user.id);
+
+                if (!hasValidHierarchy) {
+                    throw new Error('Invalid task hierarchy');
+                }
 
                 await prisma.task.update({
                     where: { id: parentTaskId, userId: user.id },
