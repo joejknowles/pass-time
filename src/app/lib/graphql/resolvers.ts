@@ -85,6 +85,49 @@ const isTaskHierarchyValid = async (
     return true;
 }
 
+const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, depth: number = 0): Promise<number> => {
+    if (depth > 20) {
+        throw new GraphQLError("Too many nested tasks");
+    }
+    // starts Monday
+    const numberOfDaysSinceStartOfWeek = new Date().getDay() === 0
+        ? 6
+        : new Date().getDay() - 1;
+    const timeRange = balanceTarget.timeWindow === 'DAILY' ? {
+        gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        lt: new Date(new Date().setHours(24, 0, 0, 0)),
+    } : {
+        gte: new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000 * numberOfDaysSinceStartOfWeek),
+        lt: new Date(new Date().setHours(24, 0, 0, 0)),
+    }
+
+    const task = await prisma.task.findUnique({
+        where: {
+            id: taskId,
+            userId: balanceTarget.userId,
+        },
+        include: {
+            childTasks: true, taskInstances: {
+                where: {
+                    startTime: timeRange,
+                }
+            }
+        },
+    });
+
+    if (!task) {
+        return 0;
+    }
+
+    let totalDuration = task.taskInstances.reduce((sum, instance) => sum + instance.duration, 0);
+
+    for (const childTask of task.childTasks) {
+        totalDuration += await calculateProgress(childTask.id, balanceTarget, depth + 1);
+    }
+
+    return totalDuration;
+};
+
 export const resolvers = {
     Query: {
         tasks: async (_parent: any, _args: any, context: Context) => {
@@ -443,6 +486,18 @@ export const resolvers = {
                 hour: startTime.getUTCHours(),
                 minute: startTime.getUTCMinutes(),
             };
+        },
+    },
+    BalanceTarget: {
+        progress: async (parent: BalanceTarget, _args: any, context: Context) => {
+            if (!context.user) {
+                throw new GraphQLError('User not authenticated', {
+                    extensions: {
+                        code: 'UNAUTHENTICATED',
+                    },
+                });
+            }
+            return await calculateProgress(parent.taskId, parent);
         },
     },
 };

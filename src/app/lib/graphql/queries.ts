@@ -6,6 +6,7 @@ export const GET_BALANCE_TARGETS = gql`
       id
       timeWindow
       targetAmount
+      progress
       task {
         id
         title

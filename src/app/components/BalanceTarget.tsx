@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BALANCE_TARGETS } from "../lib/graphql/queries";
 import { CreateBalanceTargetModal } from "./CreateBalanceTargetModal";
@@ -10,6 +10,10 @@ export const BalanceTargets = () => {
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
+
+    useEffect(() => {
+        refetchBalanceTargets();
+    }, [open]);
 
     if (!balanceTargetData) {
         return <Typography>Loading...</Typography>;
@@ -26,7 +30,7 @@ export const BalanceTargets = () => {
                 <ul>
                     {balanceTargetData?.balanceTargets.map((balanceTarget: any, index: number) => (
                         <li key={index}>
-                            {balanceTarget.timeWindow} target for task "{balanceTarget.task.title}" with amount {balanceTarget.targetAmount}
+                            {balanceTarget.timeWindow} target for task "{balanceTarget.task.title}" {balanceTarget.progress}/{balanceTarget.targetAmount}
                         </li>
                     ))}
                 </ul>

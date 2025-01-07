@@ -43,6 +43,7 @@ export const typeDefs = gql`
     timeWindow: TimeWindow!
     task: Task!
     targetAmount: Int!
+    progress: Int!
   }
 
   type Query {
