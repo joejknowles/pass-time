@@ -25,6 +25,7 @@ export const TaskDetails = ({
 
     const [updateTask, { error: taskUpdateErrorRaw }] = useMutation(UPDATE_TASK);
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
+    const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -83,9 +84,9 @@ export const TaskDetails = ({
                 >
                     {task.title}
                 </Typography>
-                {taskUpdateError && !taskUpdateError.extensions?.fieldName && (
+                {genericErrorMessage && (
                     <Typography variant="subtitle2" color="error">
-                        {taskUpdateError.message}
+                        {genericErrorMessage}
                     </Typography>
                 )}
                 <Autocomplete
