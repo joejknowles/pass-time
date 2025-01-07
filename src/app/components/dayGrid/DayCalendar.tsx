@@ -68,6 +68,8 @@ export const DayCalendar = ({
 
     const { movingTaskInfo, startMovingTaskInstance } = useTaskInstanceMovement(taskInstances, updateTaskInstance);
 
+    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
+
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
 
@@ -86,6 +88,9 @@ export const DayCalendar = ({
 
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
+                if (isViewingToday && currentDay.getTime() !== new Date().getTime()) {
+                    setCurrentDay(new Date(new Date().toDateString()));
+                }
                 setUpInterval();
             }
         };
@@ -97,7 +102,7 @@ export const DayCalendar = ({
             clearTimeout(initialTimeout);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [isViewingToday]);
 
     useEffect(() => {
         refetchAllTaskData();
@@ -137,8 +142,6 @@ export const DayCalendar = ({
         };
         setDraftTaskInstance(newTaskInstance);
     }
-
-    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
 
     const updateCurrentDay = (day: Date) => {
         setCurrentDay(day);
