@@ -34,7 +34,7 @@ export const Tasks = ({
     };
 
     return (
-        <Box>
+        <Box sx={{ height: '100%', padding: 1, overflowY: 'auto', scrollbarGutter: 'none' }}>
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="tasks-list">
                     {(provided: any) => (
