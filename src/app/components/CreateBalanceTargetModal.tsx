@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, Typography, Autocomplete } from "@mui/material";
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_BALANCE_TARGET, GET_TASKS } from "../lib/graphql/mutations";
@@ -24,8 +24,14 @@ export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets 
     const [newTarget, setNewTarget] = useState({ timeWindow: 'DAILY', taskId: '', targetAmount: 30 });
     const [createBalanceTarget, { loading, error: createBalanceTargetError }] = useMutation(CREATE_BALANCE_TARGET);
     const { data: taskData } = useQuery(GET_TASKS);
+    const [taskError, setTaskError] = useState<string | null>(null);
 
     const handleCreateBalanceTarget = async () => {
+        if (!newTarget.taskId) {
+            setTaskError('Task is required');
+            return;
+        }
+        setTaskError(null);
         await createBalanceTarget({
             variables: {
                 input: {
@@ -65,21 +71,21 @@ export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets 
                         <MenuItem value="DAILY">Daily</MenuItem>
                         <MenuItem value="WEEKLY">Weekly</MenuItem>
                     </TextField>
-                    <TextField
-                        select={taskData?.tasks.length > 0}
-                        disabled={!taskData || taskData?.tasks.length === 0 || loading}
-                        label="Task"
-                        value={newTarget.taskId}
-                        onChange={(e) => setNewTarget({ ...newTarget, taskId: e.target.value })}
-                        fullWidth
-                        margin="normal"
-                    >
-                        {taskData?.tasks.map((task: any) => (
-                            <MenuItem key={task.id} value={task.id}>
-                                {task.title}
-                            </MenuItem>
-                        ))}
-                    </TextField>
+                    <Autocomplete
+                        options={taskData?.tasks.map((task: any) => ({ label: task.title, id: task.id })) || []}
+                        onChange={(_e, selection) => setNewTarget({ ...newTarget, taskId: selection?.id || '' })}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Task"
+                                fullWidth
+                                margin="normal"
+                                disabled={loading}
+                                error={!!taskError}
+                                helperText={taskError}
+                            />
+                        )}
+                    />
                     <TextField
                         select
                         label="Target Amount"
