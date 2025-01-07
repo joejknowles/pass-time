@@ -21,6 +21,7 @@ model User {
 
   tasks         Task[]
   taskInstances TaskInstance[]
+  balanceTargets BalanceTarget[]
 }
 
 model Task {
@@ -33,6 +34,7 @@ model Task {
   childTasks  Task[] @relation("ParentChildTasks")
 
   taskInstances TaskInstance[]
+  balanceTargets BalanceTarget[]
 }
 
 model TaskInstance {
@@ -45,4 +47,20 @@ model TaskInstance {
   duration Int   @default(60)
 
   @@unique([userId, taskId, startTime])
+}
+
+enum TimeWindow {
+  DAILY
+  WEEKLY
+}
+
+model BalanceTarget {
+  id           Int        @id @default(autoincrement())
+  timeWindow   TimeWindow
+  taskId       Int
+  targetAmount Int
+  userId       Int
+
+  task         Task       @relation(fields: [taskId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
 }

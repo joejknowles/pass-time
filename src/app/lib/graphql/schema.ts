@@ -33,10 +33,23 @@ export const typeDefs = gql`
       minute: Int!
   }
 
+  enum TimeWindow {
+    DAILY
+    WEEKLY
+  }
+
+  type BalanceTarget {
+    id: Int!
+    timeWindow: TimeWindow!
+    task: Task!
+    targetAmount: Int!
+  }
+
   type Query {
     users: [User!]!
     tasks: [Task!]!
     taskInstances(input: GetTaskInstancesInput!): [TaskInstance!]!
+    balanceTargets: [BalanceTarget!]!
   }
 
   input GetTaskInstancesInput {
@@ -54,6 +67,12 @@ export const typeDefs = gql`
     taskId: Int
     start: StartTimeInput!
     duration: Int!
+  }
+
+  input CreateBalanceTargetInput {
+    timeWindow: TimeWindow!
+    taskId: Int!
+    targetAmount: Int!
   }
 
   input UpdateTaskInstanceInput {
@@ -75,5 +94,6 @@ export const typeDefs = gql`
     deleteTaskInstance(id: ID!): Boolean
     updateTaskInstance(input: UpdateTaskInstanceInput!): TaskInstance!
     updateTask(input: UpdateTaskInput!): Task!
+    createBalanceTarget(input: CreateBalanceTargetInput!): BalanceTarget!
   }
 `;

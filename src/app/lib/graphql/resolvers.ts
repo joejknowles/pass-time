@@ -1,6 +1,7 @@
+// gradually migrating to `throw new GraphQLError` instead of `throw new Error`
 import { admin } from '@/lib/firebaseAdmin';
 import { Context as BaseContext } from '@apollo/client';
-import { PrismaClient, TaskInstance, User } from '@prisma/client';
+import { BalanceTarget, PrismaClient, TaskInstance, User } from '@prisma/client';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
@@ -125,6 +126,19 @@ export const resolvers = {
                         },
                     }
                 },
+            });
+        },
+        balanceTargets: async (_parent: any, _args: any, context: Context) => {
+            if (!context.user) {
+                throw new GraphQLError('User not authenticated', {
+                    extensions: {
+                        code: 'UNAUTHENTICATED',
+                    },
+                });
+            }
+            return await prisma.balanceTarget.findMany({
+                where: { userId: context.user.id },
+                include: { task: true },
             });
         },
     },
@@ -379,6 +393,46 @@ export const resolvers = {
             }
 
             return task;
+        },
+        createBalanceTarget: async (
+            _parent: unknown,
+            args: { input: { timeWindow: string, taskId: number, targetAmount: number } },
+            context: Context
+        ) => {
+            const { user } = context;
+
+            if (!user) {
+                throw new GraphQLError('User not authenticated', {
+                    extensions: {
+                        code: 'UNAUTHENTICATED',
+                    },
+                });
+            }
+
+            const task = await prisma.task.findUnique({
+                where: { id: args.input.taskId, userId: user.id },
+            });
+
+            if (!task) {
+                throw new GraphQLError('Task not found', {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        fieldName: 'taskId',
+                    },
+                });
+            }
+
+            const balanceTarget = await prisma.balanceTarget.create({
+                data: {
+                    timeWindow: args.input.timeWindow as BalanceTarget['timeWindow'],
+                    taskId: args.input.taskId,
+                    targetAmount: args.input.targetAmount,
+                    userId: user.id,
+                },
+                include: { task: true },
+            });
+
+            return balanceTarget;
         },
     },
     TaskInstance: {

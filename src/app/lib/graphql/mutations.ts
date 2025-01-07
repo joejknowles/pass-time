@@ -136,3 +136,17 @@ export const UPDATE_TASK = gql`
     }
   }
 `;
+
+export const CREATE_BALANCE_TARGET = gql`
+  mutation CreateBalanceTarget($input: CreateBalanceTargetInput!) {
+    createBalanceTarget(input: $input) {
+      id
+      timeWindow
+      targetAmount
+      task {
+        id
+        title
+      }
+    }
+  }
+`;
