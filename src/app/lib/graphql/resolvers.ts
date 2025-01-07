@@ -1,3 +1,4 @@
+import { admin } from '@/lib/firebaseAdmin';
 import { Context as BaseContext } from '@apollo/client';
 import { PrismaClient, TaskInstance, User } from '@prisma/client';
 import { GraphQLResolveInfo } from 'graphql';
@@ -99,10 +100,13 @@ export const resolvers = {
         },
     },
     Mutation: {
-        createUser: async (_: any, args: { email: string, firebaseId: string }, context: Context) => {
-            if (!context.user) {
-                throw new Error('User not authenticated');
+        createUser: async (_: any, args: { email: string, firebaseId: string, token: string }) => {
+            const decodedToken = await admin.auth().verifyIdToken(args.token);
+
+            if (decodedToken.uid !== args.firebaseId) {
+                throw new Error('Firebase ID does not match token');
             }
+
             const result = await prisma.user.create({
                 data: { email: args.email, firebaseId: args.firebaseId },
             });
