@@ -4,7 +4,6 @@ import { Tasks } from "./Tasks";
 import { withSignedInLayout } from "./SignedInLayout";
 import { useState } from "react";
 import { OpenDetailsPanelEntity } from "./dayGrid/types";
-import { BalanceTargets } from "./BalanceTarget";
 
 const Dashboard = () => {
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
@@ -32,11 +31,9 @@ const Dashboard = () => {
                 isNarrowScreen ? {} : { overflow: "hidden" }
             )
         }}>
-            <BalanceTargets />
             <Box
                 sx={{
                     width: "100%",
-                    mt: 2,
                     mb: 2,
                     ...(
                         isNarrowScreen

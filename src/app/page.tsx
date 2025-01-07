@@ -16,11 +16,14 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import Dashboard from "./components/Dashboard";
+import { BalanceTargetsModal } from "./components/BalanceTargetsModal";
+import EverywhereProviders from "./components/EverywhereProviders";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isNarrowScreen = useMediaQuery("(max-width:710px)");
+  const [balanceTargetsOpen, setBalanceTargetsOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -40,6 +43,15 @@ export default function Home() {
   const handleSignOut = () => {
     signOut(auth);
     handleMenuClose();
+  };
+
+  const handleBalanceTargetsOpen = () => {
+    setBalanceTargetsOpen(true);
+    handleMenuClose();
+  };
+
+  const handleBalanceTargetsClose = () => {
+    setBalanceTargetsOpen(false);
   };
 
   return (
@@ -86,6 +98,7 @@ export default function Home() {
                   horizontal: "right",
                 }}
               >
+                <MenuItem onClick={handleBalanceTargetsOpen}>Balance Targets</MenuItem>
                 <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
               </Menu>
             </>
@@ -101,6 +114,14 @@ export default function Home() {
           )}
         </Toolbar>
       </AppBar>
+
+      {
+        user && (
+          <EverywhereProviders>
+            <BalanceTargetsModal open={balanceTargetsOpen} onClose={handleBalanceTargetsClose} />
+          </EverywhereProviders>
+        )
+      }
 
       {
         user ? (
