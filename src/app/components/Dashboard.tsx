@@ -4,6 +4,7 @@ import { Tasks } from "./Tasks";
 import { withSignedInLayout } from "./SignedInLayout";
 import { useState } from "react";
 import { OpenDetailsPanelEntity } from "./dayGrid/types";
+import { BalanceTargets } from "./BalanceTarget";
 
 const Dashboard = () => {
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
@@ -21,16 +22,34 @@ const Dashboard = () => {
     }
 
     return (
-        <Container sx={{ mt: 4 }}>
+        <Container sx={{
+            mt: 3,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            flexGrow: 1,
+            ...(
+                isNarrowScreen ? {} : { overflow: "hidden" }
+            )
+        }}>
+            <BalanceTargets />
             <Box
-                sx={
-                    isNarrowScreen
-                        ? undefined
-                        : {
-                            display: "flex",
-                            height: "80vh",
-                            justifyContent: "center",
-                        }
+                sx={{
+                    width: "100%",
+                    mt: 2,
+                    mb: 2,
+                    ...(
+                        isNarrowScreen
+                            ? undefined
+                            : {
+                                display: "flex",
+                                flexGrow: 1,
+                                justifyContent: "center",
+                                overflow: "hidden",
+                            }
+                    )
+                }
+
                 }
             >
                 {!isNarrowScreen && (

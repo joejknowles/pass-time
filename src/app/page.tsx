@@ -12,12 +12,15 @@ import {
   Menu,
   MenuItem,
   Container,
+  Box,
+  useMediaQuery,
 } from "@mui/material";
-import Dashboard  from "./components/Dashboard";
+import Dashboard from "./components/Dashboard";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -40,7 +43,13 @@ export default function Home() {
   };
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        ...(isNarrowScreen ? {} : { height: "100vh", overflow: "hidden" }),
+      }}
+    >
       <AppBar position="static" sx={{ bgcolor: "white", color: "black" }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -93,15 +102,17 @@ export default function Home() {
         </Toolbar>
       </AppBar>
 
-      {user ? (
-        <Dashboard />
-      ) : (
-        <Container>
-          <Typography variant="h5" gutterBottom>
-            Please log in or sign up.
-          </Typography>
-        </Container>
-      )}
-    </>
+      {
+        user ? (
+          <Dashboard />
+        ) : (
+          <Container>
+            <Typography variant="h5" gutterBottom>
+              Please log in or sign up.
+            </Typography>
+          </Container>
+        )
+      }
+    </Box >
   );
 }
