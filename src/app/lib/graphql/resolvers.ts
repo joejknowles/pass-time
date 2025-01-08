@@ -109,7 +109,8 @@ const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, d
             userId: balanceTarget.userId,
         },
         include: {
-            childTasks: true, taskInstances: {
+            childTasks: true,
+            taskInstances: {
                 where: {
                     startTime: timeRange,
                 }
@@ -121,18 +122,37 @@ const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, d
         return 0;
     }
 
-    let totalDuration = task.taskInstances.reduce((sum, instance) => {
-        // helps handle cases where the task instance hasn't started or is still running
-        const timeSinceStartInMinutes = Math.floor(Math.max(0, now.getTime() - instance.startTime.getTime()) / 1000 / 60);
+    let totalDuration = 0;
 
-        return sum + Math.min(instance.duration, timeSinceStartInMinutes);
+    totalDuration += task.taskInstances.reduce((sum, instance) => {
+        const elapsed = Math.max(0, now.getTime() - instance.startTime.getTime());
+        return sum + Math.min(instance.duration, elapsed / (60 * 1000));
     }, 0);
 
     for (const childTask of task.childTasks) {
-        totalDuration += await calculateProgress(childTask.id, balanceTarget, depth + 1);
+        totalDuration += await calculateProgress(childTask.id, balanceTarget);
     }
 
     return totalDuration;
+};
+
+const getTaskProgressPercentage = async (taskId: number, userId: number): Promise<number> => {
+    const balanceTargets = await prisma.balanceTarget.findMany({
+        where: { taskId, userId },
+    });
+
+    if (balanceTargets.length === 0) {
+        return 1;
+    }
+
+    const targetProgressPercentages = [];
+
+    for (const balanceTarget of balanceTargets) {
+        const progress = await calculateProgress(taskId, balanceTarget);
+        targetProgressPercentages.push(progress / balanceTarget.targetAmount);
+    }
+
+    return Math.min(...targetProgressPercentages);
 };
 
 export const resolvers = {
@@ -143,13 +163,27 @@ export const resolvers = {
                     extensions: {
                         code: 'UNAUTHENTICATED',
                     },
-                })
+                });
             }
-            return await prisma.task.findMany({
+
+            const tasks = await prisma.task.findMany({
                 where: { userId: context.user.id },
                 include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 orderBy: { taskInstances: { _count: 'desc' } },
             });
+
+            const tasksWithProgress = []
+
+            for (const task of tasks) {
+                tasksWithProgress.push({
+                    ...task,
+                    progress: await getTaskProgressPercentage(task.id, context.user.id),
+                });
+            }
+
+            const sorted = tasksWithProgress.sort((a, b) => a.progress - b.progress);
+
+            return sorted;
         },
         taskInstances: async (_parent: any, args: {
             input: {
