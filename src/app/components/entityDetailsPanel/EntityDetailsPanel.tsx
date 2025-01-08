@@ -43,6 +43,8 @@ const EntityDetailsPanel = ({
         width: "100%",
     });
 
+    const [previousEntities, setPreviousEntities] = useState<OpenDetailsPanelEntity[]>([]);
+
     const calculateStyles = () => {
         if (isNarrowScreen) {
             setModalStyles({
@@ -117,7 +119,10 @@ const EntityDetailsPanel = ({
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
                         taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
                         onClose={() => setOpenDetailsPanelEntity(null)}
-                        goToTaskDetails={(taskId: string) => setOpenDetailsPanelEntity({ type: "Task", id: taskId })}
+                        goToTaskDetails={(taskId: string) => {
+                            setPreviousEntities([...previousEntities, openDetailsPanelEntity]);
+                            setOpenDetailsPanelEntity({ type: "Task", id: taskId });
+                        }}
                         refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
                         setCurrentDay={setCurrentDay}
@@ -134,6 +139,11 @@ const EntityDetailsPanel = ({
                         refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
                         tasks={tasks as Task[]}
+                        goBack={previousEntities.length > 0 ? () => {
+                            const lastEntity = previousEntities[previousEntities.length - 1];
+                            setOpenDetailsPanelEntity(lastEntity);
+                            setPreviousEntities(previousEntities.slice(0, -1));
+                        } : undefined}
                     />
                 )
             }

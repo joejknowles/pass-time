@@ -224,6 +224,7 @@ export const TaskInstanceDetails = ({
                     <Box
                         className="icon"
                         sx={{
+                            color: "grey.600",
                             display: "flex",
                             alignItems: "center",
                             padding: 0.75,

@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Box, Typography, IconButton, ClickAwayListener, TextField, Autocomplete, Chip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useEffect, useRef } from "react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_TASK } from "../../lib/graphql/mutations";
@@ -12,6 +13,7 @@ interface TaskInstanceDetailsProps {
     onClose: () => void;
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
+    goBack?: () => void;
 }
 
 export const TaskDetails = ({
@@ -20,6 +22,7 @@ export const TaskDetails = ({
     onClose,
     refetchAllTaskData,
     isMovingATask,
+    goBack,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,11 +82,27 @@ export const TaskDetails = ({
                         <CloseIcon />
                     </IconButton>
                 </Box>
-                <Typography variant="h6"
-                    sx={{ marginBottom: 3, marginRight: "38px" }}
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        marginBottom: 3,
+                        marginRight: "38px"
+                    }}
                 >
-                    {task.title}
-                </Typography>
+                    {
+                        goBack &&
+                        <IconButton
+                            onClick={goBack}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+                    }
+                    <Typography variant="h6">
+                        {task.title}
+                    </Typography>
+                </Box>
                 {genericErrorMessage && (
                     <Typography variant="subtitle2" color="error">
                         {genericErrorMessage}
