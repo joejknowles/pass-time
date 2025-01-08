@@ -306,51 +306,6 @@ export const TaskInstanceDetails = ({
                                 </Box>
                                 <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center" }}>
                                     <FormControl variant="standard" sx={{ minWidth: 80 }} >
-                                        <InputLabel>Duration</InputLabel>
-                                        <Select
-                                            value={taskInstance.duration}
-                                            onChange={async (event) => {
-                                                const duration = parseInt(event.target.value as string);
-                                                await updateTaskInstance({
-                                                    variables: {
-                                                        input: {
-                                                            id: taskInstance.id,
-                                                            duration,
-                                                        },
-                                                    },
-                                                });
-                                                await refetchAllTaskData();
-                                            }}
-                                            size="small"
-                                            MenuProps={{
-                                                disablePortal: true,
-                                                sx: {
-                                                    maxHeight: 350,
-                                                },
-                                            }}
-                                        >
-                                            {Array.from({ length: 18 * 4 }, (_, i) => {
-                                                const duration = (i + 1) * 15;
-                                                const hours = Math.floor(duration / 60);
-                                                const minutes = duration % 60;
-                                                const display = `${hours > 0 ? `${hours}h ` : ""}${minutes > 0 ? `${minutes}m` : ""}`;
-                                                return (
-                                                    <MenuItem key={duration} value={duration}>
-                                                        {display}
-                                                    </MenuItem>
-                                                );
-                                            })}
-                                        </Select>
-                                    </FormControl>
-                                    <Box
-                                        sx={{
-                                            width: "1px",
-                                            bgcolor: "grey.300",
-                                            margin: "0 24px",
-                                            height: 32,
-                                        }}
-                                    />
-                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
                                         <InputLabel>To</InputLabel>
                                         <Select
                                             value={getFormattedEndTime()}
@@ -379,11 +334,21 @@ export const TaskInstanceDetails = ({
                                             }}
                                         >
                                             {Array.from({ length: 24 * 4 }, (_, i) => {
-                                                const hour = Math.floor(i / 4);
-                                                const minute = (i % 4) * 15;
+                                                const endHour = Math.floor(i / 4);
+                                                const endMinute = (i % 4) * 15;
+                                                const endTime = new Date(getStartDateTime().getTime());
+                                                endTime.setHours(endHour);
+                                                endTime.setMinutes(endMinute);
+                                                const duration = (endTime.getTime() - getStartDateTime().getTime()) / (60 * 1000);
+                                                if (duration <= 0) {
+                                                    return null;
+                                                }
+                                                const durationHours = Math.floor(duration / 60);
+                                                const durationMinutes = duration % 60;
+                                                const formattedDuration = `${durationHours > 0 ? `${durationHours}h ` : ""}${durationMinutes > 0 ? `${durationMinutes}m` : ""}`.trim();
                                                 return (
-                                                    <MenuItem key={`${hour}:${minute}`} value={`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}>
-                                                        {`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`}
+                                                    <MenuItem key={`${endHour}:${endMinute}`} value={`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`}>
+                                                        {`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')} (${formattedDuration})`}
                                                     </MenuItem>
                                                 );
                                             })}
