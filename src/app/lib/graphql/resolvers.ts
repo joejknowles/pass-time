@@ -166,24 +166,11 @@ export const resolvers = {
                 });
             }
 
-            const tasks = await prisma.task.findMany({
+            return await prisma.task.findMany({
                 where: { userId: context.user.id },
                 include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
                 orderBy: { taskInstances: { _count: 'desc' } },
             });
-
-            const tasksWithProgress = []
-
-            for (const task of tasks) {
-                tasksWithProgress.push({
-                    ...task,
-                    progress: await getTaskProgressPercentage(task.id, context.user.id),
-                });
-            }
-
-            const sorted = tasksWithProgress.sort((a, b) => a.progress - b.progress);
-
-            return sorted;
         },
         taskInstances: async (_parent: any, args: {
             input: {
