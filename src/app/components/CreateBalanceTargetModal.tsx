@@ -52,7 +52,7 @@ export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets 
             onClose={onClose}
         >
             <Box sx={{ width: 350, maxWidth: "100%" }}>
-                <DialogTitle>Create Balance Target</DialogTitle>
+                <DialogTitle>Create Target</DialogTitle>
                 <DialogContent>
                     {createBalanceTargetError && (
                         <Typography variant="subtitle2" color="error">

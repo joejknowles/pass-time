@@ -21,10 +21,10 @@ export const BalanceTargets = () => {
 
     return (
         <Box sx={{ pt: '4px', width: "100%", maxWidth: "604px" }}>
-            <Typography variant="h5">Balance Targets</Typography>
+            <Typography variant="h5">Targets</Typography>
             {balanceTargetData?.balanceTargets.length === 0 ? (
                 <Typography variant="body2" color="textSecondary">
-                    No balance targets yet. Create one below.
+                    No targets yet. Create one below.
                 </Typography>
             ) : (
                 <ul>
@@ -36,7 +36,7 @@ export const BalanceTargets = () => {
                 </ul>
             )}
             <Button variant="contained" color="primary" onClick={handleOpen} sx={{ mt: 2 }}>
-                Create Balance Target
+                Create Target
             </Button>
             <CreateBalanceTargetModal open={open} onClose={handleClose} refetchBalanceTargets={refetchBalanceTargets} />
         </Box>

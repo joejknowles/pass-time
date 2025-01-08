@@ -98,7 +98,7 @@ export default function Home() {
                   horizontal: "right",
                 }}
               >
-                <MenuItem onClick={handleBalanceTargetsOpen}>Balance Targets</MenuItem>
+                <MenuItem onClick={handleBalanceTargetsOpen}>Targets</MenuItem>
                 <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
               </Menu>
             </>
