@@ -525,7 +525,7 @@ export const resolvers = {
                     },
                 });
             }
-            return await calculateProgress(parent.taskId, parent);
+            return Math.round(await calculateProgress(parent.taskId, parent));
         },
     },
 };
