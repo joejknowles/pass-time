@@ -89,10 +89,12 @@ const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, d
     if (depth > 20) {
         throw new GraphQLError("Too many nested tasks");
     }
+    const now = new Date();
+    const dayNumberToday = now.getDay();
     // starts Monday
-    const numberOfDaysSinceStartOfWeek = new Date().getDay() === 0
+    const numberOfDaysSinceStartOfWeek = dayNumberToday === 0
         ? 6
-        : new Date().getDay() - 1;
+        : dayNumberToday - 1;
     const timeRange = balanceTarget.timeWindow === 'DAILY' ? {
         gte: new Date(new Date().setHours(0, 0, 0, 0)),
         lt: new Date(new Date().setHours(24, 0, 0, 0)),
@@ -119,7 +121,12 @@ const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, d
         return 0;
     }
 
-    let totalDuration = task.taskInstances.reduce((sum, instance) => sum + instance.duration, 0);
+    let totalDuration = task.taskInstances.reduce((sum, instance) => {
+        // helps handle cases where the task instance hasn't started or is still running
+        const timeSinceStartInMinutes = Math.floor(Math.max(0, now.getTime() - instance.startTime.getTime()) / 1000 / 60);
+
+        return sum + Math.min(instance.duration, timeSinceStartInMinutes);
+    }, 0);
 
     for (const childTask of task.childTasks) {
         totalDuration += await calculateProgress(childTask.id, balanceTarget, depth + 1);
