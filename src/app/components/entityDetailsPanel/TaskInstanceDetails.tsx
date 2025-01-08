@@ -278,7 +278,7 @@ export const TaskInstanceDetails = ({
                                         }}
                                     />
                                 </Box>
-                                <Box sx={{ marginBottom: 2 }}>
+                                <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center", gap: 2 }}>
                                     <FormControl variant="standard" sx={{ minWidth: 80 }} >
                                         <InputLabel>From</InputLabel>
                                         <Select
@@ -303,8 +303,6 @@ export const TaskInstanceDetails = ({
                                             })}
                                         </Select>
                                     </FormControl>
-                                </Box>
-                                <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center" }}>
                                     <FormControl variant="standard" sx={{ minWidth: 80 }} >
                                         <InputLabel>To</InputLabel>
                                         <Select
