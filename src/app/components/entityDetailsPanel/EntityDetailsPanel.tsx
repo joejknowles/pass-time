@@ -2,18 +2,7 @@ import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
 import { useLayoutEffect, useState } from "react";
 import { TaskDetails } from "./TaskDetails";
-import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
-
-interface TaskInstance {
-    id: string;
-    task: Task;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
-    duration: number;
-}
+import { OpenDetailsPanelEntity, Task, TaskInstance } from "../dayGrid/types";
 
 interface EntityDetailsPanelProps {
     openDetailsPanelEntity: OpenDetailsPanelEntity | null;
@@ -128,6 +117,7 @@ const EntityDetailsPanel = ({
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
                         taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
                         onClose={() => setOpenDetailsPanelEntity(null)}
+                        goToTaskDetails={(taskId: string) => setOpenDetailsPanelEntity({ type: "Task", id: taskId })}
                         refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
                         setCurrentDay={setCurrentDay}

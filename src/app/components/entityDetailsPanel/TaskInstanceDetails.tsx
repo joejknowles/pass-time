@@ -6,19 +6,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
-
-interface TaskInstance {
-    id: string;
-    task: {
-        title: string;
-    };
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
-    duration: number;
-}
+import { TaskInstance } from "../dayGrid/types";
+import GoToTaskIcon from '@mui/icons-material/Visibility';
 
 interface TaskInstanceDetailsProps {
     taskInstance?: TaskInstance;
@@ -26,7 +15,7 @@ interface TaskInstanceDetailsProps {
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
     setCurrentDay: (day: Date) => void;
-
+    goToTaskDetails: (taskId: string) => void;
 }
 
 const cleanApolloEntity = (entity: any) => {
@@ -40,6 +29,7 @@ export const TaskInstanceDetails = ({
     refetchAllTaskData,
     isMovingATask,
     setCurrentDay,
+    goToTaskDetails,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const lastPresentTaskInstance = useRef(liveTaskInstance);
@@ -206,11 +196,44 @@ export const TaskInstanceDetails = ({
                         Delete
                     </MenuItem>
                 </Menu>
-                <Typography variant="h6"
-                    sx={{ marginBottom: 3, marginRight: "76px" }}
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+
+                        padding: 1,
+                        marginTop: -1,
+                        marginRight: "76px",
+                        marginBottom: 3,
+                        marginLeft: -1,
+                        borderRadius: 1,
+                        "&:hover .icon": {
+                            visibility: "visible",
+                        },
+                        "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                            cursor: "pointer",
+                        },
+                    }}
+                    onClick={() => goToTaskDetails(taskInstance.task.id)}
                 >
-                    {taskInstance.task.title}
-                </Typography>
+                    <Typography variant="h6">
+                        {taskInstance.task.title}
+                    </Typography>
+                    <Box
+                        className="icon"
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: 0.75,
+                            visibility: "hidden",
+                            margin: -0.25,
+                        }}
+                    >
+                        <GoToTaskIcon />
+                    </Box>
+                </Box>
                 {
                     !isEditingTime ? (
                         <Box
