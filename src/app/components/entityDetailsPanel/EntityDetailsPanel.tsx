@@ -1,6 +1,6 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { TaskDetails } from "./TaskDetails";
 import { OpenDetailsPanelEntity, Task, TaskInstance } from "../dayGrid/types";
 
@@ -44,6 +44,11 @@ const EntityDetailsPanel = ({
     });
 
     const [previousEntities, setPreviousEntities] = useState<OpenDetailsPanelEntity[]>([]);
+    useEffect(() => {
+        if (!isOpen) {
+            setPreviousEntities([]);
+        }
+    }, [isOpen]);
 
     const calculateStyles = () => {
         if (isNarrowScreen) {
