@@ -221,7 +221,14 @@ export const TaskInstanceDetails = ({
                                 marginBottom: 2,
                                 "&:hover .MuiIconButton-root": {
                                     visibility: "visible",
-                                }
+                                },
+                                "&:hover": {
+                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                    cursor: "pointer",
+                                    padding: 1,
+                                    margin: -1,
+                                    borderRadius: 1,
+                                },
                             }}
                             onClick={() => setIsEditingTime(true)}
                         >
@@ -244,8 +251,9 @@ export const TaskInstanceDetails = ({
                                 <IconButton
                                     onClick={() => setIsEditingTime(true)}
                                     sx={{
-                                        padding: 1,
+                                        padding: 0.75,
                                         visibility: isNarrowScreen ? undefined : "hidden",
+                                        margin: -0.25,
                                     }}
                                     size="small"
                                 >
