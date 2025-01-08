@@ -224,11 +224,11 @@ export const TaskInstanceDetails = ({
                     <Box
                         className="icon"
                         sx={{
-                            color: "grey.600",
+                            color: "grey.500",
                             display: "flex",
                             alignItems: "center",
                             padding: 0.75,
-                            visibility: "hidden",
+                            visibility: isNarrowScreen ? "visible" : "hidden",
                             margin: -0.25,
                         }}
                     >
