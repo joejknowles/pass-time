@@ -1,12 +1,11 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, ClickAwayListener, TextField, Autocomplete, Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Box, Typography, IconButton, ClickAwayListener, Tabs, Tab } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { ChangeEvent, useEffect, useRef } from "react";
-import { useMutation } from "@apollo/client";
-import { UPDATE_TASK } from "../../lib/graphql/mutations";
+import { useState, useEffect, useRef } from "react";
 import { Task } from "../dayGrid/types";
-import { durationOptions } from "../../lib/utils/durationOptions";
+import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
+import { TaskDetailsSuggestions } from "./TaskDetailsSuggestions";
 
 interface TaskInstanceDetailsProps {
     task: Task;
@@ -20,16 +19,13 @@ interface TaskInstanceDetailsProps {
 export const TaskDetails = ({
     task,
     tasks,
-    onClose,
     refetchAllTaskData,
     isMovingATask,
     goBack,
+    onClose,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
-
-    const [updateTask, { error: taskUpdateErrorRaw }] = useMutation(UPDATE_TASK);
-    const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
-    const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
+    const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,18 +47,6 @@ export const TaskDetails = ({
         if (!isMovingATask) {
             onClose();
         }
-    }
-
-    const handleDurationChange = async (event: SelectChangeEvent<number>) => {
-        await updateTask({
-            variables: {
-                input: {
-                    id: task.id,
-                    defaultDuration: event.target.value,
-                },
-            },
-        });
-        await refetchAllTaskData();
     };
 
     return (
@@ -77,7 +61,6 @@ export const TaskDetails = ({
                     position: "relative",
                 }}
             >
-
                 <Box
                     sx={{
                         position: "absolute",
@@ -88,9 +71,7 @@ export const TaskDetails = ({
                         zIndex: 10,
                     }}
                 >
-                    <IconButton
-                        onClick={onClose}
-                    >
+                    <IconButton onClick={onClose}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
@@ -103,92 +84,29 @@ export const TaskDetails = ({
                         marginRight: "38px"
                     }}
                 >
-                    {
-                        goBack &&
-                        <IconButton
-                            onClick={goBack}
-                        >
+                    {goBack && (
+                        <IconButton onClick={goBack}>
                             <ArrowBackIcon />
                         </IconButton>
-                    }
-                    <Typography variant="h6">
-                        {task.title}
-                    </Typography>
-                </Box>
-                {genericErrorMessage && (
-                    <Typography variant="subtitle2" color="error">
-                        {genericErrorMessage}
-                    </Typography>
-                )}
-                <Autocomplete
-                    options={tasks.map((task) => ({ label: task.title, id: task.id }))}
-                    size="small"
-                    onChange={async (_e, selection) => {
-                        if (selection) {
-                            await updateTask({
-                                variables: {
-                                    input: {
-                                        id: task.id,
-                                        parentTaskId: selection.id,
-                                    },
-                                },
-                            });
-                            await refetchAllTaskData();
-                        }
-                    }}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Parent Task"
-                            error={taskUpdateError?.extensions?.fieldName === "parentTaskId"}
-                            helperText={taskUpdateError?.extensions?.fieldName === "parentTaskId" && taskUpdateError.message}
-                        />
                     )}
-                />
-                {task.parentTasks.length > 0 && (
-                    <Box sx={{ marginTop: 2 }}>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Parent Tasks:
-                        </Typography>
-                        {task.parentTasks.map((parentTask) => (
-                            <Chip key={parentTask.id} label={parentTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
-                        ))}
-                    </Box>
-                )}
-                {task.childTasks.length > 0 && (
-                    <Box sx={{ marginTop: 2 }}>
-                        <Typography variant="subtitle2" color="textSecondary">
-                            Child Tasks:
-                        </Typography>
-                        {task.childTasks.map((childTask) => (
-                            <Chip key={childTask.id} label={childTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
-                        ))}
-                    </Box>
-                )}
-                <Box sx={{ marginTop: 2 }}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                        Default Duration:
-                    </Typography>
-                    <Select
-                        value={task.defaultDuration}
-                        onChange={handleDurationChange}
-                        sx={{
-                            minWidth: 150,
-                        }}
-                        MenuProps={{
-                            disablePortal: true,
-                            sx: {
-                                maxHeight: 350,
-                            },
-                        }}
-                    >
-                        {durationOptions.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
+                    <Typography variant="h6">{task.title}</Typography>
                 </Box>
+                <Tabs
+                    value={tabIndex}
+                    onChange={(_, newValue) => setTabIndex(newValue)}
+                    sx={{ mb: 2 }}
+                >
+                    <Tab label="General" />
+                    <Tab label="Suggestions / reminders" />
+                </Tabs>
+                {tabIndex === 0 && (
+                    <TaskDetailsGeneral
+                        task={task}
+                        tasks={tasks}
+                        refetchAllTaskData={refetchAllTaskData}
+                    />
+                )}
+                {tabIndex === 1 && <TaskDetailsSuggestions />}
             </Box>
         </ClickAwayListener>
     );
