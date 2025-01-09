@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { ApolloServer } from '@apollo/server';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { typeDefs } from '@/app/lib/graphql/schema';
-import { Context, resolvers } from '@/app/lib/graphql/resolvers';
+import { Context, resolvers } from '@/app/lib/graphql/resolvers/resolvers';
 import { admin } from '@/lib/firebaseAdmin';
 import { PrismaClient } from '@prisma/client';
 
