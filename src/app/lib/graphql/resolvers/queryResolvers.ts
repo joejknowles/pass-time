@@ -1,6 +1,8 @@
 // gradually migrating to `throw new GraphQLError` instead of `throw new Error`
 import { GraphQLError } from 'graphql';
-import { calculateProgress, Context, getAllChildTasks, prisma } from './helpers/helpers';
+import { Context, prisma } from './helpers/helpers';
+import { getChildTaskPaths } from './helpers/getChildTaskPaths';
+import { calculateProgressForTasks } from './helpers/calculateProgressForTasks';
 
 export const queryResolvers = {
     tasks: async (_parent: any, _args: any, context: Context) => {
@@ -69,18 +71,34 @@ export const queryResolvers = {
 
         const balanceTargets = await prisma.balanceTarget.findMany({
             where: { userId: context.user.id },
-            include: { task: { include: { childTasks: true } } },
+            include: { task: true },
         });
 
         const taskGroups = [];
 
-        for (const balanceTarget of balanceTargets) {
-            const progress = await calculateProgress(balanceTarget.taskId, balanceTarget);
+        const priorityTargets = balanceTargets.filter((target) => {
+            const isOnlyTargetForTask = balanceTargets.filter((t) => t.taskId === target.taskId).length === 1;
+            if (isOnlyTargetForTask) {
+                return true;
+            } else {
+                return target.timeWindow === 'WEEKLY';
+            }
+        })
+
+        for (const balanceTarget of priorityTargets) {
+            const childTaskPaths = await getChildTaskPaths(balanceTarget.task.id, context.user.id);
+
+            const taskIds = Array.from(
+                new Set(childTaskPaths.flat().map((task) => task.id))
+            );
+            const progress = await calculateProgressForTasks(taskIds, balanceTarget);
+
             if (progress < balanceTarget.targetAmount) {
-                const childTasks = await getAllChildTasks(balanceTarget.task.id, context.user.id);
                 taskGroups.push({
                     name: balanceTarget.task.title,
-                    tasks: childTasks.length > 0 ? childTasks : [balanceTarget.task],
+                    tasks: childTaskPaths.length > 0
+                        ? childTaskPaths.map((path) => path[path.length - 1])
+                        : [balanceTarget.task],
                     type: "balanceTarget",
                     data: balanceTarget,
                 });
@@ -88,5 +106,5 @@ export const queryResolvers = {
         }
 
         return taskGroups;
-    },
+    }
 }
