@@ -66,7 +66,13 @@ export const TaskSuggestions = ({
                                 cursor: 'pointer',
                             }}
                         >
-                            <CardContent>
+                            <CardContent
+                                sx={{
+                                    '&:last-child': {
+                                        pb: 2,
+                                    },
+                                }}
+                            >
                                 {task.title}
                             </CardContent>
                         </Card>
