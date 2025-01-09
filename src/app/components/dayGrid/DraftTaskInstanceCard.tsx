@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Autocomplete, Box, ClickAwayListener, TextField, Button } from "@mui/material";
+import { Autocomplete, Box, ClickAwayListener, TextField, Button, duration } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Task } from "./types";
 
@@ -49,6 +49,7 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
+    console.log("DraftTaskInstanceCard render", draftTaskInstance.duration);
     return (
         <ClickAwayListener onClickAway={(e) => {
             e.preventDefault();
@@ -101,17 +102,20 @@ export const DraftTaskInstanceCard = ({
                         inputValue={draftTaskInstance.title}
                         onChange={(_e, selection) => {
                             if (selection) {
-                                setSelectedTask(tasks?.find((task) => task.id === selection?.id) || null);
+                                const selectedTask = tasks?.find((task) => task.id === selection?.id) || null;
+                                setSelectedTask(selectedTask);
 
-                                const newTask = {
+                                console.log("DraftTaskInstanceCard onChange", selection);
+                                const newDraftTaskInstance = {
                                     ...draftTaskInstance,
                                     title: selection?.label || draftTaskInstance.title,
                                     taskId: selection?.id,
+                                    duration: selectedTask?.defaultDuration || 30,
                                 };
-                                setDraftTaskInstance(newTask);
+                                setDraftTaskInstance(newDraftTaskInstance);
 
                                 isSubmittingWithOnChangeCallback.current = true;
-                                finalizeTaskInstance(newTask);
+                                finalizeTaskInstance(newDraftTaskInstance);
                             }
                         }}
                         noOptionsText="Press Enter to create a new task"
@@ -139,16 +143,18 @@ export const DraftTaskInstanceCard = ({
                                                 return;
                                             }
 
-                                            const perfectOption = tasks
+                                            const perfectTaskOption = tasks
                                                 ?.find((task) =>
                                                     task.title.toLowerCase() === draftTaskInstance.title.toLowerCase()
                                                 );
                                             let newTask = draftTaskInstance;
 
-                                            if (perfectOption) {
+                                            if (perfectTaskOption) {
                                                 newTask = {
                                                     ...newTask,
-                                                    taskId: perfectOption.id,
+                                                    taskId: perfectTaskOption.id,
+                                                    title: perfectTaskOption.title,
+                                                    duration: perfectTaskOption?.defaultDuration || 30,
                                                 };
                                             }
 
@@ -198,37 +204,42 @@ export const DraftTaskInstanceCard = ({
                             },
                         }}
                     />
-                    <Button
-                        variant="contained"
-                        disabled={isSubmittingTaskInstance}
-                        sx={{
-                            marginLeft: 1,
-                            backgroundColor: "#f0f0f0",
-                            color: "rgba(72, 90, 122, 0.9)",
-                            minWidth: "32px",
-                            padding: "0 4px",
-                            fontSize: "0.75rem",
-                            boxShadow: "none",
-                            '&:hover': {
-                                backgroundColor: "#e0e0e0",
-                            },
-                            '&:disabled': {
-                                backgroundColor: "#f0f0f0",
-                                color: "rgba(194, 199, 207, 0.9)",
-                            },
-                            height: "20px",
-                        }}
-                        onClick={() => {
-                            const newTask = {
-                                ...draftTaskInstance,
-                                title: draftTaskInstance.title,
-                            };
-                            setDraftTaskInstance(newTask);
-                            finalizeTaskInstance(newTask);
-                        }}
-                    >
-                        Add
-                    </Button>
+                    {
+                        !isSubmittingTaskInstance && (
+                            <Button
+                                variant="contained"
+                                disabled={isSubmittingTaskInstance}
+                                sx={{
+                                    marginLeft: 1,
+                                    backgroundColor: "#f0f0f0",
+                                    color: "rgba(72, 90, 122, 0.9)",
+                                    minWidth: "32px",
+                                    padding: "0 4px",
+                                    fontSize: "0.75rem",
+                                    boxShadow: "none",
+                                    '&:hover': {
+                                        backgroundColor: "#e0e0e0",
+                                    },
+                                    '&:disabled': {
+                                        backgroundColor: "#f0f0f0",
+                                        color: "rgba(194, 199, 207, 0.9)",
+                                    },
+                                    height: "20px",
+                                }}
+                                onClick={() => {
+                                    const newTask = {
+                                        ...draftTaskInstance,
+                                        title: draftTaskInstance.title,
+                                    };
+                                    setDraftTaskInstance(newTask);
+                                    finalizeTaskInstance(newTask);
+                                }}
+                            >
+                                Add
+                            </Button>
+                        )
+                    }
+
                 </Box>
             </Box>
         </ClickAwayListener>
