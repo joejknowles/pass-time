@@ -2,6 +2,7 @@
 import { Autocomplete, Box, ClickAwayListener, TextField, Button, duration } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Task } from "./types";
+import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
 
 interface DraftTaskInstance {
     title: string;
@@ -49,7 +50,20 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
-    console.log("DraftTaskInstanceCard render", draftTaskInstance.duration);
+    if (isSubmittingTaskInstance) {
+        return (
+            <BasicTaskInstanceCard
+                title={draftTaskInstance.title}
+                start={draftTaskInstance.start}
+                duration={draftTaskInstance.duration}
+                hourBlockHeight={60}
+                isThisTaskDetailsOpen={true}
+                sx={{
+                    cursor: "wait",
+                }}
+            />)
+
+    }
     return (
         <ClickAwayListener onClickAway={(e) => {
             e.preventDefault();
