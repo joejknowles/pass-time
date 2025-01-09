@@ -26,7 +26,7 @@ export const TaskDetailsSuggestions = () => {
                 suggestionsEnabled && (
                     <Box>
                         <RecurringOrNotCardsSelect suggestionsConfig={suggestionsConfig} setSuggestionsConfig={setSuggestionsConfig} />
-                        {suggestionsConfig.taskType === "RECURRING" && <RecurringInputs />}
+                        {suggestionsConfig.taskType === "RECURRING" && <RecurringInputs suggestionsConfig={suggestionsConfig} setSuggestionsConfig={setSuggestionsConfig} />}
                     </Box>
                 )
             }
