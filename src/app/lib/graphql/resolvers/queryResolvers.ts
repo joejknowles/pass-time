@@ -94,10 +94,32 @@ export const queryResolvers = {
             const progress = await calculateProgressForTasks(taskIds, balanceTarget);
 
             if (progress < balanceTarget.targetAmount) {
+                const remainingChildTasks: { id: number, title: string }[][] = JSON.parse(JSON.stringify(childTaskPaths));
+                const orderedTaskList: { id: number, title: string }[] = [];
+
+                while (remainingChildTasks.every((path) => path.length > 0)) {
+                    // Orders tasks by lowest level child tasks first
+                    let longestPathLength = 0;
+                    for (const path of remainingChildTasks) {
+                        if (path.length > longestPathLength) {
+                            longestPathLength = path.length;
+                        }
+                    }
+
+                    for (const path of remainingChildTasks) {
+                        if (path.length === longestPathLength) {
+                            const task = path.pop() as { id: number, title: string };
+                            if (!orderedTaskList.find((t) => t.id === task.id)) {
+                                orderedTaskList.push(task);
+                            }
+                        }
+                    }
+                }
+
                 taskGroups.push({
                     name: balanceTarget.task.title,
-                    tasks: childTaskPaths.length > 0
-                        ? childTaskPaths.map((path) => path[path.length - 1])
+                    tasks: orderedTaskList.length > 0
+                        ? orderedTaskList
                         : [balanceTarget.task],
                     type: "balanceTarget",
                     data: balanceTarget,
