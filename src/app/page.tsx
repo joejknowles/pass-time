@@ -1,5 +1,4 @@
 "use client";
-
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import Link from "next/link";
