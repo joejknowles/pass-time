@@ -51,7 +51,13 @@ const Dashboard = () => {
             >
                 {!isNarrowScreen && (
                     <>
-                        <Box sx={{ width: "250px", p: 2 }}>
+                        <Box sx={{
+                            maxWidth: "380px",
+                            minWidth: 0,
+                            flexGrow: 1,
+                            flexShrink: 5,
+                            p: 2
+                        }}>
                             <TaskSuggestions
                                 setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                             />
@@ -67,8 +73,10 @@ const Dashboard = () => {
                 <Box
                     sx={{
                         flexGrow: 1,
+                        flexShrink: 1,
                         p: 2,
                         maxWidth: isNarrowScreen ? undefined : "400px",
+                        minWidth: "MIN(360px, 100%)",
                     }}
                 >
                     <DayCalendar
