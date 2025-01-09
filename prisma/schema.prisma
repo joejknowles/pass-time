@@ -35,6 +35,9 @@ model Task {
 
   taskInstances TaskInstance[]
   balanceTargets BalanceTarget[]
+
+  @@index([userId])
+  @@index([title])
 }
 
 model TaskInstance {
@@ -63,4 +66,7 @@ model BalanceTarget {
 
   task         Task       @relation(fields: [taskId], references: [id])
   user         User       @relation(fields: [userId], references: [id])
+
+
+  @@index([userId])
 }
