@@ -1,7 +1,7 @@
 // gradually migrating to `throw new GraphQLError` instead of `throw new Error`
 import { admin } from '@/lib/firebaseAdmin';
 import { Context as BaseContext } from '@apollo/client';
-import { BalanceTarget, PrismaClient, TaskInstance, User } from '@prisma/client';
+import { BalanceTarget, PrismaClient, Task, TaskInstance, User } from '@prisma/client';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 
 const prisma = new PrismaClient();
@@ -155,6 +155,26 @@ const getTaskProgressPercentage = async (taskId: number, userId: number): Promis
     return Math.min(...targetProgressPercentages);
 };
 
+const getAllChildTasks = async (taskId: number, userId: number): Promise<Task[]> => {
+    const task = await prisma.task.findUnique({
+        where: { id: taskId, userId },
+        include: { childTasks: true },
+    });
+
+    if (!task) {
+        return [];
+    }
+
+    let allChildTasks = [...task.childTasks];
+
+    for (const childTask of task.childTasks) {
+        const grandChildTasks = await getAllChildTasks(childTask.id, userId);
+        allChildTasks = allChildTasks.concat(grandChildTasks);
+    }
+
+    return allChildTasks;
+};
+
 export const resolvers = {
     Query: {
         tasks: async (_parent: any, _args: any, context: Context) => {
@@ -211,6 +231,37 @@ export const resolvers = {
                 where: { userId: context.user.id },
                 include: { task: true },
             });
+        },
+        taskSuggestions: async (_parent: any, _args: any, context: Context) => {
+            if (!context.user) {
+                throw new GraphQLError('User not authenticated', {
+                    extensions: {
+                        code: 'UNAUTHENTICATED',
+                    },
+                });
+            }
+
+            const balanceTargets = await prisma.balanceTarget.findMany({
+                where: { userId: context.user.id },
+                include: { task: { include: { childTasks: true } } },
+            });
+
+            const taskGroups = [];
+
+            for (const balanceTarget of balanceTargets) {
+                const progress = await calculateProgress(balanceTarget.taskId, balanceTarget);
+                if (progress < balanceTarget.targetAmount) {
+                    const childTasks = await getAllChildTasks(balanceTarget.task.id, context.user.id);
+                    taskGroups.push({
+                        name: balanceTarget.task.title,
+                        tasks: childTasks.length > 0 ? childTasks : [balanceTarget.task],
+                        type: "balanceTarget",
+                        data: balanceTarget,
+                    });
+                }
+            }
+
+            return taskGroups;
         },
     },
     Mutation: {

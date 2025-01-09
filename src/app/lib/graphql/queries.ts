@@ -14,3 +14,26 @@ export const GET_BALANCE_TARGETS = gql`
     }
   }
 `;
+
+export const GET_TASK_SUGGESTIONS = gql`
+  query GetTaskSuggestions {
+    taskSuggestions {
+      name
+      tasks {
+        id
+        title
+      }
+      type
+      data {
+        id
+        timeWindow
+        targetAmount
+        progress
+        task {
+          id
+          title
+        }
+      }
+    }
+  }
+`;

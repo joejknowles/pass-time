@@ -46,11 +46,19 @@ export const typeDefs = gql`
     progress: Int!
   }
 
+  type TaskGroup {
+    name: String!
+    tasks: [Task!]!
+    type: String!
+    data: BalanceTarget!
+  }
+
   type Query {
     users: [User!]!
     tasks: [Task!]!
     taskInstances(input: GetTaskInstancesInput!): [TaskInstance!]!
     balanceTargets: [BalanceTarget!]!
+    taskSuggestions: [TaskGroup!]!
   }
 
   input GetTaskInstancesInput {
