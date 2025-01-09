@@ -3,9 +3,9 @@ import { Box, Typography, IconButton, ClickAwayListener, Tabs, Tab } from "@mui/
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useState, useEffect, useRef } from "react";
-import { Task } from "../dayGrid/types";
+import { Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
-import { TaskDetailsSuggestions } from "./TaskDetailsSuggestions";
+import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 
 interface TaskInstanceDetailsProps {
     task: Task;

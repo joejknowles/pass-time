@@ -1,8 +1,8 @@
 import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { useMutation } from "@apollo/client";
-import { UPDATE_TASK } from "../../lib/graphql/mutations";
-import { Task } from "../dayGrid/types";
-import { durationOptions } from "../../lib/utils/durationOptions";
+import { UPDATE_TASK } from "../../../lib/graphql/mutations";
+import { Task } from "../../dayGrid/types";
+import { durationOptions } from "../../../lib/utils/durationOptions";
 
 interface TaskDetailsGeneralProps {
     task: Task;
@@ -81,6 +81,7 @@ export const TaskDetailsGeneral = ({ task, tasks, refetchAllTaskData }: TaskDeta
             )}
             <Box sx={{ marginTop: 2 }}>
                 <Select
+                    label="Default duration"
                     value={task.defaultDuration}
                     onChange={handleDurationChange}
                     sx={{
