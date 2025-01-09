@@ -6,12 +6,12 @@ interface SuggestionsConfig {
     taskType: "RECURRING" | "ONE_OFF";
 }
 
-interface FrequencyInputsProps {
+interface RecurringOrNotCardsSelectProps {
     suggestionsConfig: SuggestionsConfig;
     setSuggestionsConfig: (config: SuggestionsConfig) => void;
 }
 
-export const FrequencyInputs = ({ suggestionsConfig, setSuggestionsConfig }: FrequencyInputsProps) => {
+export const RecurringOrNotCardsSelect = ({ suggestionsConfig, setSuggestionsConfig }: RecurringOrNotCardsSelectProps) => {
     return (
         <Box display="flex" justifyContent="center" gap={2} mt={2}>
             <Card
