@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 
 const BasicTaskInstanceCard = ({
-    id,
+    taskId,
     title,
     start,
     duration,
@@ -13,7 +13,7 @@ const BasicTaskInstanceCard = ({
     onMouseDown,
     absoluteChildren,
 }: {
-    id?: string,
+    taskId?: string,
     title: string,
     start: { hour: number, minute: number },
     duration: number,
@@ -43,7 +43,7 @@ const BasicTaskInstanceCard = ({
             }}
             onClick={handleClick}
             onMouseDown={onMouseDown}
-            id={id}
+            id={taskId ? `task-instance-calendar-card-${taskId}` : 'new-task-instance-calendar-card'}
         >
             <Typography variant="body2" color="primary" sx={{
                 fontSize: '0.8rem',

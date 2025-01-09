@@ -12,7 +12,10 @@ const Dashboard = () => {
     const setOpenDetailsPanelEntity = (newOpenEntity: OpenDetailsPanelEntity | null) => {
         setOpenDetailsPanelEntityRaw(newOpenEntity);
         if (newOpenEntity?.type === "TaskInstance" && isNarrowScreen) {
-            const taskInstanceCard = document.getElementById(`task-instance-calendar-card-${newOpenEntity.id}`);
+            let taskInstanceCard = document.getElementById(`task-instance-calendar-card-${newOpenEntity.id}`);
+            if (!taskInstanceCard) {
+                taskInstanceCard = document.getElementById('new-task-instance-calendar-card');
+            }
             if (taskInstanceCard) {
                 const topOffset = taskInstanceCard.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + 100;
                 window.scrollTo({ top: topOffset, behavior: 'smooth' });

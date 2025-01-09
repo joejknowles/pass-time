@@ -30,6 +30,7 @@ const TaskInstanceCard = ({
 
     return (
         <BasicTaskInstanceCard
+            taskId={taskInstance.id}
             title={taskInstance.task.title}
             start={effectiveStart}
             duration={effectiveDuration}
@@ -38,7 +39,6 @@ const TaskInstanceCard = ({
             handleClick={handleClick}
             sx={{ cursor }}
             onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
-            id={`task-instance-calendar-card-${taskInstance.id}`}
             absoluteChildren={
                 <>
                     <Box
