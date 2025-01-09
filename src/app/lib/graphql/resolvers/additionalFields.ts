@@ -1,8 +1,13 @@
-import { BalanceTarget, TaskInstance } from "@prisma/client";
+import { BalanceTarget, Task, TaskInstance } from "@prisma/client";
 import { calculateProgress, Context } from "./helpers/helpers";
 import { GraphQLError } from "graphql";
 
 export const additionalFields = {
+    Task: {
+        defaultDuration: (parent: Task) => {
+            return parent.defaultDuration || 30;
+        }
+    },
     TaskInstance: {
         start: (parent: TaskInstance) => {
             const startTime = new Date(parent.startTime);
