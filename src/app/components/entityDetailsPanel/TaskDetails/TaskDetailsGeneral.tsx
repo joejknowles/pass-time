@@ -1,4 +1,4 @@
-import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel } from "@mui/material";
 import { useMutation } from "@apollo/client";
 import { UPDATE_TASK } from "../../../lib/graphql/mutations";
 import { Task } from "../../dayGrid/types";
@@ -20,6 +20,12 @@ export const TaskDetailsGeneral = ({ task, tasks, refetchAllTaskData }: TaskDeta
             variables: {
                 input: {
                     id: task.id,
+                    defaultDuration: event.target.value,
+                },
+            },
+            optimisticResponse: {
+                updateTask: {
+                    ...task,
                     defaultDuration: event.target.value,
                 },
             },
@@ -80,26 +86,27 @@ export const TaskDetailsGeneral = ({ task, tasks, refetchAllTaskData }: TaskDeta
                 </Box>
             )}
             <Box sx={{ marginTop: 2 }}>
-                <Select
-                    label="Default duration"
-                    value={task.defaultDuration}
-                    onChange={handleDurationChange}
-                    sx={{
-                        minWidth: 150,
-                    }}
-                    MenuProps={{
-                        disablePortal: true,
-                        sx: {
-                            maxHeight: 350,
-                        },
-                    }}
-                >
-                    {durationOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </Select>
+                <FormControl sx={{ minWidth: 150 }} variant="outlined">
+                    <InputLabel id="duration-label">Default duration</InputLabel>
+                    <Select
+                        labelId="duration-label"
+                        label="Default duration"
+                        value={task.defaultDuration}
+                        onChange={handleDurationChange}
+                        MenuProps={{
+                            disablePortal: true,
+                            sx: {
+                                maxHeight: 350,
+                            },
+                        }}
+                    >
+                        {durationOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
         </Box>
     );
