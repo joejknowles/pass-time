@@ -33,6 +33,8 @@ model Task {
   parentTasks Task[] @relation("ParentChildTasks")
   childTasks  Task[] @relation("ParentChildTasks")
 
+  defaultDuration Int?
+
   taskInstances TaskInstance[]
   balanceTargets BalanceTarget[]
 

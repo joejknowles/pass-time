@@ -14,11 +14,16 @@ export const queryResolvers = {
             });
         }
 
-        return await prisma.task.findMany({
+        const tasks = await prisma.task.findMany({
             where: { userId: context.user.id },
             include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
             orderBy: { taskInstances: { _count: 'desc' } },
         });
+
+        return tasks.map(task => ({
+            ...task,
+            defaultDuration: task.defaultDuration || 30,
+        }));
     },
     taskInstances: async (_parent: any, args: {
         input: {

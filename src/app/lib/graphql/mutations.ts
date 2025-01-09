@@ -12,7 +12,7 @@ export const CREATE_USER = gql`
 `;
 
 export const CREATE_TASK_INSTANCE = gql`
-  mutation CreateTaskInstance($input: CreateTaskInput!) {
+  mutation CreateTaskInstance($input: CreateTaskInstanceInput!) {
     createTaskInstance(input: $input) {
       id
       duration
@@ -96,6 +96,7 @@ export const GET_TASKS = gql`
     tasks {
       id
       title
+      defaultDuration
       user {
         id
         email
@@ -133,6 +134,7 @@ export const UPDATE_TASK = gql`
         id
         title
       }
+      defaultDuration
     }
   }
 `;

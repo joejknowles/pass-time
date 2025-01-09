@@ -1,11 +1,12 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, ClickAwayListener, TextField, Autocomplete, Chip } from "@mui/material";
+import { Box, Typography, IconButton, ClickAwayListener, TextField, Autocomplete, Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useEffect, useRef } from "react";
+import { ChangeEvent, useEffect, useRef } from "react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_TASK } from "../../lib/graphql/mutations";
 import { Task } from "../dayGrid/types";
+import { durationOptions } from "../../lib/utils/durationOptions";
 
 interface TaskInstanceDetailsProps {
     task: Task;
@@ -46,12 +47,23 @@ export const TaskDetails = ({
         return null;
     }
 
-
     const closeIfNotMoving = () => {
         if (!isMovingATask) {
             onClose();
         }
     }
+
+    const handleDurationChange = async (event: SelectChangeEvent<number>) => {
+        await updateTask({
+            variables: {
+                input: {
+                    id: task.id,
+                    defaultDuration: event.target.value,
+                },
+            },
+        });
+        await refetchAllTaskData();
+    };
 
     return (
         <ClickAwayListener onClickAway={closeIfNotMoving}>
@@ -128,7 +140,6 @@ export const TaskDetails = ({
                         <TextField
                             {...params}
                             label="Parent Task"
-                            variant="standard"
                             error={taskUpdateError?.extensions?.fieldName === "parentTaskId"}
                             helperText={taskUpdateError?.extensions?.fieldName === "parentTaskId" && taskUpdateError.message}
                         />
@@ -154,6 +165,30 @@ export const TaskDetails = ({
                         ))}
                     </Box>
                 )}
+                <Box sx={{ marginTop: 2 }}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                        Default Duration:
+                    </Typography>
+                    <Select
+                        value={task.defaultDuration}
+                        onChange={handleDurationChange}
+                        sx={{
+                            minWidth: 150,
+                        }}
+                        MenuProps={{
+                            disablePortal: true,
+                            sx: {
+                                maxHeight: 350,
+                            },
+                        }}
+                    >
+                        {durationOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </Box>
             </Box>
         </ClickAwayListener>
     );

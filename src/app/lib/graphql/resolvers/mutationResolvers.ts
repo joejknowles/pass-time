@@ -84,7 +84,7 @@ export const mutationResolvers = {
                 userId: user.id,
                 taskId: task?.id,
                 startTime,
-                duration: args.input.duration,
+                duration: task.defaultDuration || 30,
             },
             include: {
                 user: true,
@@ -199,12 +199,12 @@ export const mutationResolvers = {
     },
     updateTask: async (
         _parent: unknown,
-        args: { input: { id: string; title?: string; parentTaskId?: number } },
+        args: { input: { id: string; title?: string; parentTaskId?: number; defaultDuration?: number } },
         context: Context,
         _info: GraphQLResolveInfo
     ) => {
         const { user } = context;
-        const { id, title, parentTaskId } = args.input;
+        const { id, title, parentTaskId, defaultDuration } = args.input;
 
         if (!user) {
             throw new Error('User not authenticated');
@@ -224,10 +224,13 @@ export const mutationResolvers = {
             throw new Error('Task not found');
         }
 
-        if (title) {
+        if (title || defaultDuration !== undefined) {
             task = await prisma.task.update({
                 where: { id: taskId, userId: user.id },
-                data: { title },
+                data: {
+                    ...(title && { title }),
+                    ...(defaultDuration !== undefined && { defaultDuration }),
+                },
                 include: { user: true, taskInstances: true, parentTasks: true, childTasks: true },
             });
         }

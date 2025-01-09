@@ -110,9 +110,10 @@ export const DayCalendar = ({
 
     const finalizeTaskInstance = useCallback(async (draftTaskInstance: DraftTaskInstance) => {
         setIsSubmittingTaskInstance(true);
+        const { duration, ...inputValues } = draftTaskInstance;
         const newTaskInstance = await createTaskInstance({
             variables: {
-                input: draftTaskInstance,
+                input: inputValues,
             },
         })
         const newTaskId: string = newTaskInstance.data?.createTaskInstance.id

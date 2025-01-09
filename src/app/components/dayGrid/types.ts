@@ -3,6 +3,7 @@ export interface Task {
     title: string;
     parentTasks: Task[];
     childTasks: Task[];
+    defaultDuration: number;
 }
 
 export interface TaskInstance {

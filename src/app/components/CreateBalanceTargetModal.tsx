@@ -2,23 +2,13 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextFie
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_BALANCE_TARGET, GET_TASKS } from "../lib/graphql/mutations";
+import { durationOptions } from "../lib/utils/durationOptions";
 
 interface CreateBalanceTargetModalProps {
     open: boolean;
     onClose: () => void;
     refetchBalanceTargets: () => void;
 }
-
-const displayMinutes = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours > 0 ? `${hours}hr${hours > 1 ? 's' : ''} ` : ''}${mins > 0 ? `${mins}min${mins > 1 ? 's' : ''}` : ''}`.trim();
-};
-
-const timeOptions = Array.from({ length: 48 }, (_, i) => {
-    const minutes = (i + 1) * 15;
-    return { label: displayMinutes(minutes), value: minutes };
-});
 
 export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets }: CreateBalanceTargetModalProps) => {
     const [newTarget, setNewTarget] = useState({ timeWindow: 'DAILY', taskId: '', targetAmount: 30 });
@@ -106,7 +96,7 @@ export const CreateBalanceTargetModal = ({ open, onClose, refetchBalanceTargets 
                             },
                         }}
                     >
-                        {timeOptions.map((option) => (
+                        {durationOptions.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
                                 {option.label}
                             </MenuItem>
