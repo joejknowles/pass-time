@@ -86,7 +86,7 @@ export const queryResolvers = {
             if (isOnlyTargetForTask) {
                 return true;
             } else {
-                return target.timeWindow === 'WEEKLY';
+                return target.timeWindow === 'DAILY';
             }
         })
 
