@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, Typography, TextField, Select, MenuItem, useTheme } from "@mui/material";
 import { useEffect } from "react";
-import { SuggestionsConfig } from "./types";
+import { RECURRING_TYPES, SuggestionsConfig } from "./types";
 
 interface RecurringInputsProps {
     suggestionsConfig: SuggestionsConfig;
