@@ -64,7 +64,7 @@ export const taskSuggestions = async (_parent: any, _args: any, context: Context
                 tasks: orderedTaskList.length > 0
                     ? orderedTaskList
                     : [balanceTarget.task],
-                type: "balanceTarget",
+                type: "BALANCE_TARGET",
                 data: balanceTarget,
             });
         }

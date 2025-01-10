@@ -63,7 +63,7 @@ export const typeDefs = gql`
     name: String!
     tasks: [Task!]!
     type: String!
-    data: BalanceTarget!
+    data: BalanceTarget
   }
 
   type TaskSuggestionConfig {
