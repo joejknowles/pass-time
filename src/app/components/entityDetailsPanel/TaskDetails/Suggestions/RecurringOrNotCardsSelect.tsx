@@ -1,10 +1,7 @@
 import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
 import EventIcon from '@mui/icons-material/Event';
 import RepeatIcon from '@mui/icons-material/Repeat';
-
-interface SuggestionsConfig {
-    taskType: "RECURRING" | "ONE_OFF";
-}
+import { SuggestionsConfig } from "./types";
 
 interface RecurringOrNotCardsSelectProps {
     suggestionsConfig: SuggestionsConfig;
