@@ -6,14 +6,22 @@ interface RecurringInputsProps {
     handleConfigChange: (key: keyof TaskSuggestionsConfig, value: any) => void;
 }
 
-const specificDaysOptions = [
-    "EVERYDAY", "WEEKDAY", "WEEKEND",
-    "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"
-];
+const specificDaysOptionMap = {
+    EVERYDAY: "day",
+    WEEKDAY: "weekday",
+    WEEKEND: "weekend",
+    SUNDAY: "Sunday",
+    MONDAY: "Monday",
+    TUESDAY: "Tuesday",
+    WEDNESDAY: "Wednesday",
+    THURSDAY: "Thursday",
+    FRIDAY: "Friday",
+    SATURDAY: "Saturday",
+}
 
-const formatSpecificDays = (day: string) => {
-    return day.charAt(0) + day.slice(1).toLowerCase();
-};
+const specificDaysOptions = Object.keys(specificDaysOptionMap) as (keyof typeof specificDaysOptionMap)[];
+
+const formatSpecificDays = (day: keyof typeof specificDaysOptionMap) => specificDaysOptionMap[day];
 
 export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsConfig, handleConfigChange }) => {
     const theme = useTheme();
@@ -76,7 +84,7 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                                 }}
                             />
                             <Typography variant="body1" sx={{ color: isDaysSince ? theme.palette.custom.cardTextSelected : theme.palette.grey[600] }}>
-                                days since last time
+                                day{suggestionsConfig.daysSinceLastOccurrence === 1 ? '' : 's'} since last time
                             </Typography>
                         </Box>
                     </CardContent>

@@ -21,7 +21,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE
     });
 
-    const { data } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
+    const { data, loading } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
         variables: { taskId: task.id },
     });
 
@@ -83,7 +83,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 label={`Suggestions are ${isSuggestingEnabled ? "enabled" : "disabled"}`}
             />
             {
-                isSuggestingEnabled && (
+                isSuggestingEnabled && !loading && (
                     <Box>
                         <RecurringOrNotCardsSelect
                             suggestionsConfig={suggestionsConfig}
