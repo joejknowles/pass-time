@@ -1,5 +1,5 @@
 // gradually migrating to `throw new GraphQLError` instead of `throw new Error`
-import { queryResolvers } from './queryResolvers';
+import { queryResolvers } from './queryResolvers/queryResolvers';
 import { additionalFields } from './additionalFields';
 import { mutationResolvers } from './mutationResolvers';
 
