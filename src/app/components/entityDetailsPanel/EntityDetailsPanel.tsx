@@ -29,12 +29,14 @@ const EntityDetailsPanel = ({
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
     const isOpen = !!openDetailsPanelEntity;
+    const isTaskType = openDetailsPanelEntity?.type === "Task";
+    const isTaskInstanceType = openDetailsPanelEntity?.type === "TaskInstance";
 
     const [modalStyles, setModalStyles] = useState<{
         top?: string;
         bottom?: string;
         left: string;
-        height: string;
+        height?: string;
         width: string;
     }>({
         top: "10vh",
@@ -53,10 +55,10 @@ const EntityDetailsPanel = ({
     const calculateStyles = () => {
         if (isNarrowScreen) {
             setModalStyles({
-                top: undefined,
+                top: isTaskType ? "10px" : undefined,
                 bottom: "10px",
                 left: "10px",
-                height: "50vh",
+                height: isTaskType ? undefined : "50vh",
                 width: "calc(100% - 20px)",
             });
         } else {
@@ -86,10 +88,10 @@ const EntityDetailsPanel = ({
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [isNarrowScreen]);
+    }, [isNarrowScreen, openDetailsPanelEntity?.type]);
 
     useLayoutEffect(() => {
-        if (isOpen && !isNarrowScreen) {
+        if (isOpen && isNarrowScreen && isTaskType) {
             document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
         } else {
@@ -100,7 +102,7 @@ const EntityDetailsPanel = ({
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         };
-    }, [isOpen]);
+    }, [isOpen, isNarrowScreen, isTaskType]);
 
     if (!isOpen) return null;
 
@@ -118,7 +120,7 @@ const EntityDetailsPanel = ({
             }}
         >
             {
-                openDetailsPanelEntity?.type === "TaskInstance" &&
+                isTaskInstanceType &&
                 (
                     <TaskInstanceDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
@@ -135,7 +137,7 @@ const EntityDetailsPanel = ({
                 )
             }
             {
-                openDetailsPanelEntity?.type === "Task" &&
+                isTaskType &&
                 (
                     <TaskDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
