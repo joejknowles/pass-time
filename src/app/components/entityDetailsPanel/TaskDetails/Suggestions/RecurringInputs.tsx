@@ -21,8 +21,8 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
     };
 
     return (
-        <Box mt={2}>
-            <Box component="hr" sx={{ borderColor: theme.palette.grey[300], marginBottom: 2 }} />
+        <Box mt={3}>
+            <Box component="hr" sx={{ borderTop: theme.palette.grey[300], marginBottom: 3,  }} />
             <Box display="flex" flexDirection="column" gap={2}>
                 <Card
                     sx={{
