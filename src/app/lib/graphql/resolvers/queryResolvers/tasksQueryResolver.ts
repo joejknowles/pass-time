@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Context, prisma } from '../helpers/helpers';
 
-export const tasks = async (_parent: any, _args: any, context: Context) => {
+export const tasksQueryResolver = async (_parent: any, _args: any, context: Context) => {
     if (!context.user) {
         throw new GraphQLError('User not authenticated', {
             extensions: {

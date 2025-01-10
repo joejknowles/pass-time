@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Context, prisma } from '../helpers/helpers';
 
-export const taskSuggestionConfig = async (_parent: any, args: { taskId: number }, context: Context) => {
+export const balanceTargetsQueryResolver = async (_parent: any, _args: any, context: Context) => {
     if (!context.user) {
         throw new GraphQLError('User not authenticated', {
             extensions: {
@@ -9,8 +9,8 @@ export const taskSuggestionConfig = async (_parent: any, args: { taskId: number 
             },
         });
     }
-
-    return (await prisma.taskSuggestionConfig.findMany({
-        where: { taskId: args.taskId, userId: context.user.id },
-    }))[0];
+    return await prisma.balanceTarget.findMany({
+        where: { userId: context.user.id },
+        include: { task: true },
+    });
 };

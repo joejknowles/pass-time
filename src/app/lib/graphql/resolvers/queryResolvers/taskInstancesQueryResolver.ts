@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Context, prisma } from '../helpers/helpers';
 
-export const taskInstances = async (_parent: any, args: {
+export const taskInstancesQueryResolver = async (_parent: any, args: {
     input: {
         date: string;
     }

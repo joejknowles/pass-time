@@ -1,16 +1,13 @@
-// gradually migrating to `throw new GraphQLError` instead of `throw new Error`
-import { Context } from '../helpers/helpers';
-
-import { tasks } from './tasks';
-import { taskInstances } from './taskInstances';
-import { balanceTargets } from './balanceTargets';
-import { taskSuggestions } from './taskSuggestions';
-import { taskSuggestionConfig } from './taskSuggestionConfig';
+import { tasksQueryResolver } from './tasksQueryResolver';
+import { taskInstancesQueryResolver } from './taskInstancesQueryResolver';
+import { balanceTargetsQueryResolver } from './balanceTargetsQueryResolver';
+import { taskSuggestionsQueryResolver } from './taskSuggestionsQueryResolver';
+import { taskSuggestionConfigQueryResolver } from './taskSuggestionConfigQueryResolver';
 
 export const queryResolvers = {
-    tasks,
-    taskInstances,
-    balanceTargets,
-    taskSuggestions,
-    taskSuggestionConfig,
+    tasks: tasksQueryResolver,
+    taskInstances: taskInstancesQueryResolver,
+    balanceTargets: balanceTargetsQueryResolver,
+    taskSuggestions: taskSuggestionsQueryResolver,
+    taskSuggestionConfig: taskSuggestionConfigQueryResolver,
 };

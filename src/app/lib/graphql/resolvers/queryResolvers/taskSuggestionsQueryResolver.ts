@@ -3,7 +3,7 @@ import { Context, prisma } from '../helpers/helpers';
 import { getChildTaskPaths } from '../helpers/getChildTaskPaths';
 import { calculateProgressForTasks } from '../helpers/calculateProgressForTasks';
 
-export const taskSuggestions = async (_parent: any, _args: any, context: Context) => {
+export const taskSuggestionsQueryResolver = async (_parent: any, _args: any, context: Context) => {
     if (!context.user) {
         throw new GraphQLError('User not authenticated', {
             extensions: {
