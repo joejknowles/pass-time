@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Context } from '../../helpers/helpers';
 import { addBalanceTargetGroups } from './addBalanceTargetGroups';
-import { addScheduledSuggestionTaskGroups } from './addScheduledSuggestionTaskGroups';
+import { addScheduledSuggestionTaskGroups } from './addScheduledSuggestionTaskGroups/addScheduledSuggestionTaskGroups';
 
 export const taskSuggestionsQueryResolver = async (_parent: any, _args: any, context: Context) => {
     if (!context.user) {

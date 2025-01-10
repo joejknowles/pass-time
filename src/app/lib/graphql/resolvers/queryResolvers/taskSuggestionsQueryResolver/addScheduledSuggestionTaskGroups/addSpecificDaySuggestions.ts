@@ -1,15 +1,6 @@
-import { getChildTaskPaths } from "../../helpers/getChildTaskPaths";
-import { prisma } from "../../helpers/helpers";
-
-const RECURRING_OR_ONCE = {
-    RECURRING: 'RECURRING',
-    ONE_OFF: 'ONE_OFF',
-};
-
-const RECURRING_TYPES = {
-    DAYS_SINCE_LAST_OCCURRENCE: "DAYS_SINCE_LAST_OCCURRENCE" as const,
-    SPECIFIC_DAYS: "SPECIFIC_DAYS" as const
-};
+import { Task, TaskSuggestionConfig } from "@prisma/client";
+import { getChildTaskPaths } from "../../../helpers/getChildTaskPaths";
+import { prisma } from "../../../helpers/helpers";
 
 const relevantDayNumbersForSpecificDays = {
     MONDAY: [1],
@@ -23,24 +14,9 @@ const relevantDayNumbersForSpecificDays = {
     WEEKDAY: [1, 2, 3, 4, 5],
     WEEKEND: [0, 6],
 }
-
-export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId: number) => {
-    const taskSuggestions = await prisma.taskSuggestionConfig.findMany({
-        where: {
-            userId: userId, task: {
-                OR: [{ isSuggestingEnabled: true }, { isSuggestingEnabled: null }]
-            },
-        },
-        include: { task: true },
-    });
-
-    const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.recurringOrOnce || suggestion.recurringOrOnce === RECURRING_OR_ONCE.RECURRING);
-    const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
-
+export function addSpecificDaySuggestions(dayOfWeekSuggestions: (TaskSuggestionConfig & { task: Task })[], userId: number, taskGroups: any[]) {
     dayOfWeekSuggestions.forEach(async (suggestion) => {
-        const relevantDayNumbers = relevantDayNumbersForSpecificDays[
-            (suggestion.specificDays || "SUNDAY") as keyof typeof relevantDayNumbersForSpecificDays
-        ];
+        const relevantDayNumbers = relevantDayNumbersForSpecificDays[(suggestion.specificDays || "SUNDAY") as keyof typeof relevantDayNumbersForSpecificDays];
         const dayOfWeek = new Date().getDay();
         if (relevantDayNumbers.includes(dayOfWeek)) {
             const allChildTasks = await getChildTaskPaths(suggestion.task.id, userId);
@@ -73,6 +49,5 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
             }
         }
     });
-
-    return taskGroups;
 }
+
