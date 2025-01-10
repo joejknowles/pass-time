@@ -24,7 +24,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.recurringOrOnce || suggestion.recurringOrOnce === RECURRING_OR_ONCE.RECURRING);
     const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
 
-    addSpecificDaySuggestions(dayOfWeekSuggestions, userId, taskGroups);
+    await addSpecificDaySuggestions(dayOfWeekSuggestions, userId, taskGroups);
 
     return taskGroups;
 }

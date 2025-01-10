@@ -14,8 +14,8 @@ const relevantDayNumbersForSpecificDays = {
     WEEKDAY: [1, 2, 3, 4, 5],
     WEEKEND: [0, 6],
 }
-export function addSpecificDaySuggestions(dayOfWeekSuggestions: (TaskSuggestionConfig & { task: Task })[], userId: number, taskGroups: any[]) {
-    dayOfWeekSuggestions.forEach(async (suggestion) => {
+export async function addSpecificDaySuggestions(dayOfWeekSuggestions: (TaskSuggestionConfig & { task: Task })[], userId: number, taskGroups: any[]) {
+    for (const suggestion of dayOfWeekSuggestions) {
         const relevantDayNumbers = relevantDayNumbersForSpecificDays[(suggestion.specificDays || "SUNDAY") as keyof typeof relevantDayNumbersForSpecificDays];
         const dayOfWeek = new Date().getDay();
         if (relevantDayNumbers.includes(dayOfWeek)) {
@@ -48,6 +48,6 @@ export function addSpecificDaySuggestions(dayOfWeekSuggestions: (TaskSuggestionC
                 });
             }
         }
-    });
+    }
 }
 
