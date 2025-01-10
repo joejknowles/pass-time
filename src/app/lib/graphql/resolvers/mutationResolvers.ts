@@ -5,6 +5,11 @@ import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { Context, prisma } from './helpers/helpers';
 import { isTaskHierarchyValid } from './helpers/isTaskHierarchyValid';
 
+const validSpecificDays = [
+    "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
+    "EVERYDAY", "WEEKDAY", "WEEKEND"
+];
+
 export const mutationResolvers = {
     createUser: async (_: any, args: { email: string, firebaseId: string, token: string }) => {
         const decodedToken = await admin.auth().verifyIdToken(args.token);
@@ -299,5 +304,75 @@ export const mutationResolvers = {
         });
 
         return balanceTarget;
+    },
+    updateTaskSuggestionConfig: async (
+        _parent: unknown,
+        args: { input: { taskId: number, userId: number, recurringOrOnce?: 'RECURRING' | 'ONE_OFF', recurringType?: 'DAYS_SINCE_LAST_OCCURRENCE' | 'SPECIFIC_DAYS', daysSinceLastOccurrence?: number, specificDays?: string } },
+        context: Context
+    ) => {
+        const { user } = context;
+
+        if (!user) {
+            throw new GraphQLError('User not authenticated', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                },
+            });
+        }
+
+        const task = await prisma.task.findUnique({
+            where: { id: args.input.taskId, userId: user.id },
+            include: {
+                suggestionConfigs: true,
+            }
+        });
+
+        if (!task) {
+            throw new GraphQLError('Task not found', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    fieldName: 'taskId',
+                },
+            });
+        }
+
+        const existingConfig = task.suggestionConfigs[0];
+
+        const {
+            recurringOrOnce, recurringType, daysSinceLastOccurrence, specificDays
+        } = args.input;
+
+        if (specificDays && !validSpecificDays.includes(specificDays)) {
+            throw new GraphQLError('Invalid specificDays value', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                    fieldName: 'specificDays',
+                },
+            });
+        }
+
+        const editedFields = {
+            ...(recurringOrOnce && { recurringOrOnce }),
+            ...(recurringType && { recurringType }),
+            ...(daysSinceLastOccurrence !== undefined && { daysSinceLastOccurrence }),
+            ...(specificDays && { specificDays }),
+        }
+
+        if (existingConfig) {
+            return await prisma.taskSuggestionConfig.update({
+                where: { id: existingConfig.id, userId: user.id },
+                data: {
+                    ...editedFields,
+                },
+            });
+        } else {
+            return await prisma.taskSuggestionConfig.create({
+                data: {
+                    taskId: args.input.taskId,
+                    userId: user.id,
+                    ...editedFields,
+                },
+            });
+        }
     },
 };

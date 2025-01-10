@@ -97,6 +97,7 @@ export const GET_TASKS = gql`
       id
       title
       defaultDuration
+      isSuggestingEnabled
       user {
         id
         email
@@ -149,6 +150,20 @@ export const CREATE_BALANCE_TARGET = gql`
         id
         title
       }
+    }
+  }
+`;
+
+export const UPDATE_TASK_SUGGESTION_CONFIG = gql`
+  mutation UpdateTaskSuggestionConfig($input: UpdateTaskSuggestionConfigInput!) {
+    updateTaskSuggestionConfig(input: $input) {
+      id
+      taskId
+      userId
+      recurringOrOnce
+      recurringType
+      daysSinceLastOccurrence
+      specificDays
     }
   }
 `;

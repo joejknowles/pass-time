@@ -1,18 +1,26 @@
 import { Box, Card, CardContent, Typography, TextField, Select, MenuItem, useTheme } from "@mui/material";
-import { Dispatch, SetStateAction } from "react";
 import { RECURRING_TYPES, TaskSuggestionsConfig } from "./types";
 
 interface RecurringInputsProps {
     suggestionsConfig: TaskSuggestionsConfig;
-    setSuggestionsConfig: Dispatch<SetStateAction<TaskSuggestionsConfig>>;
+    handleConfigChange: (key: keyof TaskSuggestionsConfig, value: any) => void;
 }
 
-export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsConfig, setSuggestionsConfig }) => {
+const specificDaysOptions = [
+    "EVERYDAY", "WEEKDAY", "WEEKEND",
+    "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"
+];
+
+const formatSpecificDays = (day: string) => {
+    return day.charAt(0) + day.slice(1).toLowerCase();
+};
+
+export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsConfig, handleConfigChange }) => {
     const theme = useTheme();
 
-    const handleInputChange = (field: keyof TaskSuggestionsConfig, value: any) => {
-        setSuggestionsConfig(suggestionsConfig => ({ ...suggestionsConfig, [field]: value }));
-    };
+    const isDaysSince = suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE;
+    const isSpecificDays = suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAYS;
+
 
     return (
         <Box mt={3}>
@@ -26,18 +34,18 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        border: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? `1px solid ${theme.palette.custom.cardBorderSelected}` : `1px solid ${theme.palette.grey[300]}`,
+                        border: isDaysSince ? `1px solid ${theme.palette.custom.cardBorderSelected}` : `1px solid ${theme.palette.grey[300]}`,
                         boxShadow: 3,
-                        backgroundColor: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
+                        backgroundColor: isDaysSince ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                     }}
-                    onClick={() => setSuggestionsConfig(suggestionsConfig => ({ ...suggestionsConfig, recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE }))}
+                    onClick={!isDaysSince ? () => handleConfigChange('recurringType', RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE) : undefined}
                 >
                     <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '16px !important' }}>
                         <Box display="flex" alignItems="center">
                             <TextField
                                 type="number"
                                 value={suggestionsConfig.daysSinceLastOccurrence}
-                                onChange={(e) => handleInputChange("daysSinceLastOccurrence", Number(e.target.value))}
+                                onChange={(e) => handleConfigChange("daysSinceLastOccurrence", Number(e.target.value))}
                                 size="small"
                                 sx={{
                                     width: '60px',
@@ -45,18 +53,18 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                                     textAlign: 'center',
                                     '& .MuiOutlinedInput-root': {
                                         '& fieldset': {
-                                            borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                            borderColor: isDaysSince ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                         },
                                         '&:hover fieldset': {
-                                            borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                            borderColor: isDaysSince ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                         },
                                         '&.Mui-focused fieldset': {
-                                            borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                            borderColor: isDaysSince ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                         },
                                     },
                                     '& .MuiInputBase-input': {
                                         textAlign: 'center',
-                                        color: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardTextSelected : theme.palette.grey[600],
+                                        color: isDaysSince ? theme.palette.custom.cardTextSelected : theme.palette.grey[600],
                                     },
                                 }}
                                 slotProps={{
@@ -67,7 +75,7 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                                     }
                                 }}
                             />
-                            <Typography variant="body1" sx={{ color: suggestionsConfig.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE ? theme.palette.custom.cardTextSelected : theme.palette.grey[600] }}>
+                            <Typography variant="body1" sx={{ color: isDaysSince ? theme.palette.custom.cardTextSelected : theme.palette.grey[600] }}>
                                 days since last time
                             </Typography>
                         </Box>
@@ -81,38 +89,35 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        border: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? `1px solid ${theme.palette.custom.cardBorderSelected}` : `1px solid ${theme.palette.grey[300]}`,
+                        border: isSpecificDays ? `1px solid ${theme.palette.custom.cardBorderSelected}` : `1px solid ${theme.palette.grey[300]}`,
                         boxShadow: 3,
-                        backgroundColor: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
+                        backgroundColor: isSpecificDays ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                     }}
-                    onClick={() => setSuggestionsConfig(suggestionsConfig => ({ ...suggestionsConfig, recurringType: RECURRING_TYPES.SPECIFIC_DAY }))}
+                    onClick={!isSpecificDays ? () => handleConfigChange('recurringType', RECURRING_TYPES.SPECIFIC_DAYS) : undefined}
                 >
                     <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '16px !important' }}>
                         <Box display="flex" alignItems="center">
-                            <Typography variant="body1" sx={{ color: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardTextSelected : theme.palette.grey[600] }}>
+                            <Typography variant="body1" sx={{ color: isSpecificDays ? theme.palette.custom.cardTextSelected : theme.palette.grey[600] }}>
                                 Every
                             </Typography>
                             <Select
-                                value={suggestionsConfig.specificDay}
-                                onChange={(e) => {
-                                    console.log
-                                    handleInputChange("specificDay", e.target.value)
-                                }}
+                                value={suggestionsConfig.specificDays}
+                                onChange={(e) => handleConfigChange("specificDays", e.target.value)}
                                 size="small"
                                 sx={{
                                     width: 'fit-content',
                                     marginLeft: 1,
                                     '& fieldset': {
-                                        borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                        borderColor: isSpecificDays ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                     },
                                     '&:hover fieldset': {
-                                        borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                        borderColor: isSpecificDays ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                     },
                                     '&.Mui-focused fieldset': {
-                                        borderColor: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
+                                        borderColor: isSpecificDays ? theme.palette.custom.cardInputBorderSelected : theme.palette.grey[400],
                                     },
                                     '& .MuiInputBase-input': {
-                                        color: suggestionsConfig.recurringType === RECURRING_TYPES.SPECIFIC_DAY ? theme.palette.custom.cardTextSelected : theme.palette.grey[600],
+                                        color: isSpecificDays ? theme.palette.custom.cardTextSelected : theme.palette.grey[600],
                                     },
                                 }}
                                 MenuProps={{
@@ -122,9 +127,9 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                                     },
                                 }}
                             >
-                                {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                                {specificDaysOptions.map((day) => (
                                     <MenuItem key={day} value={day}>
-                                        {day}
+                                        {formatSpecificDays(day)}
                                     </MenuItem>
                                 ))}
                             </Select>

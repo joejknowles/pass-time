@@ -6,7 +6,10 @@ export const additionalFields = {
     Task: {
         defaultDuration: (parent: Task) => {
             return parent.defaultDuration || 30;
-        }
+        },
+        isSuggestingEnabled: (parent: Task) => {
+            return parent.isSuggestingEnabled ?? true;
+        },
     },
     TaskInstance: {
         start: (parent: TaskInstance) => {

@@ -18,6 +18,8 @@ export const typeDefs = gql`
     parentTasks: [Task!]!
     childTasks: [Task!]!
     defaultDuration: Int!
+    isSuggestingEnabled: Boolean
+    suggestionConfigs: [TaskSuggestionConfig!]!
   }
 
   type TaskInstance {
@@ -39,6 +41,16 @@ export const typeDefs = gql`
     WEEKLY
   }
 
+  enum RecurringOrOnce {
+    RECURRING
+    ONE_OFF
+  }
+
+  enum RecurringType {
+    DAYS_SINCE_LAST_OCCURRENCE
+    SPECIFIC_DAYS
+  }
+
   type BalanceTarget {
     id: Int!
     timeWindow: TimeWindow!
@@ -54,12 +66,23 @@ export const typeDefs = gql`
     data: BalanceTarget!
   }
 
+  type TaskSuggestionConfig {
+    id: Int!
+    taskId: Int!
+    userId: Int!
+    recurringOrOnce: RecurringOrOnce
+    recurringType: RecurringType
+    daysSinceLastOccurrence: Int
+    specificDays: String
+  }
+
   type Query {
     users: [User!]!
     tasks: [Task!]!
     taskInstances(input: GetTaskInstancesInput!): [TaskInstance!]!
     balanceTargets: [BalanceTarget!]!
     taskSuggestions: [TaskGroup!]!
+    taskSuggestionConfig(taskId: Int!): TaskSuggestionConfig
   }
 
   input GetTaskInstancesInput {
@@ -98,6 +121,14 @@ export const typeDefs = gql`
     defaultDuration: Int
   }
 
+  input UpdateTaskSuggestionConfigInput {
+    taskId: Int!
+    recurringOrOnce: RecurringOrOnce
+    recurringType: RecurringType
+    daysSinceLastOccurrence: Int
+    specificDays: String
+  }
+
   type Mutation {
     createUser(email: String!, firebaseId: String!, token: String!): User!
     createTaskInstance(input: CreateTaskInstanceInput!): TaskInstance!
@@ -105,5 +136,6 @@ export const typeDefs = gql`
     updateTaskInstance(input: UpdateTaskInstanceInput!): TaskInstance!
     updateTask(input: UpdateTaskInput!): Task!
     createBalanceTarget(input: CreateBalanceTargetInput!): BalanceTarget!
+    updateTaskSuggestionConfig(input: UpdateTaskSuggestionConfigInput!): TaskSuggestionConfig!
   }
 `;

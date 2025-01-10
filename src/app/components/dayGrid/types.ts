@@ -4,6 +4,7 @@ export interface Task {
     parentTasks: Task[];
     childTasks: Task[];
     defaultDuration: number;
+    isSuggestingEnabled: boolean;
 }
 
 export interface TaskInstance {

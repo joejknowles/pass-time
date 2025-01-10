@@ -22,6 +22,7 @@ model User {
   tasks         Task[]
   taskInstances TaskInstance[]
   balanceTargets BalanceTarget[]
+  taskSuggestionConfigs TaskSuggestionConfig[]
 }
 
 model Task {
@@ -34,6 +35,9 @@ model Task {
   childTasks  Task[] @relation("ParentChildTasks")
 
   defaultDuration Int?
+
+  isSuggestingEnabled Boolean? @default(true)
+  suggestionConfigs TaskSuggestionConfig[]
 
   taskInstances TaskInstance[]
   balanceTargets BalanceTarget[]
@@ -71,4 +75,28 @@ model BalanceTarget {
 
 
   @@index([userId])
+}
+
+enum RecurringOrOnce {
+  RECURRING
+  ONE_OFF
+}
+
+enum RecurringType {
+  DAYS_SINCE_LAST_OCCURRENCE
+  SPECIFIC_DAYS
+}
+
+model TaskSuggestionConfig {
+  id Int @id @default(autoincrement())
+  taskId Int
+  task Task @relation(fields: [taskId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  recurringOrOnce RecurringOrOnce?
+  recurringType RecurringType?
+  daysSinceLastOccurrence Int?
+  specificDays String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

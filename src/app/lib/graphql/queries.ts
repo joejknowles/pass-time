@@ -37,3 +37,17 @@ export const GET_TASK_SUGGESTIONS = gql`
     }
   }
 `;
+
+export const GET_TASK_SUGGESTION_CONFIG = gql`
+  query GetTaskSuggestionConfig($taskId: Int!) {
+    taskSuggestionConfig(taskId: $taskId) {
+      id
+      taskId
+      userId
+      recurringOrOnce
+      recurringType
+      daysSinceLastOccurrence
+      specificDays
+    }
+  }
+`;

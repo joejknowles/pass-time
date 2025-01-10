@@ -106,7 +106,7 @@ export const TaskDetails = ({
                         refetchAllTaskData={refetchAllTaskData}
                     />
                 )}
-                {tabIndex === 1 && <TaskDetailsSuggestions />}
+                {tabIndex === 1 && <TaskDetailsSuggestions task={task} />}
             </Box>
         </ClickAwayListener>
     );
