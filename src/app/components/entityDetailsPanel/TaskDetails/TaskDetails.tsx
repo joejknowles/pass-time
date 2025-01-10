@@ -97,7 +97,7 @@ export const TaskDetails = ({
                     sx={{ mb: 2 }}
                 >
                     <Tab label="General" />
-                    <Tab label="Suggestions / reminders" />
+                    <Tab label="Suggestions" />
                 </Tabs>
                 {tabIndex === 0 && (
                     <TaskDetailsGeneral
