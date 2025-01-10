@@ -1,16 +1,16 @@
 import { Box, Card, CardContent, Typography, TextField, Select, MenuItem, useTheme } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
-import { RECURRING_TYPES, SuggestionsConfig } from "./types";
+import { RECURRING_TYPES, TaskSuggestionsConfig } from "./types";
 
 interface RecurringInputsProps {
-    suggestionsConfig: SuggestionsConfig;
-    setSuggestionsConfig: Dispatch<SetStateAction<SuggestionsConfig>>;
+    suggestionsConfig: TaskSuggestionsConfig;
+    setSuggestionsConfig: Dispatch<SetStateAction<TaskSuggestionsConfig>>;
 }
 
 export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsConfig, setSuggestionsConfig }) => {
     const theme = useTheme();
 
-    const handleInputChange = (field: keyof SuggestionsConfig, value: any) => {
+    const handleInputChange = (field: keyof TaskSuggestionsConfig, value: any) => {
         setSuggestionsConfig(suggestionsConfig => ({ ...suggestionsConfig, [field]: value }));
     };
 

@@ -1,11 +1,11 @@
 import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
 import EventIcon from '@mui/icons-material/Event';
 import RepeatIcon from '@mui/icons-material/Repeat';
-import { SuggestionsConfig } from "./types";
+import { TaskSuggestionsConfig } from "./types";
 
 interface RecurringOrNotCardsSelectProps {
-    suggestionsConfig: SuggestionsConfig;
-    setSuggestionsConfig: (config: SuggestionsConfig) => void;
+    suggestionsConfig: TaskSuggestionsConfig;
+    setSuggestionsConfig: (config: TaskSuggestionsConfig) => void;
 }
 
 export const RecurringOrNotCardsSelect = ({ suggestionsConfig, setSuggestionsConfig }: RecurringOrNotCardsSelectProps) => {

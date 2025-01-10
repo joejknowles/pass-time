@@ -2,11 +2,11 @@ import { Box, FormControlLabel, Switch } from "@mui/material";
 import { useState } from "react";
 import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
 import { RecurringInputs } from "./RecurringInputs";
-import { SuggestionsConfig, RECURRING_TYPES } from "./types";
+import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 
 export const TaskDetailsSuggestions = () => {
     const [suggestionsEnabled, setSuggestionsEnabled] = useState<boolean>(true);
-    const [suggestionsConfig, setSuggestionsConfig] = useState<SuggestionsConfig>({
+    const [suggestionsConfig, setSuggestionsConfig] = useState<TaskSuggestionsConfig>({
         taskType: "RECURRING",
         daysSinceLastOccurrence: 3,
         specificDay: "Sunday",
