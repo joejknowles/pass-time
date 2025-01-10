@@ -136,6 +136,7 @@ export const UPDATE_TASK = gql`
         title
       }
       defaultDuration
+      isSuggestingEnabled
     }
   }
 `;

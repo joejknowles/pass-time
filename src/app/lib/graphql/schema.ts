@@ -119,6 +119,7 @@ export const typeDefs = gql`
     title: String
     parentTaskId: Int
     defaultDuration: Int
+    isSuggestingEnabled: Boolean
   }
 
   input UpdateTaskSuggestionConfigInput {

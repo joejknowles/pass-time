@@ -1,11 +1,11 @@
 import { Box, FormControlLabel, Switch } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
 import { RecurringInputs } from "./RecurringInputs";
 import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 import { GET_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/queries";
-import { UPDATE_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/mutations";
+import { UPDATE_TASK_SUGGESTION_CONFIG, UPDATE_TASK } from "@/app/lib/graphql/mutations";
 import { Task } from "@/app/components/dayGrid/types";
 
 interface TaskDetailsSuggestionsProps {
@@ -13,7 +13,7 @@ interface TaskDetailsSuggestionsProps {
 }
 
 export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) => {
-    const [suggestionsEnabled, setSuggestionsEnabled] = useState<boolean>(task.isSuggestingEnabled);
+    const [isSuggestingEnabled, setIsSuggestingEnabled] = useState<boolean>(task.isSuggestingEnabled);
     const [suggestionsConfig, setSuggestionsConfig] = useState<TaskSuggestionsConfig>({
         recurringOrOnce: "RECURRING",
         daysSinceLastOccurrence: 3,
@@ -26,6 +26,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
     });
 
     const [updateTaskSuggestionConfig] = useMutation(UPDATE_TASK_SUGGESTION_CONFIG);
+    const [updateTask] = useMutation(UPDATE_TASK);
 
     useEffect(() => {
         if (data?.taskSuggestionConfig) {
@@ -47,19 +48,42 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         });
     };
 
+    const handleSuggestionsEnabledChange = useCallback(() => {
+        setIsSuggestingEnabled(value => {
+            const newValue = !value;
+            return newValue;
+        });
+
+        const newValue = !isSuggestingEnabled;
+        updateTask({
+            variables: {
+                input: {
+                    id: task.id,
+                    isSuggestingEnabled: newValue,
+                },
+            },
+            optimisticResponse: {
+                updateTask: {
+                    ...task,
+                    isSuggestingEnabled: newValue,
+                },
+            },
+        });
+    }, [isSuggestingEnabled]);
+
     return (
         <Box>
             <FormControlLabel
                 control={
                     <Switch
-                        checked={suggestionsEnabled}
-                        onChange={() => setSuggestionsEnabled(!suggestionsEnabled)}
+                        checked={isSuggestingEnabled}
+                        onChange={handleSuggestionsEnabledChange}
                     />
                 }
-                label={`Suggestions are ${suggestionsEnabled ? "enabled" : "disabled"}`}
+                label={`Suggestions are ${isSuggestingEnabled ? "enabled" : "disabled"}`}
             />
             {
-                suggestionsEnabled && (
+                isSuggestingEnabled && (
                     <Box>
                         <RecurringOrNotCardsSelect
                             suggestionsConfig={suggestionsConfig}
