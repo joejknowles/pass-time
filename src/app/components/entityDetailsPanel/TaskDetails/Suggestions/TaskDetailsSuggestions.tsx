@@ -1,4 +1,4 @@
-import { Box, Typography, FormControlLabel, Switch } from "@mui/material";
+import { Box, FormControlLabel, Switch } from "@mui/material";
 import { useState } from "react";
 import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
 import { RecurringInputs } from "./RecurringInputs";
@@ -27,8 +27,16 @@ export const TaskDetailsSuggestions = () => {
             {
                 suggestionsEnabled && (
                     <Box>
-                        <RecurringOrNotCardsSelect suggestionsConfig={suggestionsConfig} setSuggestionsConfig={setSuggestionsConfig} />
-                        {suggestionsConfig.taskType === "RECURRING" && <RecurringInputs suggestionsConfig={suggestionsConfig} setSuggestionsConfig={setSuggestionsConfig} />}
+                        <RecurringOrNotCardsSelect
+                            suggestionsConfig={suggestionsConfig}
+                            setSuggestionsConfig={setSuggestionsConfig}
+                        />
+                        {suggestionsConfig.taskType === "RECURRING" && (
+                            <RecurringInputs
+                                suggestionsConfig={suggestionsConfig}
+                                setSuggestionsConfig={setSuggestionsConfig}
+                            />
+                        )}
                     </Box>
                 )
             }
