@@ -1,23 +1,13 @@
-import { GraphQLError } from 'graphql';
-import { Context, prisma } from '../helpers/helpers';
-import { getChildTaskPaths } from '../helpers/getChildTaskPaths';
-import { calculateProgressForTasks } from '../helpers/calculateProgressForTasks';
+import { prisma } from '../../helpers/helpers';
+import { getChildTaskPaths } from '../../helpers/getChildTaskPaths';
+import { calculateProgressForTasks } from '../../helpers/calculateProgressForTasks';
 
-export const taskSuggestionsQueryResolver = async (_parent: any, _args: any, context: Context) => {
-    if (!context.user) {
-        throw new GraphQLError('User not authenticated', {
-            extensions: {
-                code: 'UNAUTHENTICATED',
-            },
-        });
-    }
-
+export const addBalanceTargetGroups = async (taskGroups: any[], userId: number) => {
     const balanceTargets = await prisma.balanceTarget.findMany({
-        where: { userId: context.user.id },
+        where: { userId: userId },
         include: { task: true },
     });
 
-    const taskGroups = [];
 
     const priorityTargets = balanceTargets.filter((target) => {
         const isOnlyTargetForTask = balanceTargets.filter((t) => t.taskId === target.taskId).length === 1;
@@ -29,7 +19,7 @@ export const taskSuggestionsQueryResolver = async (_parent: any, _args: any, con
     })
 
     for (const balanceTarget of priorityTargets) {
-        const childTaskPaths = await getChildTaskPaths(balanceTarget.task.id, context.user.id);
+        const childTaskPaths = await getChildTaskPaths(balanceTarget.task.id, userId);
 
         const taskIds = Array.from(
             new Set(childTaskPaths.flat().map((task) => task.id))
@@ -69,6 +59,5 @@ export const taskSuggestionsQueryResolver = async (_parent: any, _args: any, con
             });
         }
     }
-
     return taskGroups;
-};
+}

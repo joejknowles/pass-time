@@ -1,7 +1,7 @@
 import { tasksQueryResolver } from './tasksQueryResolver';
 import { taskInstancesQueryResolver } from './taskInstancesQueryResolver';
 import { balanceTargetsQueryResolver } from './balanceTargetsQueryResolver';
-import { taskSuggestionsQueryResolver } from './taskSuggestionsQueryResolver';
+import { taskSuggestionsQueryResolver } from './taskSuggestionsQueryResolver/taskSuggestionsQueryResolver';
 import { taskSuggestionConfigQueryResolver } from './taskSuggestionConfigQueryResolver';
 
 export const queryResolvers = {
