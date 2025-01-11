@@ -17,9 +17,11 @@ const server = new ApolloServer({
 const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
   context: async (req: NextRequest) => {
     const authHeader = req.headers.get('authorization') || '';
+    console.log('context handler authHeader:', authHeader);
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
     if (!token) {
+      console.error('Authorization token is missing');
       throw new Error('Authorization token is missing');
     }
 
@@ -28,6 +30,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
       const user = await prisma.user.findUnique({
         where: { firebaseId: decodedToken.uid },
       });
+      if (!user) {
+        console.error('User not found');
+        throw new Error('User not found');
+      }
       return { user };
     } catch (error) {
       console.error('Token verification failed:', error);
