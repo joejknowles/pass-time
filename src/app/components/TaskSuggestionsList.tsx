@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography, LinearProgress } from "@mui/material";
 import { useQuery } from '@apollo/client';
 import { GET_TASK_SUGGESTIONS } from "../lib/graphql/queries";
 import { OpenDetailsPanelEntity } from "./dayGrid/types";
@@ -76,12 +76,6 @@ export const TaskSuggestionsList = ({
     return (
         <Box sx={{ height: '100%', padding: 1, overflowY: 'auto', scrollbarGutter: 'none' }}>
             {taskSuggestions.map((group, index) => {
-
-                let headingText = group.name;
-                if (group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data) {
-                    headingText += ` (${group.data.progress}/${group.data.targetAmount})`
-                }
-
                 const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
 
                 return (
@@ -97,11 +91,28 @@ export const TaskSuggestionsList = ({
                             gap: 1,
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
                             <Icon sx={{ fontSize: 20, marginLeft: '2px' }} />
                             <Typography variant="subtitle2" color="textSecondary">
-                                {headingText}
+                                {group.name}
                             </Typography>
+
+                            {group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data && (
+                                <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={(group.data.progress / group.data.targetAmount) * 100}
+                                        sx={{
+                                            height: 4,
+                                            borderRadius: 1,
+                                            backgroundColor: 'grey.200',
+                                            '& .MuiLinearProgress-bar': {
+                                                backgroundColor: 'grey.500',
+                                            },
+                                        }}
+                                    />
+                                </Box>
+                            )}
                         </Box>
                         {group.tasks.map((task) => (
                             <Card
