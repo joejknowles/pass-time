@@ -1,4 +1,5 @@
 import { prisma } from "../../../helpers/helpers";
+import { addDaysSinceLastOccurrenceSuggestions } from "./addDaysSinceLastOccurrenceSuggestions";
 import { addSpecificDaySuggestions } from "./addSpecificDaySuggestions";
 
 const RECURRING_OR_ONCE = {
@@ -22,9 +23,12 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     });
 
     const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.recurringOrOnce || suggestion.recurringOrOnce === RECURRING_OR_ONCE.RECURRING);
-    const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
 
+    const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
     await addSpecificDaySuggestions(dayOfWeekSuggestions, userId, taskGroups);
+
+    const daysSinceLastOccurrenceSuggestions = recurringTaskSuggestions.filter((suggestion) => !suggestion.recurringType || suggestion.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE);
+    await addDaysSinceLastOccurrenceSuggestions(daysSinceLastOccurrenceSuggestions, userId, taskGroups);
 
     return taskGroups;
 }
