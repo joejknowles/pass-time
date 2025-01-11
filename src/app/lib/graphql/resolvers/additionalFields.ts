@@ -8,7 +8,7 @@ export const additionalFields = {
             return parent.defaultDuration || 30;
         },
         isSuggestingEnabled: (parent: Task) => {
-            return parent.isSuggestingEnabled ?? true;
+            return parent.isSuggestingEnabled ?? false;
         },
     },
     TaskInstance: {

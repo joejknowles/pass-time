@@ -15,9 +15,7 @@ const RECURRING_TYPES = {
 export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId: number) => {
     const taskSuggestions = await prisma.taskSuggestionConfig.findMany({
         where: {
-            userId: userId, task: {
-                OR: [{ isSuggestingEnabled: true }, { isSuggestingEnabled: null }]
-            },
+            userId: userId, task: { isSuggestingEnabled: true }
         },
         include: { task: true },
     });

@@ -3,7 +3,7 @@ import { RECURRING_TYPES, TaskSuggestionsConfig } from "./types";
 
 interface RecurringInputsProps {
     suggestionsConfig: TaskSuggestionsConfig;
-    handleConfigChange: (key: keyof TaskSuggestionsConfig, value: any) => void;
+    handleConfigChange: (newValues: Partial<TaskSuggestionsConfig>) => void;
 }
 
 const specificDaysOptionMap = {
@@ -46,14 +46,20 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                         boxShadow: 3,
                         backgroundColor: isDaysSince ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                     }}
-                    onClick={!isDaysSince ? () => handleConfigChange('recurringType', RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE) : undefined}
+                    onClick={!isDaysSince ? () => handleConfigChange({
+                        recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
+                        daysSinceLastOccurrence: suggestionsConfig.daysSinceLastOccurrence
+                    }) : undefined}
                 >
                     <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '16px !important' }}>
                         <Box display="flex" alignItems="center">
                             <TextField
                                 type="number"
                                 value={suggestionsConfig.daysSinceLastOccurrence}
-                                onChange={(e) => handleConfigChange("daysSinceLastOccurrence", Number(e.target.value))}
+                                onChange={(e) => handleConfigChange({
+                                    daysSinceLastOccurrence: Number(e.target.value),
+                                    recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE
+                                })}
                                 size="small"
                                 sx={{
                                     width: '60px',
@@ -101,7 +107,10 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                         boxShadow: 3,
                         backgroundColor: isSpecificDays ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                     }}
-                    onClick={!isSpecificDays ? () => handleConfigChange('recurringType', RECURRING_TYPES.SPECIFIC_DAYS) : undefined}
+                    onClick={!isSpecificDays ? () => handleConfigChange({
+                        recurringType: RECURRING_TYPES.SPECIFIC_DAYS,
+                        specificDays: suggestionsConfig.specificDays
+                    }) : undefined}
                 >
                     <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '16px !important' }}>
                         <Box display="flex" alignItems="center">
@@ -110,7 +119,10 @@ export const RecurringInputs: React.FC<RecurringInputsProps> = ({ suggestionsCon
                             </Typography>
                             <Select
                                 value={suggestionsConfig.specificDays}
-                                onChange={(e) => handleConfigChange("specificDays", e.target.value)}
+                                onChange={(e) => handleConfigChange({
+                                    specificDays: e.target.value,
+                                    recurringType: RECURRING_TYPES.SPECIFIC_DAYS
+                                })}
                                 size="small"
                                 sx={{
                                     width: 'fit-content',

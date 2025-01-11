@@ -5,10 +5,10 @@ import { TaskSuggestionsConfig } from "./types";
 
 interface RecurringOrNotCardsSelectProps {
     suggestionsConfig: TaskSuggestionsConfig;
-    setSuggestionsConfig: (config: TaskSuggestionsConfig) => void;
+    handleConfigChange: (config: Partial<TaskSuggestionsConfig>) => void;
 }
 
-export const RecurringOrNotCardsSelect = ({ suggestionsConfig, setSuggestionsConfig }: RecurringOrNotCardsSelectProps) => {
+export const RecurringOrNotCardsSelect = ({ suggestionsConfig, handleConfigChange }: RecurringOrNotCardsSelectProps) => {
     const theme = useTheme();
 
     return (
@@ -26,7 +26,7 @@ export const RecurringOrNotCardsSelect = ({ suggestionsConfig, setSuggestionsCon
                     boxShadow: 3,
                     backgroundColor: suggestionsConfig.recurringOrOnce === "RECURRING" ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                 }}
-                onClick={() => setSuggestionsConfig({ ...suggestionsConfig, recurringOrOnce: "RECURRING" })}
+                onClick={() => handleConfigChange({ recurringOrOnce: "RECURRING" })}
             >
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '8px !important' }}>
                     <RepeatIcon fontSize="large" sx={{ color: suggestionsConfig.recurringOrOnce === "RECURRING" ? theme.palette.custom.cardIconSelected : theme.palette.grey[700] }} />
@@ -46,7 +46,7 @@ export const RecurringOrNotCardsSelect = ({ suggestionsConfig, setSuggestionsCon
                     boxShadow: 3,
                     backgroundColor: suggestionsConfig.recurringOrOnce === "ONE_OFF" ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                 }}
-                onClick={() => setSuggestionsConfig({ ...suggestionsConfig, recurringOrOnce: "ONE_OFF" })}
+                onClick={() => handleConfigChange({ recurringOrOnce: "ONE_OFF" })}
             >
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '8px !important' }}>
                     <EventIcon fontSize="large" sx={{ color: suggestionsConfig.recurringOrOnce === "ONE_OFF" ? theme.palette.custom.cardIconSelected : theme.palette.grey[600] }} />

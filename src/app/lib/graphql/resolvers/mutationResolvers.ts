@@ -58,9 +58,6 @@ export const mutationResolvers = {
                 data: {
                     title: args.input.title,
                     userId: user.id,
-                    taskInstances: {
-                        create: [],
-                    },
                 },
                 include: {
                     user: true,

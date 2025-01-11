@@ -35,27 +35,40 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         }
     }, [data]);
 
-    const handleConfigChange = (key: keyof TaskSuggestionsConfig, value: any) => {
-        setSuggestionsConfig(prevConfig => ({ ...prevConfig, [key]: value }));
+    const handleConfigChange = async (newValues: Partial<TaskSuggestionsConfig>) => {
+        setSuggestionsConfig(prevConfig => ({ ...prevConfig, ...newValues }));
 
-        updateTaskSuggestionConfig({
+        await updateTaskSuggestionConfig({
             variables: {
                 input: {
                     taskId: task.id,
-                    [key]: value,
+                    ...newValues
                 },
             },
         });
     };
 
-    const handleSuggestionsEnabledChange = useCallback(() => {
+    const handleSuggestionsEnabledChange = useCallback(async () => {
         setIsSuggestingEnabled(value => {
             const newValue = !value;
             return newValue;
         });
 
         const newValue = !isSuggestingEnabled;
-        updateTask({
+        if (newValue) {
+            await updateTaskSuggestionConfig({
+                variables: {
+                    input: {
+                        taskId: task.id,
+                        recurringOrOnce: "RECURRING",
+                        recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
+                        daysSinceLastOccurrence: 3,
+                    },
+                },
+            });
+        }
+
+        await updateTask({
             variables: {
                 input: {
                     id: task.id,
@@ -87,7 +100,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                     <Box>
                         <RecurringOrNotCardsSelect
                             suggestionsConfig={suggestionsConfig}
-                            setSuggestionsConfig={(config) => handleConfigChange('recurringOrOnce', config.recurringOrOnce)}
+                            handleConfigChange={handleConfigChange}
                         />
                         {suggestionsConfig.recurringOrOnce === "RECURRING" && (
                             <RecurringInputs
