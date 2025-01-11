@@ -313,7 +313,16 @@ export const mutationResolvers = {
     },
     updateTaskSuggestionConfig: async (
         _parent: unknown,
-        args: { input: { taskId: number, userId: number, recurringOrOnce?: 'RECURRING' | 'ONE_OFF', recurringType?: 'DAYS_SINCE_LAST_OCCURRENCE' | 'SPECIFIC_DAYS', daysSinceLastOccurrence?: number, specificDays?: string } },
+        args: {
+            input:
+            {
+                taskId: number,
+                recurringOrOnce?: 'RECURRING' | 'ONE_OFF',
+                recurringType?: 'DAYS_SINCE_LAST_OCCURRENCE' | 'SPECIFIC_DAYS',
+                daysSinceLastOccurrence?: number,
+                specificDays?: string
+            }
+        },
         context: Context
     ) => {
         const { user } = context;
@@ -345,10 +354,11 @@ export const mutationResolvers = {
         const existingConfig = task.suggestionConfigs[0];
 
         const {
-            recurringOrOnce, recurringType, daysSinceLastOccurrence, specificDays
+            taskId,
+            ...editedFields
         } = args.input;
 
-        if (specificDays && !validSpecificDays.includes(specificDays)) {
+        if (editedFields.specificDays && !validSpecificDays.includes(editedFields.specificDays)) {
             throw new GraphQLError('Invalid specificDays value', {
                 extensions: {
                     code: 'BAD_USER_INPUT',
@@ -357,19 +367,10 @@ export const mutationResolvers = {
             });
         }
 
-        const editedFields = {
-            ...(recurringOrOnce && { recurringOrOnce }),
-            ...(recurringType && { recurringType }),
-            ...(daysSinceLastOccurrence !== undefined && { daysSinceLastOccurrence }),
-            ...(specificDays && { specificDays }),
-        }
-
         if (existingConfig) {
             return await prisma.taskSuggestionConfig.update({
                 where: { id: existingConfig.id, userId: user.id },
-                data: {
-                    ...editedFields,
-                },
+                data: editedFields,
             });
         } else {
             return await prisma.taskSuggestionConfig.create({

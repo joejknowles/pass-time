@@ -46,7 +46,11 @@ export const RecurringOrNotCardsSelect = ({ suggestionsConfig, handleConfigChang
                     boxShadow: 3,
                     backgroundColor: suggestionsConfig.recurringOrOnce === "ONE_OFF" ? theme.palette.custom.cardBackgroundSelected : theme.palette.custom.white
                 }}
-                onClick={() => handleConfigChange({ recurringOrOnce: "ONE_OFF" })}
+                onClick={() => handleConfigChange({
+                    recurringOrOnce: "ONE_OFF",
+                    oneOffDate: suggestionsConfig.oneOffDate,
+                    oneOffDateType: suggestionsConfig.oneOffDateType
+                })}
             >
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '8px !important' }}>
                     <EventIcon fontSize="large" sx={{ color: suggestionsConfig.recurringOrOnce === "ONE_OFF" ? theme.palette.custom.cardIconSelected : theme.palette.grey[600] }} />

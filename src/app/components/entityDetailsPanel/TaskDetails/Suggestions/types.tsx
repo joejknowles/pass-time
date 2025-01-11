@@ -11,4 +11,6 @@ export interface TaskSuggestionsConfig {
     recurringType: RecurringType;
     daysSinceLastOccurrence: number;
     specificDays: string;
+    oneOffDate: string;
+    oneOffDateType: "ON_DATE_ONLY" | "BEFORE_OR_ON";
 }

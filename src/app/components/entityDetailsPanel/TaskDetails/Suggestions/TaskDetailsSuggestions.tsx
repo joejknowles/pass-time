@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
 import { RecurringInputs } from "./RecurringInputs";
+import { OneOffInputs } from "./OneOffInputs";
 import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 import { GET_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/queries";
 import { UPDATE_TASK_SUGGESTION_CONFIG, UPDATE_TASK } from "@/app/lib/graphql/mutations";
@@ -18,10 +19,13 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         recurringOrOnce: "RECURRING",
         daysSinceLastOccurrence: 3,
         specificDays: "SUNDAY",
-        recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE
+        recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
+        // tomorrow
+        oneOffDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
+        oneOffDateType: "BEFORE_OR_ON",
     });
 
-    const { data, loading } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
+    const { data, loading, refetch } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
         variables: { taskId: task.id },
     });
 
@@ -46,6 +50,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 },
             },
         });
+        refetch();
     };
 
     const handleSuggestionsEnabledChange = useCallback(async () => {
@@ -56,16 +61,21 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
 
         const newValue = !isSuggestingEnabled;
         if (newValue) {
+            setSuggestionsConfig(config => ({
+                ...config,
+                recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE
+            }));
             await updateTaskSuggestionConfig({
                 variables: {
                     input: {
                         taskId: task.id,
-                        recurringOrOnce: "RECURRING",
-                        recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
-                        daysSinceLastOccurrence: 3,
+                        recurringOrOnce: suggestionsConfig.recurringOrOnce,
+                        recurringType: suggestionsConfig.recurringType,
+                        daysSinceLastOccurrence: suggestionsConfig.daysSinceLastOccurrence,
                     },
                 },
             });
+            refetch();
         }
 
         await updateTask({
@@ -82,7 +92,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 },
             },
         });
-    }, [isSuggestingEnabled]);
+    }, [isSuggestingEnabled, suggestionsConfig]);
 
     return (
         <Box>
@@ -104,6 +114,12 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                         />
                         {suggestionsConfig.recurringOrOnce === "RECURRING" && (
                             <RecurringInputs
+                                suggestionsConfig={suggestionsConfig}
+                                handleConfigChange={handleConfigChange}
+                            />
+                        )}
+                        {suggestionsConfig.recurringOrOnce === "ONE_OFF" && (
+                            <OneOffInputs
                                 suggestionsConfig={suggestionsConfig}
                                 handleConfigChange={handleConfigChange}
                             />

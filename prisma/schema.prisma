@@ -87,6 +87,11 @@ enum RecurringType {
   SPECIFIC_DAYS
 }
 
+enum OneOffDateType {
+  ON_DATE_ONLY
+  BEFORE_OR_ON
+}
+
 model TaskSuggestionConfig {
   id Int @id @default(autoincrement())
   taskId Int
@@ -97,6 +102,8 @@ model TaskSuggestionConfig {
   recurringType RecurringType?
   daysSinceLastOccurrence Int?
   specificDays String?
+  oneOffDate String?
+  oneOffDateType OneOffDateType?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

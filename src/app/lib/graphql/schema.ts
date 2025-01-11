@@ -51,6 +51,11 @@ export const typeDefs = gql`
     SPECIFIC_DAYS
   }
 
+  enum OneOffDateType {
+    ON_DATE_ONLY
+    BEFORE_OR_ON
+  }
+
   type BalanceTarget {
     id: Int!
     timeWindow: TimeWindow!
@@ -74,6 +79,8 @@ export const typeDefs = gql`
     recurringType: RecurringType
     daysSinceLastOccurrence: Int
     specificDays: String
+    oneOffDate: String
+    oneOffDateType: OneOffDateType
   }
 
   type Query {
@@ -128,6 +135,8 @@ export const typeDefs = gql`
     recurringType: RecurringType
     daysSinceLastOccurrence: Int
     specificDays: String
+    oneOffDate: String
+    oneOffDateType: OneOffDateType
   }
 
   type Mutation {

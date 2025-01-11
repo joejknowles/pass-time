@@ -48,6 +48,8 @@ export const GET_TASK_SUGGESTION_CONFIG = gql`
       recurringType
       daysSinceLastOccurrence
       specificDays
+      oneOffDate
+      oneOffDateType
     }
   }
 `;
