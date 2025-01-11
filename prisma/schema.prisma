@@ -26,24 +26,23 @@ model User {
 }
 
 model Task {
-  id     Int     @id @default(autoincrement())
-  title  String
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int
+  id                Int                 @id @default(autoincrement())
+  title             String
+  user              User                @relation(fields: [userId], references: [id])
+  userId            Int
 
-  parentTasks Task[] @relation("ParentChildTasks")
-  childTasks  Task[] @relation("ParentChildTasks")
+  parentTasks       Task[]              @relation("ParentChildTasks")
+  childTasks        Task[]              @relation("ParentChildTasks")
 
-  defaultDuration Int?
-
+  defaultDuration   Int?
   isSuggestingEnabled Boolean?
   suggestionConfigs TaskSuggestionConfig[]
-
-  taskInstances TaskInstance[]
-  balanceTargets BalanceTarget[]
+  taskInstances     TaskInstance[]
+  balanceTargets    BalanceTarget[]
 
   @@index([userId])
   @@index([title])
+  @@index([isSuggestingEnabled])
 }
 
 model TaskInstance {
@@ -93,17 +92,22 @@ enum OneOffDateType {
 }
 
 model TaskSuggestionConfig {
-  id Int @id @default(autoincrement())
-  taskId Int
-  task Task @relation(fields: [taskId], references: [id])
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-  recurringOrOnce RecurringOrOnce?
-  recurringType RecurringType?
+  id                Int                 @id @default(autoincrement())
+  taskId            Int
+  task              Task                @relation(fields: [taskId], references: [id])
+  userId            Int
+  user              User                @relation(fields: [userId], references: [id])
+  recurringOrOnce   RecurringOrOnce?
+  recurringType     RecurringType?
   daysSinceLastOccurrence Int?
-  specificDays String?
-  oneOffDate String?
-  oneOffDateType OneOffDateType?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  specificDays      String?
+  oneOffDate        String?
+  oneOffDateType    OneOffDateType?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([userId, taskId])
+  @@index([recurringOrOnce])
+  @@index([oneOffDateType, oneOffDate])
+  @@index([oneOffDate])
 }
