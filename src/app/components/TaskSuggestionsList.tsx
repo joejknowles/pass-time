@@ -5,10 +5,14 @@ import { OpenDetailsPanelEntity } from "./dayGrid/types";
 import { useEffect } from "react";
 import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
+import TodayEvent from "@mui/icons-material/Today";
+import Event from "@mui/icons-material/Event";
 
 const icons = {
     BALANCE_TARGET: TargetIcon,
-    RECURRING: RecurringIcon
+    RECURRING: RecurringIcon,
+    DATE_SOON: Event,
+    DATE_TODAY: TodayEvent,
 }
 
 const SUGGESTION_GROUP_TYPES = {
@@ -36,7 +40,7 @@ interface TaskGroup {
     data?: BalanceTarget;
 }
 
-interface TaskSuggestionsProps {
+interface TaskSuggestionsList {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
 }
 
@@ -48,9 +52,9 @@ const formattedRequestTime = () => {
     return `${Math.round(elapsedTime / 10) / 100} seconds`;
 }
 
-export const TaskSuggestions = ({
+export const TaskSuggestionsList = ({
     setOpenDetailsPanelEntity,
-}: TaskSuggestionsProps) => {
+}: TaskSuggestionsList) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
             console.log("TaskSuggestions:", formattedRequestTime());
@@ -78,7 +82,7 @@ export const TaskSuggestions = ({
                     headingText += ` (${group.data.progress}/${group.data.targetAmount})`
                 }
 
-                const Icon = icons[group.type as keyof typeof icons];
+                const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
 
                 return (
                     <Box

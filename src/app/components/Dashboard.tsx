@@ -1,6 +1,6 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
 import { DayCalendar } from "./dayGrid/DayCalendar";
-import { TaskSuggestions } from "./TaskSuggestions";
+import { TaskSuggestionsList } from "./TaskSuggestionsList";
 import { withSignedInLayout } from "./SignedInLayout";
 import { useState } from "react";
 import { OpenDetailsPanelEntity } from "./dayGrid/types";
@@ -61,7 +61,7 @@ const Dashboard = () => {
                             flexShrink: 5,
                             p: 2
                         }}>
-                            <TaskSuggestions
+                            <TaskSuggestionsList
                                 setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                             />
                         </Box>
@@ -89,7 +89,7 @@ const Dashboard = () => {
                     {
                         isNarrowScreen && (
                             <Box sx={{ mt: 2 }}>
-                                <TaskSuggestions
+                                <TaskSuggestionsList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                                 />
                             </Box>
