@@ -96,10 +96,17 @@ export const DayCalendar = ({
         if (!container) return { startHour: 0, startMinute: 0 };
 
         const rect = container.getBoundingClientRect();
-        const y = clientY - rect.top;
+        const taskDuration = draftTaskInstance?.duration || 30;
+        const offsetsByDuration = {
+            15: 2,
+            30: 10,
+        }
+        const THRESHOLD_OFFSET = offsetsByDuration[taskDuration as keyof typeof offsetsByDuration] || 15;
+        const y = clientY - rect.top - THRESHOLD_OFFSET;
         const totalMinutes = (y / rect.height) * (daytimeHours.length * 60);
         const startHour = Math.floor(totalMinutes / 60) + daytimeHours[0];
-        const startMinute = Math.floor(totalMinutes % 60);
+
+        const startMinute = Math.floor(Math.floor(totalMinutes % 60) / 15) * 15;
 
         return { startHour, startMinute };
     };
@@ -226,6 +233,7 @@ export const DayCalendar = ({
             const handleMouseUp = () => {
                 if (!draftTaskInstance) {
                     setDraggedTask(null);
+                    document.body.style.userSelect = ''; // Re-enable text selection
                 }
             };
 
@@ -277,6 +285,18 @@ export const DayCalendar = ({
         return <Typography color="error">Error saving data. Please refresh and try again.</Typography>;
     }
 
+    const getCursor = () => {
+        const isGrabbing = movingTaskInfo?.moveType === "both" || !!draggedTask;
+        if (isGrabbing) {
+            return 'grabbing';
+        }
+        const isResizing = movingTaskInfo && movingTaskInfo.moveType !== "both"
+        if (isResizing) {
+            return 'ns-resize';
+        }
+        return '';
+    }
+
     return (
         <Box sx={{
             height: '100%',
@@ -303,9 +323,7 @@ export const DayCalendar = ({
                 height: '100%',
                 overflowY: 'auto',
                 pt: 1,
-                cursor: movingTaskInfo ?
-                    movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
-                    : ''
+                cursor: getCursor(),
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
                     {(loadingTaskInstances || loadingTasks) && (
@@ -361,7 +379,8 @@ export const DayCalendar = ({
                             setDraftTaskInstance={setDraftTaskInstance}
                             finalizeTaskInstance={finalizeTaskInstance}
                             tasks={tasks as Task[]}
-                            isEditable={!isSubmittingTaskInstance && !draggedTask}
+                            isBeingDragged={!!draggedTask}
+                            isSubmitting={isSubmittingTaskInstance}
                         />
                     )}
 

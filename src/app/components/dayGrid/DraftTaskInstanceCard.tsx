@@ -23,14 +23,14 @@ export const DraftTaskInstanceCard = ({
     setDraftTaskInstance,
     finalizeTaskInstance,
     tasks,
-    isEditable,
+    isBeingDragged,
     isSubmitting
 }: {
     draftTaskInstance: DraftTaskInstance,
     setDraftTaskInstance: (task: DraftTaskInstance | null) => void,
     finalizeTaskInstance: (task: DraftTaskInstance) => void,
     tasks?: Task[],
-    isEditable?: boolean,
+    isBeingDragged?: boolean,
     isSubmitting?: boolean,
 }) => {
     const thisRootRef = useRef<HTMLDivElement>(null);
@@ -52,7 +52,7 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
-    if (!isEditable || isSubmitting) {
+    if (isBeingDragged || isSubmitting) {
         return (
             <BasicTaskInstanceCard
                 title={draftTaskInstance.title}
@@ -62,7 +62,9 @@ export const DraftTaskInstanceCard = ({
                 isThisTaskDetailsOpen={true}
                 sx={isSubmitting ? {
                     cursor: "wait",
-                } : undefined}
+                } : {
+                    cursor: "grabbing",
+                }}
             />)
 
     }
@@ -91,7 +93,7 @@ export const DraftTaskInstanceCard = ({
                         key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
                         value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
                         disablePortal
-                        disabled={!isEditable}
+                        disabled={isBeingDragged || isSubmitting}
                         autoFocus
                         openOnFocus
                         options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
@@ -221,10 +223,10 @@ export const DraftTaskInstanceCard = ({
                         }}
                     />
                     {
-                        isEditable && (
+                        !isBeingDragged && !isSubmitting && (
                             <Button
                                 variant="contained"
-                                disabled={!isEditable}
+                                disabled={isBeingDragged || isSubmitting}
                                 sx={{
                                     marginLeft: 1,
                                     backgroundColor: "#f0f0f0",
