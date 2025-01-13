@@ -380,7 +380,7 @@ export const DayCalendar = ({
                         top: draggedTask.position.y,
                         left: draggedTask.position.x,
                         pointerEvents: 'none',
-                        transform: 'translate(-50%, -50%)',
+                        transform: 'translate(-50%, -50%) rotate(-1deg)',
                         width: draggedTask.width,
                     }}
                 >
