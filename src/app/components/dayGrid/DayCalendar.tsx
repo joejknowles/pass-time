@@ -72,6 +72,21 @@ export const DayCalendar = ({
     });
     const tasks = taskData?.tasks;
 
+    const [hasDraggedForABit, setHasDraggedForABit] = useState(false);
+
+    useEffect(() => {
+        if (draggedTask?.task.id) {
+            if (!hasDraggedForABit) {
+                const timeout = setTimeout(() => {
+                    setHasDraggedForABit(true);
+                }, 200);
+                return () => clearTimeout(timeout);
+            }
+        } else if (hasDraggedForABit) {
+            setHasDraggedForABit(false);
+        }
+    }, [draggedTask?.task.id]);
+
     const refetchAllTaskData = useCallback(async () => {
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
@@ -89,7 +104,7 @@ export const DayCalendar = ({
         return { startHour, startMinute };
     };
 
-    const updateDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task }) => {
+    const updateDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task | BasicTask }) => {
         const newTaskInstance: DraftTaskInstance = {
             title: task?.title || "",
             start: {
@@ -97,7 +112,7 @@ export const DayCalendar = ({
                 hour: startHour,
                 minute: startMinute,
             },
-            duration: 30,
+            duration: task && 'duration' in task ? task.duration as number : 30,
             taskId: task?.id,
         };
         setDraftTaskInstance(newTaskInstance);
@@ -355,8 +370,9 @@ export const DayCalendar = ({
                     )}
                 </Box>
             </Box>
-            {!draftTaskInstance && draggedTask && (
+            {!draftTaskInstance && draggedTask && hasDraggedForABit && (
                 <Card
+                    raised
                     sx={{
                         backgroundColor: 'white',
                         cursor: 'pointer',

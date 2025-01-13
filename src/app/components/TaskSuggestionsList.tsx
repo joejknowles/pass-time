@@ -48,6 +48,7 @@ interface TaskSuggestionsList {
             position: { x: number, y: number };
             width: number
         } | null) => void;
+    draggedTask: { task: BasicTask; position: { x: number; y: number }; width: number } | null;
 }
 
 let startTime = performance.now(); // Start time
@@ -61,6 +62,7 @@ const formattedRequestTime = () => {
 export const TaskSuggestionsList = ({
     setOpenDetailsPanelEntity,
     setDraggedTask,
+    draggedTask,
 }: TaskSuggestionsList) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
@@ -71,10 +73,25 @@ export const TaskSuggestionsList = ({
         },
     });
     const taskSuggestions = data?.taskSuggestions;
+    const [wasJustDragging, setWasJustDragging] = useState(false);
 
     useEffect(() => {
         startTime = performance.now(); // Reset start time
     }, []);
+
+    useEffect(() => {
+        if (draggedTask?.task.id) {
+            if (!wasJustDragging) {
+                setTimeout(() => {
+                    setWasJustDragging(true);
+                }, 500);
+            }
+        } else {
+            setTimeout(() => {
+                setWasJustDragging(false);
+            }, 500);
+        }
+    }, [draggedTask?.task.id]);
 
     const handleMouseDown = (task: BasicTask, event: React.MouseEvent) => {
         const originalCard = document.getElementById(`task-suggestion-task-${task.id}`);
@@ -138,7 +155,7 @@ export const TaskSuggestionsList = ({
                             <Card
                                 key={task.id}
                                 onMouseDown={(event) => handleMouseDown(task, event)}
-                                onClick={() => {
+                                onClick={wasJustDragging ? undefined : () => {
                                     setOpenDetailsPanelEntity({ id: task.id, type: "Task" });
                                 }}
                                 sx={{

@@ -72,6 +72,7 @@ const Dashboard = () => {
                             <TaskSuggestionsList
                                 setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                                 setDraggedTask={setDraggedTask}
+                                draggedTask={draggedTask}
                             />
                         </Box>
                         <Box
@@ -103,6 +104,7 @@ const Dashboard = () => {
                                 <TaskSuggestionsList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                                     setDraggedTask={setDraggedTask}
+                                    draggedTask={draggedTask}
                                 />
                             </Box>
                         )
