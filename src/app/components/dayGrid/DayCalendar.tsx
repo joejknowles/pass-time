@@ -178,12 +178,12 @@ export const DayCalendar = ({
         await refetchAllTaskData();
         setDraftTaskInstance(null);
         setIsSubmittingTaskInstance(false);
-        // repeats to make sure the scroll happens
+        // repeat set state to make sure the scroll happens
         setOpenDetailsPanelEntity({
             id: newTaskId,
             type: "TaskInstance"
         });
-    }, [draftTaskInstance])
+    }, [draftTaskInstance]);
 
     const handleMouseMove = (event: MouseEvent) => {
         if (draggedTask) {
@@ -191,13 +191,18 @@ export const DayCalendar = ({
                 ...draggedTask,
                 position: { x: event.clientX, y: event.clientY }
             }) : null);
-        }
-    };
-
-    const handleMouseEnter = (event: React.MouseEvent) => {
-        if (draggedTask) {
-            const { startHour, startMinute } = getTimeFromCursor(event.clientY);
-            updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task as Task });
+            const gridRect = document.getElementById("day-grid-container")!.getBoundingClientRect();
+            const isPastLeftSide = event.clientX > (HOUR_COLUMN_WIDTH + gridRect.left + 10);
+            const isOverDayGrid = event.clientY > gridRect.top &&
+                event.clientY < gridRect.bottom &&
+                event.clientX < (gridRect.right - 10) &&
+                isPastLeftSide
+            if (!draftTaskInstance && isOverDayGrid) {
+                const { startHour, startMinute } = getTimeFromCursor(event.clientY);
+                updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task as Task });
+            } else if (draftTaskInstance && !isOverDayGrid) {
+                setDraftTaskInstance(null);
+            }
         }
     };
 
@@ -265,7 +270,6 @@ export const DayCalendar = ({
             position: 'relative',
         }}
             id="day-grid-root"
-            onMouseEnter={handleMouseEnter}
         >
             <CurrentDayHeader
                 currentDay={currentDay}
