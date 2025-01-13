@@ -22,6 +22,7 @@ export const GET_TASK_SUGGESTIONS = gql`
       tasks {
         id
         title
+        defaultDuration
       }
       type
       data {
@@ -32,6 +33,7 @@ export const GET_TASK_SUGGESTIONS = gql`
         task {
           id
           title
+          defaultDuration
         }
       }
     }

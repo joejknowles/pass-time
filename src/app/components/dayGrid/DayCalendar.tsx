@@ -18,7 +18,7 @@ import { BasicTask } from "../TaskSuggestionsList";
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
 interface DraggedTask {
-    task: BasicTask;
+    task: Task | BasicTask;
     position: { x: number, y: number };
     width: number;
 }
@@ -112,7 +112,7 @@ export const DayCalendar = ({
                 hour: startHour,
                 minute: startMinute,
             },
-            duration: task && 'duration' in task ? task.duration as number : 30,
+            duration: task?.defaultDuration || 30,
             taskId: task?.id,
         };
         setDraftTaskInstance(newTaskInstance);

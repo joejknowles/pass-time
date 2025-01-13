@@ -23,6 +23,7 @@ const SUGGESTION_GROUP_TYPES = {
 export interface BasicTask {
     id: string;
     title: string;
+    defaultDuration: number;
 }
 
 interface BalanceTarget {
@@ -35,7 +36,7 @@ interface BalanceTarget {
 
 interface TaskGroup {
     name: string;
-    tasks: BasicTask[];
+    tasks: (BasicTask | Task)[];
     type: string;
     data?: BalanceTarget;
 }
@@ -44,11 +45,11 @@ interface TaskSuggestionsList {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
     setDraggedTask: (task:
         {
-            task: BasicTask;
+            task: BasicTask | Task;
             position: { x: number, y: number };
             width: number
         } | null) => void;
-    draggedTask: { task: BasicTask; position: { x: number; y: number }; width: number } | null;
+    draggedTask: { task: BasicTask | Task; position: { x: number; y: number }; width: number } | null;
 }
 
 let startTime = performance.now(); // Start time
@@ -93,7 +94,7 @@ export const TaskSuggestionsList = ({
         }
     }, [draggedTask?.task.id]);
 
-    const handleMouseDown = (task: BasicTask, event: React.MouseEvent) => {
+    const handleMouseDown = (task: Task | BasicTask, event: React.MouseEvent) => {
         const originalCard = document.getElementById(`task-suggestion-task-${task.id}`);
         if (originalCard) {
             const rect = originalCard.getBoundingClientRect();
@@ -110,9 +111,24 @@ export const TaskSuggestionsList = ({
         return null;
     }
 
+    const orderedGroups = [...taskSuggestions].sort((a, b) => {
+        if (a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && b.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
+            return 1;
+        }
+        if (b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && a.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
+            return -1;
+        }
+        if (a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
+            if (a.data && b.data) {
+                return a.data.progress - b.data.progress;
+            }
+        }
+        return 0;
+    })
+
     return (
         <Box sx={{ height: '100%', padding: 1, overflowY: 'auto', scrollbarGutter: 'none' }}>
-            {taskSuggestions.map((group, index) => {
+            {orderedGroups.map((group, index) => {
                 const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
 
                 return (
@@ -138,7 +154,7 @@ export const TaskSuggestionsList = ({
                                 <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
                                     <LinearProgress
                                         variant="determinate"
-                                        value={(group.data.progress / group.data.targetAmount) * 100}
+                                        value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
                                         sx={{
                                             height: 4,
                                             borderRadius: 1,

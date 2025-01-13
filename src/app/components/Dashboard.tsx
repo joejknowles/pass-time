@@ -6,7 +6,7 @@ import { useState } from "react";
 import { OpenDetailsPanelEntity, Task } from "./dayGrid/types";
 
 interface DraggedTask {
-    task: BasicTask;
+    task: BasicTask | Task;
     position: { x: number, y: number };
     width: number;
 }

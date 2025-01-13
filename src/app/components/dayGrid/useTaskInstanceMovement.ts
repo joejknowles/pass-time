@@ -10,7 +10,7 @@ export const useTaskInstanceMovement = (
     updateDraftTaskInstance: any,
     finalizeDraftTaskInstance: any,
     getTimeFromCursor: (clientY: number) => { startHour: number, startMinute: number },
-    draggedTask: { task: BasicTask, position: { x: number, y: number }, width: number } | null
+    draggedTask: { task:  Task | BasicTask, position: { x: number, y: number }, width: number } | null
 ) => {
     const [movingTaskInfo, setMovingTaskInfo] = useState<{
         taskInstance: TaskInstance,
