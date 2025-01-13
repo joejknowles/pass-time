@@ -1,14 +1,22 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
 import { DayCalendar } from "./dayGrid/DayCalendar";
-import { TaskSuggestionsList } from "./TaskSuggestionsList";
+import { BasicTask, TaskSuggestionsList } from "./TaskSuggestionsList";
 import { withSignedInLayout } from "./SignedInLayout";
 import { useState } from "react";
-import { OpenDetailsPanelEntity } from "./dayGrid/types";
+import { OpenDetailsPanelEntity, Task } from "./dayGrid/types";
+
+interface DraggedTask {
+    task: BasicTask;
+    position: { x: number, y: number };
+    width: number;
+}
 
 const Dashboard = () => {
     const isNarrowScreen = useMediaQuery("(max-width:710px)");
 
     const [openDetailsPanelEntity, setOpenDetailsPanelEntityRaw] = useState<OpenDetailsPanelEntity | null>(null);
+    const [draggedTask, setDraggedTask] = useState<DraggedTask | null>(null);
+
     const setOpenDetailsPanelEntity = (newOpenEntity: OpenDetailsPanelEntity | null) => {
         setOpenDetailsPanelEntityRaw(newOpenEntity);
         if (newOpenEntity?.type === "TaskInstance" && isNarrowScreen) {
@@ -63,6 +71,7 @@ const Dashboard = () => {
                         }}>
                             <TaskSuggestionsList
                                 setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                                setDraggedTask={setDraggedTask}
                             />
                         </Box>
                         <Box
@@ -85,12 +94,15 @@ const Dashboard = () => {
                     <DayCalendar
                         openDetailsPanelEntity={openDetailsPanelEntity}
                         setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                        draggedTask={draggedTask}
+                        setDraggedTask={setDraggedTask}
                     />
                     {
                         isNarrowScreen && (
                             <Box sx={{ mt: 2 }}>
                                 <TaskSuggestionsList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                                    setDraggedTask={setDraggedTask}
                                 />
                             </Box>
                         )

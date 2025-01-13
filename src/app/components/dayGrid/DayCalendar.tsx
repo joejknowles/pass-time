@@ -1,30 +1,40 @@
 /** @jsxImportSource @emotion/react */
-import { Box, LinearProgress, useMediaQuery, Typography } from "@mui/material";
+import { Box, LinearProgress, useMediaQuery, Typography, Card, CardContent } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
 import EntityDetailsPanel from "../entityDetailsPanel/EntityDetailsPanel";
 import CurrentTimeBar from "./CurrentTimeBar";
-import { HOUR_COLUMN_WIDTH } from "./consts";
+import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
 import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
 import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
+import { BasicTask } from "../TaskSuggestionsList";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
+interface DraggedTask {
+    task: BasicTask;
+    position: { x: number, y: number };
+    width: number;
+}
 
 interface DayCalendarProps {
     openDetailsPanelEntity: OpenDetailsPanelEntity | null;
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
+    draggedTask: DraggedTask | null;
+    setDraggedTask: React.Dispatch<React.SetStateAction<DraggedTask | null>>;
 }
 
 export const DayCalendar = ({
     openDetailsPanelEntity,
     setOpenDetailsPanelEntity,
+    draggedTask,
+    setDraggedTask,
 }: DayCalendarProps) => {
     const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
     const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
@@ -66,7 +76,51 @@ export const DayCalendar = ({
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
 
-    const { movingTaskInfo, startMovingTaskInstance } = useTaskInstanceMovement(taskInstances, updateTaskInstance);
+    const getTimeFromCursor = (clientY: number) => {
+        const container = document.getElementById("day-grid-container");
+        if (!container) return { startHour: 0, startMinute: 0 };
+
+        const rect = container.getBoundingClientRect();
+        const y = clientY - rect.top;
+        const totalMinutes = (y / rect.height) * (daytimeHours.length * 60);
+        const startHour = Math.floor(totalMinutes / 60) + daytimeHours[0];
+        const startMinute = Math.floor(totalMinutes % 60);
+
+        return { startHour, startMinute };
+    };
+
+    const updateDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task }) => {
+        const newTaskInstance: DraftTaskInstance = {
+            title: task?.title || "",
+            start: {
+                date: currentDay.toISOString().split('T')[0],
+                hour: startHour,
+                minute: startMinute,
+            },
+            duration: 30,
+            taskId: task?.id,
+        };
+        setDraftTaskInstance(newTaskInstance);
+    };
+
+    const finalizeDraftTaskInstance = () => {
+        if (draftTaskInstance) {
+            finalizeTaskInstance(draftTaskInstance);
+            if (draggedTask) {
+                setDraggedTask(null);
+            }
+        }
+    };
+
+    const { movingTaskInfo, startMovingTaskInstance } = useTaskInstanceMovement(
+        taskInstances,
+        updateTaskInstance,
+        draftTaskInstance,
+        updateDraftTaskInstance,
+        finalizeDraftTaskInstance,
+        getTimeFromCursor,
+        draggedTask
+    );
 
     const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
 
@@ -131,18 +185,54 @@ export const DayCalendar = ({
         });
     }, [draftTaskInstance])
 
-    const addDraftTaskInstance = ({ startHour, startMinute }: { startHour: number, startMinute: number }) => {
+    const handleMouseMove = (event: MouseEvent) => {
+        if (draggedTask) {
+            setDraggedTask(draggedTask => draggedTask ? ({
+                ...draggedTask,
+                position: { x: event.clientX, y: event.clientY }
+            }) : null);
+        }
+    };
+
+    const handleMouseEnter = (event: React.MouseEvent) => {
+        if (draggedTask) {
+            const { startHour, startMinute } = getTimeFromCursor(event.clientY);
+            updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task as Task });
+        }
+    };
+
+    useEffect(() => {
+        if (draggedTask) {
+            const handleMouseUp = () => {
+                if (!draftTaskInstance) {
+                    setDraggedTask(null);
+                }
+            };
+
+            window.addEventListener("mousemove", handleMouseMove);
+            window.addEventListener("mouseup", handleMouseUp);
+
+            return () => {
+                window.removeEventListener("mousemove", handleMouseMove);
+                window.removeEventListener("mouseup", handleMouseUp);
+                document.body.style.userSelect = ''; // Re-enable text selection
+            };
+        }
+    }, [draggedTask, draftTaskInstance]);
+
+    const addDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task }) => {
         const newTaskInstance: DraftTaskInstance = {
-            title: "",
+            title: task?.title || "",
             start: {
                 date: currentDay.toISOString().split('T')[0],
                 hour: startHour,
                 minute: startMinute,
             },
             duration: 30,
+            taskId: task?.id,
         };
         setDraftTaskInstance(newTaskInstance);
-    }
+    };
 
     const updateCurrentDay = (day: Date) => {
         setCurrentDay(day);
@@ -175,6 +265,7 @@ export const DayCalendar = ({
             position: 'relative',
         }}
             id="day-grid-root"
+            onMouseEnter={handleMouseEnter}
         >
             <CurrentDayHeader
                 currentDay={currentDay}
@@ -251,7 +342,7 @@ export const DayCalendar = ({
                             setDraftTaskInstance={setDraftTaskInstance}
                             finalizeTaskInstance={finalizeTaskInstance}
                             tasks={tasks as Task[]}
-                            isSubmittingTaskInstance={isSubmittingTaskInstance}
+                            isEditable={!isSubmittingTaskInstance && !draggedTask}
                         />
                     )}
 
@@ -260,6 +351,32 @@ export const DayCalendar = ({
                     )}
                 </Box>
             </Box>
+            {!draftTaskInstance && draggedTask && (
+                <Card
+                    sx={{
+                        backgroundColor: 'white',
+                        cursor: 'pointer',
+                        position: 'fixed',
+                        top: draggedTask.position.y,
+                        left: draggedTask.position.x,
+                        pointerEvents: 'none',
+                        transform: 'translate(-50%, -50%)',
+                        width: draggedTask.width,
+                    }}
+                >
+                    <CardContent
+                        sx={{
+                            '&:last-child': {
+                                pb: 2,
+                            },
+                        }}
+                    >
+                        <Typography variant="body1" color="text.primary">
+                            {draggedTask.task.title}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            )}
         </Box>
     );
 };

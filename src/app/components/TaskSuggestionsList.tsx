@@ -1,8 +1,8 @@
 import { Box, Card, CardContent, Typography, LinearProgress } from "@mui/material";
 import { useQuery } from '@apollo/client';
 import { GET_TASK_SUGGESTIONS } from "../lib/graphql/queries";
-import { OpenDetailsPanelEntity } from "./dayGrid/types";
-import { useEffect } from "react";
+import { OpenDetailsPanelEntity, Task } from "./dayGrid/types";
+import { useEffect, useState } from "react";
 import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
 import TodayEvent from "@mui/icons-material/Today";
@@ -20,7 +20,7 @@ const SUGGESTION_GROUP_TYPES = {
     RECURRING: 'RECURRING',
 };
 
-interface Task {
+export interface BasicTask {
     id: string;
     title: string;
 }
@@ -35,13 +35,19 @@ interface BalanceTarget {
 
 interface TaskGroup {
     name: string;
-    tasks: Task[];
+    tasks: BasicTask[];
     type: string;
     data?: BalanceTarget;
 }
 
 interface TaskSuggestionsList {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
+    setDraggedTask: (task:
+        {
+            task: BasicTask;
+            position: { x: number, y: number };
+            width: number
+        } | null) => void;
 }
 
 let startTime = performance.now(); // Start time
@@ -54,6 +60,7 @@ const formattedRequestTime = () => {
 
 export const TaskSuggestionsList = ({
     setOpenDetailsPanelEntity,
+    setDraggedTask,
 }: TaskSuggestionsList) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
@@ -68,6 +75,19 @@ export const TaskSuggestionsList = ({
     useEffect(() => {
         startTime = performance.now(); // Reset start time
     }, []);
+
+    const handleMouseDown = (task: BasicTask, event: React.MouseEvent) => {
+        const originalCard = document.getElementById(`task-suggestion-task-${task.id}`);
+        if (originalCard) {
+            const rect = originalCard.getBoundingClientRect();
+            setDraggedTask({
+                task,
+                position: { x: event.clientX, y: event.clientY },
+                width: rect.width,
+            });
+        }
+        document.body.style.userSelect = 'none';
+    };
 
     if (!taskSuggestions) {
         return null;
@@ -117,6 +137,7 @@ export const TaskSuggestionsList = ({
                         {group.tasks.map((task) => (
                             <Card
                                 key={task.id}
+                                onMouseDown={(event) => handleMouseDown(task, event)}
                                 onClick={() => {
                                     setOpenDetailsPanelEntity({ id: task.id, type: "Task" });
                                 }}
@@ -124,6 +145,7 @@ export const TaskSuggestionsList = ({
                                     backgroundColor: 'white',
                                     cursor: 'pointer',
                                 }}
+                                id={`task-suggestion-task-${task.id}`}
                             >
                                 <CardContent
                                     sx={{

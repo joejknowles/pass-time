@@ -26,6 +26,7 @@ export interface DraftTaskInstance {
         minute: number;
     };
     duration: number;
+    taskId?: string;
 }
 
 export type MoveType = "start" | "end" | "both";

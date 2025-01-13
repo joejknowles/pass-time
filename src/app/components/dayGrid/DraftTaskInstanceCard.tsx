@@ -23,13 +23,15 @@ export const DraftTaskInstanceCard = ({
     setDraftTaskInstance,
     finalizeTaskInstance,
     tasks,
-    isSubmittingTaskInstance
+    isEditable,
+    isSubmitting
 }: {
     draftTaskInstance: DraftTaskInstance,
     setDraftTaskInstance: (task: DraftTaskInstance | null) => void,
     finalizeTaskInstance: (task: DraftTaskInstance) => void,
     tasks?: Task[],
-    isSubmittingTaskInstance?: boolean,
+    isEditable?: boolean,
+    isSubmitting?: boolean,
 }) => {
     const thisRootRef = useRef<HTMLDivElement>(null);
     const isSubmittingWithOnChangeCallback = useRef(false);
@@ -50,7 +52,7 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
-    if (isSubmittingTaskInstance) {
+    if (!isEditable || isSubmitting) {
         return (
             <BasicTaskInstanceCard
                 title={draftTaskInstance.title}
@@ -58,9 +60,9 @@ export const DraftTaskInstanceCard = ({
                 duration={draftTaskInstance.duration}
                 hourBlockHeight={60}
                 isThisTaskDetailsOpen={true}
-                sx={{
+                sx={isSubmitting ? {
                     cursor: "wait",
-                }}
+                } : undefined}
             />)
 
     }
@@ -89,7 +91,7 @@ export const DraftTaskInstanceCard = ({
                         key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
                         value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
                         disablePortal
-                        disabled={isSubmittingTaskInstance}
+                        disabled={!isEditable}
                         autoFocus
                         openOnFocus
                         options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
@@ -219,10 +221,10 @@ export const DraftTaskInstanceCard = ({
                         }}
                     />
                     {
-                        !isSubmittingTaskInstance && (
+                        isEditable && (
                             <Button
                                 variant="contained"
-                                disabled={isSubmittingTaskInstance}
+                                disabled={!isEditable}
                                 sx={{
                                     marginLeft: 1,
                                     backgroundColor: "#f0f0f0",
