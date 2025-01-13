@@ -27,9 +27,11 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
+      console.log('context handler decodedToken:', decodedToken);
       const user = await prisma.user.findUnique({
         where: { firebaseId: decodedToken.uid },
       });
+      console.log('context handler user: ', user);
       if (!user) {
         console.error('User not found');
         throw new Error('User not found');
