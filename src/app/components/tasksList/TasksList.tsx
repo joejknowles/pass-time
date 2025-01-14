@@ -1,9 +1,9 @@
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { GroupedTasks } from "./GroupedTasks";
 import { BasicTask } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GET_TASKS } from "@/app/lib/graphql/mutations";
 import { useQuery } from "@apollo/client";
 
@@ -23,9 +23,10 @@ export const TasksList = ({
     setDraggedTask,
     draggedTask,
 }: TasksListProps) => {
+    const isNarrowScreen = useMediaQuery("(max-width:710px)");
+    const [showGroupedTasks, setShowGroupedTasks] = useState(isNarrowScreen);
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
     const {
         data: taskData,
         error: errorFromGetTasks,
@@ -33,6 +34,10 @@ export const TasksList = ({
         refetch: refetchTasks
     } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const tasks = taskData?.tasks;
+
+    useEffect(() => {
+        setShowGroupedTasks(!isNarrowScreen);
+    }, [isNarrowScreen]);
 
     return (
         <Box sx={{ height: '100%', padding: 1, pt: 0, overflowY: 'auto', scrollbarGutter: 'none' }}>
@@ -57,13 +62,16 @@ export const TasksList = ({
                     placeholder: "Search for a task",
                 }}
             />
-            <GroupedTasks
-                {...{
-                    setOpenDetailsPanelEntity,
-                    setDraggedTask,
-                    draggedTask,
-                }}
-            />
+            {showGroupedTasks && (
+
+                <GroupedTasks
+                    {...{
+                        setOpenDetailsPanelEntity,
+                        setDraggedTask,
+                        draggedTask,
+                    }}
+                />
+            )}
         </Box>
     );
 };
