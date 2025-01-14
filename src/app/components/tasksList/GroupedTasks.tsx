@@ -1,12 +1,13 @@
 import { Box, Card, CardContent, Typography, LinearProgress } from "@mui/material";
 import { useQuery } from '@apollo/client';
-import { GET_TASK_SUGGESTIONS } from "../lib/graphql/queries";
-import { OpenDetailsPanelEntity, Task } from "./dayGrid/types";
+import { GET_TASK_SUGGESTIONS } from "../../lib/graphql/queries";
+import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { useEffect, useState } from "react";
 import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
 import TodayEvent from "@mui/icons-material/Today";
 import Event from "@mui/icons-material/Event";
+import { BasicTask, TaskGroup } from "./types";
 
 const icons = {
     BALANCE_TARGET: TargetIcon,
@@ -20,28 +21,8 @@ const SUGGESTION_GROUP_TYPES = {
     RECURRING: 'RECURRING',
 };
 
-export interface BasicTask {
-    id: string;
-    title: string;
-    defaultDuration: number;
-}
 
-interface BalanceTarget {
-    id: string;
-    timeWindow: string;
-    targetAmount: number;
-    progress: number;
-    task: Task;
-}
-
-interface TaskGroup {
-    name: string;
-    tasks: (BasicTask | Task)[];
-    type: string;
-    data?: BalanceTarget;
-}
-
-interface TaskSuggestionsList {
+interface GroupedTasksProps {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
     setDraggedTask: (task:
         {
@@ -60,11 +41,11 @@ const formattedRequestTime = () => {
     return `${Math.round(elapsedTime / 10) / 100} seconds`;
 }
 
-export const TasksList = ({
+export const GroupedTasks = ({
     setOpenDetailsPanelEntity,
     setDraggedTask,
     draggedTask,
-}: TaskSuggestionsList) => {
+}: GroupedTasksProps) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
             console.log("TaskSuggestions:", formattedRequestTime());

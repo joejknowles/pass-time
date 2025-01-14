@@ -1,6 +1,6 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
 import { DayCalendar } from "./dayGrid/DayCalendar";
-import { BasicTask, TasksList } from "./TasksList";
+import { BasicTask, TasksList } from "./tasksList/TasksList";
 import { withSignedInLayout } from "./SignedInLayout";
 import { useState } from "react";
 import { OpenDetailsPanelEntity, Task } from "./dayGrid/types";

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TaskInstance, MoveType, DraftTaskInstance, Task } from "./types";
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
-import { BasicTask } from "../TasksList";
+import { BasicTask } from "../tasksList/TasksList";
 
 export const useTaskInstanceMovement = (
     taskInstances: TaskInstance[] | undefined,
