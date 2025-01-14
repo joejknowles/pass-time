@@ -8,7 +8,9 @@ const CreateOrSelectTask = ({
     submitTask,
     tasks,
     autocompleteProps,
-    textFieldProps
+    textFieldProps,
+    selectedTask,
+    onTaskSelection
 }: {
     title: string,
     onTitleChange: (title: string) => void,
@@ -16,8 +18,9 @@ const CreateOrSelectTask = ({
     tasks?: Task[],
     autocompleteProps?: any,
     textFieldProps?: any,
+    selectedTask: Task | null,
+    onTaskSelection: (task: Task | null) => void
 }) => {
-    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const isSubmittingWithOnChangeCallback = useRef(false);
 
     return (
@@ -29,11 +32,12 @@ const CreateOrSelectTask = ({
             openOnFocus
             options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
             size="small"
+            disableClearable
             onInputChange={(_e, value, reason) => {
                 if (reason === "input") {
                     onTitleChange(value);
                     if (selectedTask && selectedTask.title !== value) {
-                        setSelectedTask(null);
+                        onTaskSelection(null);
                     }
                 }
             }}
@@ -49,9 +53,7 @@ const CreateOrSelectTask = ({
             onChange={(_e, selection) => {
                 if (selection) {
                     const selectedTask = tasks?.find((task) => task.id === selection?.id) || null;
-                    setSelectedTask(selectedTask);
-
-                    console.log("CreateOrSelectTask onChange", selection);
+                    onTaskSelection(selectedTask);
                     isSubmittingWithOnChangeCallback.current = true;
                     submitTask(selection?.id || title);
                 }
@@ -89,7 +91,7 @@ const CreateOrSelectTask = ({
                             );
                             if (firstMatchingTask && firstMatchingTask.title !== title) {
                                 onTitleChange(firstMatchingTask.title);
-                                setSelectedTask(firstMatchingTask);
+                                onTaskSelection(firstMatchingTask);
                                 event.preventDefault();
                             }
                         }

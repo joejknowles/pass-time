@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { Box, ClickAwayListener, Button } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Task } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
 import CreateOrSelectTask from "./CreateOrSelectTask";
@@ -28,14 +28,13 @@ export const DraftTaskInstanceCard = ({
     isSubmitting
 }: {
     draftTaskInstance: DraftTaskInstance,
-    setDraftTaskInstance: (task: DraftTaskInstance | null) => void,
+    setDraftTaskInstance: Dispatch<SetStateAction<DraftTaskInstance | null>>,
     finalizeTaskInstance: (task: DraftTaskInstance) => void,
     tasks?: Task[],
     isBeingDragged?: boolean,
     isSubmitting?: boolean,
 }) => {
     const thisRootRef = useRef<HTMLDivElement>(null);
-    const isSubmittingWithOnChangeCallback = useRef(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
     useEffect(() => {
@@ -53,7 +52,18 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
+    const handleTaskSelection = (task: Task | null) => {
+        setSelectedTask(task);
+        setDraftTaskInstance(draftTaskInstance => draftTaskInstance ? ({
+            ...draftTaskInstance,
+            title: task ? task?.title || "" : draftTaskInstance.title,
+            taskId: task?.id,
+            duration: task?.defaultDuration || 30,
+        }) : null);
+    };
+
     const handleTitleChange = (title: string) => {
+        setSelectedTask(null);
         setDraftTaskInstance({
             ...draftTaskInstance,
             title,
@@ -97,7 +107,7 @@ export const DraftTaskInstanceCard = ({
                 sx={{
                     position: "absolute",
                     top: `CALC(1px + ${(((draftTaskInstance.start.hour - daytimeHours[0]) * 60 + draftTaskInstance.start.minute) / (daytimeHours.length * 60)) * 100}%)`,
-                    height: `CALC(${((draftTaskInstance.duration) / (daytimeHours.length * 60)) * 100}% - 1px)`,
+                    height: `CALC(${((Math.max(30, draftTaskInstance.duration)) / (daytimeHours.length * 60)) * 100}% - 1px)`,
                     left: HOUR_COLUMN_WIDTH + 16,
                     right: 16,
                     backgroundColor: "rgba(4, 70, 190, 0.9)",
@@ -114,6 +124,8 @@ export const DraftTaskInstanceCard = ({
                         onTitleChange={handleTitleChange}
                         submitTask={handleSubmitTask}
                         tasks={tasks}
+                        selectedTask={selectedTask}
+                        onTaskSelection={handleTaskSelection}
                         autocompleteProps={{
                             sx: {
                                 flexGrow: 1,
