@@ -33,6 +33,37 @@ export const CREATE_TASK_INSTANCE = gql`
   }
 `;
 
+export const CREATE_TASK = gql`
+  mutation CreateTask($input: CreateTaskInput!) {
+    createTask(input: $input) {
+      id
+      title
+      defaultDuration
+      isSuggestingEnabled
+      user {
+        id
+        email
+      }
+      parentTasks {
+        id
+        title
+      }
+      childTasks {
+        id
+        title
+      }
+      taskInstances {
+        id,
+        start {
+          date
+          hour
+          minute
+        }
+      }
+    }
+  }
+`;
+
 export const UPDATE_TASK_INSTANCE = gql`
   mutation UpdateTaskInstance($input: UpdateTaskInstanceInput!) {
     updateTaskInstance(input: $input) {

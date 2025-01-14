@@ -24,6 +24,40 @@ export const mutationResolvers = {
 
         return result
     },
+    createTask: async (
+        _parent: unknown,
+        args: {
+            input: {
+                title: string,
+            }
+        },
+        context: Context,
+        _info: GraphQLResolveInfo
+    ) => {
+        const { user } = context;
+
+        if (!user) {
+            throw new GraphQLError('User not authenticated', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                },
+            });
+        }
+
+        return await prisma.task.create({
+            data: {
+                title: args.input.title,
+                userId: user.id,
+                isSuggestingEnabled: true,
+            },
+            include: {
+                user: true,
+                taskInstances: true,
+                parentTasks: true,
+                childTasks: true,
+            },
+        });
+    },
     createTaskInstance: async (
         _parent: unknown,
         args: {
@@ -44,13 +78,21 @@ export const mutationResolvers = {
         const { user } = context;
 
         if (!user) {
-            throw new Error('User not authenticated');
+            throw new GraphQLError('User not authenticated', {
+                extensions: {
+                    code: 'UNAUTHENTICATED',
+                },
+            });
         }
 
         let task = null;
 
         if (!args.input.title && !args.input.taskId) {
-            throw new Error('Title or TaskId must be provided');
+            throw new GraphQLError('No task title or ID provided', {
+                extensions: {
+                    code: 'BAD_USER_INPUT',
+                },
+            });
         }
 
         if (args.input.title && !args.input.taskId) {

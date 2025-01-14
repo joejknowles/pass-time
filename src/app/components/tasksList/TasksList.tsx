@@ -4,8 +4,8 @@ import { GroupedTasks } from "./GroupedTasks";
 import { BasicTask, TaskGroup } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
 import { useEffect, useState } from "react";
-import { GET_TASKS } from "@/app/lib/graphql/mutations";
-import { useQuery } from "@apollo/client";
+import { CREATE_TASK, GET_TASKS } from "@/app/lib/graphql/mutations";
+import { useMutation, useQuery } from "@apollo/client";
 
 interface TasksListProps {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
@@ -35,6 +35,8 @@ export const TasksList = ({
         refetch: refetchTasks
     } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const tasks = taskData?.tasks;
+
+    const [createTask, { error: errorFromCreateTask }] = useMutation(CREATE_TASK);
 
     useEffect(() => {
         setShowGroupedTasks(!isNarrowScreen);
@@ -73,6 +75,14 @@ export const TasksList = ({
                                 ];
                             }
                         });
+                    } else {
+                        createTask({
+                            variables: {
+                                input: {
+                                    title: task.title,
+                                }
+                            }
+                        })
                     }
                 }}
                 tasks={tasks}
