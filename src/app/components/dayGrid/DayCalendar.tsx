@@ -13,7 +13,7 @@ import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
 import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
-import { BasicTask } from "../TaskSuggestionsList";
+import { BasicTask } from "../TasksList";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 

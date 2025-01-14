@@ -60,7 +60,7 @@ const formattedRequestTime = () => {
     return `${Math.round(elapsedTime / 10) / 100} seconds`;
 }
 
-export const TaskSuggestionsList = ({
+export const TasksList = ({
     setOpenDetailsPanelEntity,
     setDraggedTask,
     draggedTask,
