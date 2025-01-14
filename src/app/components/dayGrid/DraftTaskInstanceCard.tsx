@@ -1,8 +1,9 @@
 /** @jsxImportSource @emotion/react */
-import { Autocomplete, Box, ClickAwayListener, TextField, Button, duration } from "@mui/material";
+import { Autocomplete, Box, ClickAwayListener, TextField, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Task } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
+import CreateOrSelectTask from "./CreateOrSelectTask";
 
 interface DraftTaskInstance {
     title: string;
@@ -52,6 +53,25 @@ export const DraftTaskInstanceCard = ({
         };
     }, []);
 
+    const handleTitleChange = (title: string) => {
+        setDraftTaskInstance({
+            ...draftTaskInstance,
+            title,
+        });
+    };
+
+    const handleSubmitTask = (taskIdOrTitle: string) => {
+        const selectedTask = tasks?.find((task) => task.id === taskIdOrTitle) || null;
+        const newDraftTaskInstance = {
+            ...draftTaskInstance,
+            title: selectedTask?.title || taskIdOrTitle,
+            taskId: selectedTask?.id,
+            duration: selectedTask?.defaultDuration || 30,
+        };
+        setDraftTaskInstance(newDraftTaskInstance);
+        finalizeTaskInstance(newDraftTaskInstance);
+    };
+
     if (isBeingDragged || isSubmitting) {
         return (
             <BasicTaskInstanceCard
@@ -89,138 +109,12 @@ export const DraftTaskInstanceCard = ({
                 ref={thisRootRef}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Autocomplete
-                        key={`${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`}
-                        value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
-                        disablePortal
-                        disabled={isBeingDragged || isSubmitting}
-                        autoFocus
-                        openOnFocus
-                        options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
-                        size="small"
-                        onInputChange={(_e, value, reason) => {
-                            if (reason === "input") {
-                                setDraftTaskInstance({
-                                    ...draftTaskInstance,
-                                    title: value,
-                                });
-                                if (selectedTask && selectedTask.title !== value) {
-                                    setSelectedTask(null);
-                                }
-                            }
-                        }}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        slotProps={{
-                            listbox: {
-                                sx: {
-                                    maxHeight: 300,
-                                },
-                            },
-                        }}
-                        inputValue={draftTaskInstance.title}
-                        onChange={(_e, selection) => {
-                            if (selection) {
-                                const selectedTask = tasks?.find((task) => task.id === selection?.id) || null;
-                                setSelectedTask(selectedTask);
-
-                                console.log("DraftTaskInstanceCard onChange", selection);
-                                const newDraftTaskInstance = {
-                                    ...draftTaskInstance,
-                                    title: selection?.label || draftTaskInstance.title,
-                                    taskId: selection?.id,
-                                    duration: selectedTask?.defaultDuration || 30,
-                                };
-                                setDraftTaskInstance(newDraftTaskInstance);
-
-                                isSubmittingWithOnChangeCallback.current = true;
-                                finalizeTaskInstance(newDraftTaskInstance);
-                            }
-                        }}
-                        noOptionsText="Press Enter to create a new task"
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                value={draftTaskInstance.title}
-                                sx={{
-                                    "& .MuiInput-underline:before": {
-                                        borderBottom: "none",
-                                    },
-                                    "& .MuiInput-underline:hover:before": {
-                                        borderBottom: "none !important",
-                                    },
-                                    "& .MuiInput-underline:after": {
-                                        borderBottom: "none",
-                                    },
-                                }}
-                                variant="standard"
-                                autoFocus
-                                onKeyDown={(event) => {
-                                    if (event.key === "Enter") {
-                                        setTimeout(() => {
-                                            if (isSubmittingWithOnChangeCallback.current) {
-                                                return;
-                                            }
-
-                                            const perfectTaskOption = tasks
-                                                ?.find((task) =>
-                                                    task.title.toLowerCase() === draftTaskInstance.title.toLowerCase()
-                                                );
-                                            let newTask = draftTaskInstance;
-
-                                            if (perfectTaskOption) {
-                                                newTask = {
-                                                    ...newTask,
-                                                    taskId: perfectTaskOption.id,
-                                                    title: perfectTaskOption.title,
-                                                    duration: perfectTaskOption?.defaultDuration || 30,
-                                                };
-                                            }
-
-                                            setDraftTaskInstance(newTask);
-                                            finalizeTaskInstance(newTask);
-                                        }, 100);
-                                        event.preventDefault();
-                                    } else if (event.key === "Tab") {
-                                        const firstMatchingTask = tasks?.find((task) =>
-                                            task.title.toLowerCase().includes(draftTaskInstance.title.toLowerCase())
-                                        );
-                                        if (firstMatchingTask && firstMatchingTask.title !== draftTaskInstance.title) {
-                                            setDraftTaskInstance({
-                                                ...draftTaskInstance,
-                                                title: firstMatchingTask.title,
-                                                taskId: firstMatchingTask.id,
-                                            });
-                                            setSelectedTask(firstMatchingTask);
-                                            event.preventDefault();
-                                        }
-                                    }
-                                }}
-                            />
-                        )}
-                        sx={{
-                            flexGrow: 1,
-                            "& .MuiAutocomplete-inputRoot": {
-                                color: "white",
-                                "WebkitTextFillColor": "white !important",
-                            },
-                            "& .MuiAutocomplete-listbox": {
-                                backgroundColor: "rgba(63, 81, 181, 0.9)",
-                            },
-                            "& .MuiAutocomplete-endAdornment .MuiButtonBase-root": {
-                                color: "white",
-                                "WebkitTextFillColor": "white !important",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled, & .MuiAutocomplete-inputRoot.Mui-disabled": {
-                                color: "white !important",
-                                "WebkitTextFillColor": "white !important",
-                            },
-                            "& .MuiAutocomplete-endAdornment .MuiButtonBase-root.Mui-disabled": {
-                                color: "white",
-                            },
-                            "& .MuiInput-underline:before, & .MuiInput-underline:hover:before, & .MuiInput-underline:after, & .MuiInput-underline.Mui-disabled:before": {
-                                borderBottom: "none !important",
-                            },
-                        }}
+                    <CreateOrSelectTask
+                        title={draftTaskInstance.title}
+                        onTitleChange={handleTitleChange}
+                        submitTask={handleSubmitTask}
+                        tasks={tasks}
+                        isSubmitting={isSubmitting}
                     />
                     {
                         !isBeingDragged && !isSubmitting && (
