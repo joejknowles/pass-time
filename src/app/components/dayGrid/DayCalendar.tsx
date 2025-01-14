@@ -394,11 +394,10 @@ export const DayCalendar = ({
                     raised
                     sx={{
                         backgroundColor: 'white',
-                        cursor: 'pointer',
+                        cursor: 'grabbing',
                         position: 'fixed',
                         top: draggedTask.position.y,
                         left: draggedTask.position.x,
-                        pointerEvents: 'none',
                         transform: 'translate(-50%, -50%) rotate(-1deg)',
                         width: draggedTask.width,
                     }}
