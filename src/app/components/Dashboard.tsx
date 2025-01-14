@@ -74,7 +74,7 @@ const Dashboard = () => {
                         draggedTask={draggedTask}
                     />
                 </Box>
-                {isNarrowScreen && (
+                {!isNarrowScreen && (
                     <Box
                         sx={{
                             width: "1px",

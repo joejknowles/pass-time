@@ -108,7 +108,7 @@ export const GroupedTasks = ({
     })
 
     return (
-        <Box sx={{ height: '100%', padding: 1, overflowY: 'auto', scrollbarGutter: 'none' }}>
+        <>
             {orderedGroups.map((group, index) => {
                 const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
 
@@ -177,6 +177,6 @@ export const GroupedTasks = ({
                     </Box>
                 )
             })}
-        </Box>
+        </>
     );
 };
