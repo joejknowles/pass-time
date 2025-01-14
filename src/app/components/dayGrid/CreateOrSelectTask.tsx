@@ -7,13 +7,15 @@ const CreateOrSelectTask = ({
     onTitleChange,
     submitTask,
     tasks,
-    isSubmitting
+    autocompleteProps,
+    textFieldProps
 }: {
     title: string,
     onTitleChange: (title: string) => void,
     submitTask: (taskIdOrTitle: string) => void,
     tasks?: Task[],
-    isSubmitting?: boolean,
+    autocompleteProps?: any,
+    textFieldProps?: any,
 }) => {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const isSubmittingWithOnChangeCallback = useRef(false);
@@ -23,7 +25,6 @@ const CreateOrSelectTask = ({
             key={title}
             value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
             disablePortal
-            disabled={isSubmitting}
             autoFocus
             openOnFocus
             options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
@@ -36,7 +37,7 @@ const CreateOrSelectTask = ({
                     }
                 }
             }}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option: { id: string, title: string }, value) => option.id === value.id}
             slotProps={{
                 listbox: {
                     sx: {
@@ -60,18 +61,7 @@ const CreateOrSelectTask = ({
                 <TextField
                     {...params}
                     value={title}
-                    sx={{
-                        "& .MuiInput-underline:before": {
-                            borderBottom: "none",
-                        },
-                        "& .MuiInput-underline:hover:before": {
-                            borderBottom: "none !important",
-                        },
-                        "& .MuiInput-underline:after": {
-                            borderBottom: "none",
-                        },
-                    }}
-                    variant="standard"
+                    {...textFieldProps}
                     autoFocus
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
@@ -106,30 +96,7 @@ const CreateOrSelectTask = ({
                     }}
                 />
             )}
-            sx={{
-                flexGrow: 1,
-                "& .MuiAutocomplete-inputRoot": {
-                    color: "white",
-                    "WebkitTextFillColor": "white !important",
-                },
-                "& .MuiAutocomplete-listbox": {
-                    backgroundColor: "rgba(63, 81, 181, 0.9)",
-                },
-                "& .MuiAutocomplete-endAdornment .MuiButtonBase-root": {
-                    color: "white",
-                    "WebkitTextFillColor": "white !important",
-                },
-                "& .MuiInputBase-input.Mui-disabled, & .MuiAutocomplete-inputRoot.Mui-disabled": {
-                    color: "white !important",
-                    "WebkitTextFillColor": "white !important",
-                },
-                "& .MuiAutocomplete-endAdornment .MuiButtonBase-root.Mui-disabled": {
-                    color: "white",
-                },
-                "& .MuiInput-underline:before, & .MuiInput-underline:hover:before, & .MuiInput-underline:after, & .MuiInput-underline.Mui-disabled:before": {
-                    borderBottom: "none !important",
-                },
-            }}
+            {...autocompleteProps}
         />
     );
 };

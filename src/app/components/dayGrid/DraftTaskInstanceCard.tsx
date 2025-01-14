@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Autocomplete, Box, ClickAwayListener, TextField, Button } from "@mui/material";
+import { Box, ClickAwayListener, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Task } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
@@ -114,7 +114,34 @@ export const DraftTaskInstanceCard = ({
                         onTitleChange={handleTitleChange}
                         submitTask={handleSubmitTask}
                         tasks={tasks}
-                        isSubmitting={isSubmitting}
+                        autocompleteProps={{
+                            sx: {
+                                flexGrow: 1,
+                                "& .MuiAutocomplete-inputRoot": {
+                                    color: "white",
+                                    "WebkitTextFillColor": "white !important",
+                                },
+                                "& .MuiAutocomplete-listbox": {
+                                    backgroundColor: "rgba(63, 81, 181, 0.9)",
+                                },
+                                "& .MuiAutocomplete-endAdornment .MuiButtonBase-root": {
+                                    color: "white",
+                                    "WebkitTextFillColor": "white !important",
+                                },
+                            },
+                        }}
+                        textFieldProps={{
+                            sx: {
+                                "& .MuiInputBase-input": {
+                                    color: "white !important",
+                                    "WebkitTextFillColor": "white !important",
+                                },
+                                "& .MuiInput-underline:before, & .MuiInput-underline:hover:before, & .MuiInput-underline:after": {
+                                    borderBottom: "none !important",
+                                },
+                            },
+                            variant: "standard",
+                        }}
                     />
                     {
                         !isBeingDragged && !isSubmitting && (
