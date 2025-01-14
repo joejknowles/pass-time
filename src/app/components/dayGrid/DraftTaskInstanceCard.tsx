@@ -180,12 +180,14 @@ export const DraftTaskInstanceCard = ({
                                     height: "20px",
                                 }}
                                 onClick={() => {
-                                    const newTask = {
+                                    const newDraftTaskInstance = selectedTask ? {
                                         ...draftTaskInstance,
-                                        title: draftTaskInstance.title,
-                                    };
-                                    setDraftTaskInstance(newTask);
-                                    finalizeTaskInstance(newTask);
+                                        title: selectedTask?.title || "",
+                                        taskId: selectedTask?.id,
+                                        duration: selectedTask?.defaultDuration || 30,
+                                    } : draftTaskInstance;
+                                    setDraftTaskInstance(newDraftTaskInstance);
+                                    finalizeTaskInstance(newDraftTaskInstance);
                                 }}
                             >
                                 Add

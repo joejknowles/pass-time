@@ -34,10 +34,17 @@ const CreateOrSelectTask = ({
             options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
             size="small"
             disableClearable
-            onInputChange={(_e, value, reason) => {
+            onInputChange={(_e, newValue, reason) => {
                 if (reason === "input") {
-                    onTitleChange(value);
-                    if (selectedTask && selectedTask.title !== value) {
+                    onTitleChange(newValue);
+                    const perfectTaskOption = tasks
+                        ?.find((task) =>
+                            task.title.toLowerCase() === newValue.toLowerCase()
+                        );
+                    if (perfectTaskOption) {
+                        onTaskSelection(perfectTaskOption);
+                    }
+                    if (selectedTask && selectedTask.title !== newValue) {
                         onTaskSelection(null);
                     }
                 }
