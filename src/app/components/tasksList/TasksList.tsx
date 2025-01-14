@@ -47,6 +47,7 @@ export const TasksList = ({
                 onTitleChange={setInputText}
                 submitTask={(task) => {
                     if (task.id) {
+                        const submittedTask = tasks?.find(t => t.id === task.id);
                         setOpenDetailsPanelEntity({
                             type: "Task",
                             id: task.id
@@ -59,13 +60,13 @@ export const TasksList = ({
                                 return [
                                     {
                                         ...recentGroup,
-                                        tasks: [task, ...existingTasks2Max]
+                                        tasks: [submittedTask, ...existingTasks2Max]
                                     } as TaskGroup,
                                 ]
                             } else {
                                 return [
                                     {
-                                        tasks: [task],
+                                        tasks: [submittedTask],
                                         name: "Recents",
                                         type: "RECENTS"
                                     } as TaskGroup
