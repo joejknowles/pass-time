@@ -70,11 +70,11 @@ export const DraftTaskInstanceCard = ({
         });
     };
 
-    const handleSubmitTask = (taskIdOrTitle: string) => {
-        const selectedTask = tasks?.find((task) => task.id === taskIdOrTitle) || null;
+    const handleSubmitTask = ({ id, title }: { id?: string, title?: string }) => {
+        const selectedTask = id && tasks?.find((task) => task.id === id) || null;
         const newDraftTaskInstance = {
             ...draftTaskInstance,
-            title: selectedTask?.title || taskIdOrTitle,
+            title: selectedTask?.title || title || "",
             taskId: selectedTask?.id,
             duration: selectedTask?.defaultDuration || 30,
         };
@@ -141,6 +141,7 @@ export const DraftTaskInstanceCard = ({
                                     "WebkitTextFillColor": "white !important",
                                 },
                             },
+                            key: `${draftTaskInstance.start.date}:${draftTaskInstance.start.hour}:${draftTaskInstance.start.minute}`
                         }}
                         textFieldProps={{
                             sx: {
@@ -153,6 +154,7 @@ export const DraftTaskInstanceCard = ({
                                 },
                             },
                             variant: "standard",
+                            autoFocus: true
                         }}
                     />
                     {

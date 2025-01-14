@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, AutocompleteProps, TextField, TextFieldProps } from "@mui/material";
 import { useRef, useState } from "react";
 import { Task } from "./types";
 
@@ -14,21 +14,22 @@ const CreateOrSelectTask = ({
 }: {
     title: string,
     onTitleChange: (title: string) => void,
-    submitTask: (taskIdOrTitle: string) => void,
+    submitTask: (newTask: { id?: string, title?: string }) => void,
     tasks?: Task[],
-    autocompleteProps?: any,
-    textFieldProps?: any,
+    autocompleteProps?: Partial<AutocompleteProps<any, any, any, any>> & { key?: string },
+    textFieldProps?: Partial<TextFieldProps>,
     selectedTask: Task | null,
     onTaskSelection: (task: Task | null) => void
 }) => {
     const isSubmittingWithOnChangeCallback = useRef(false);
 
+    const { key, ...spreadableAutocompleteProps } = autocompleteProps || {};
+
     return (
         <Autocomplete
-            key={title}
+            key={key}
             value={selectedTask && { label: selectedTask.title, id: selectedTask.id }}
             disablePortal
-            autoFocus
             openOnFocus
             options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
             size="small"
@@ -55,7 +56,10 @@ const CreateOrSelectTask = ({
                     const selectedTask = tasks?.find((task) => task.id === selection?.id) || null;
                     onTaskSelection(selectedTask);
                     isSubmittingWithOnChangeCallback.current = true;
-                    submitTask(selection?.id || title);
+                    submitTask({
+                        id: selection.id,
+                        title: selectedTask?.title,
+                    });
                 }
             }}
             noOptionsText="Press Enter to create a new task"
@@ -64,7 +68,6 @@ const CreateOrSelectTask = ({
                     {...params}
                     value={title}
                     {...textFieldProps}
-                    autoFocus
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
                             setTimeout(() => {
@@ -76,13 +79,16 @@ const CreateOrSelectTask = ({
                                     ?.find((task) =>
                                         task.title.toLowerCase() === title.toLowerCase()
                                     );
-                                let taskIdOrTitle = title;
 
+                                let id;
                                 if (perfectTaskOption) {
-                                    taskIdOrTitle = perfectTaskOption.id;
+                                    id = perfectTaskOption.id;
                                 }
 
-                                submitTask(taskIdOrTitle);
+                                submitTask({
+                                    id,
+                                    title,
+                                });
                             }, 100);
                             event.preventDefault();
                         } else if (event.key === "Tab") {
@@ -98,7 +104,7 @@ const CreateOrSelectTask = ({
                     }}
                 />
             )}
-            {...autocompleteProps}
+            {...spreadableAutocompleteProps}
         />
     );
 };
