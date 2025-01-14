@@ -7,6 +7,7 @@ import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
 import TodayEvent from "@mui/icons-material/Today";
 import Event from "@mui/icons-material/Event";
+import RecentsIcon from "@mui/icons-material/WorkHistory";
 import { BasicTask, TaskGroup } from "./types";
 
 const icons = {
@@ -14,6 +15,7 @@ const icons = {
     RECURRING: RecurringIcon,
     DATE_SOON: Event,
     DATE_TODAY: TodayEvent,
+    RECENTS: RecentsIcon
 }
 
 const SUGGESTION_GROUP_TYPES = {
@@ -31,6 +33,7 @@ interface GroupedTasksProps {
             width: number
         } | null) => void;
     draggedTask: { task: BasicTask | Task; position: { x: number; y: number }; width: number } | null;
+    additionalTaskGroups: TaskGroup[];
 }
 
 let startTime = performance.now(); // Start time
@@ -45,6 +48,7 @@ export const GroupedTasks = ({
     setOpenDetailsPanelEntity,
     setDraggedTask,
     draggedTask,
+    additionalTaskGroups,
 }: GroupedTasksProps) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
@@ -109,7 +113,7 @@ export const GroupedTasks = ({
 
     return (
         <>
-            {orderedGroups.map((group, index) => {
+            {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
                 const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
 
                 return (

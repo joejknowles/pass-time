@@ -1,7 +1,7 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { GroupedTasks } from "./GroupedTasks";
-import { BasicTask } from "./types";
+import { BasicTask, TaskGroup } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
 import { useEffect, useState } from "react";
 import { GET_TASKS } from "@/app/lib/graphql/mutations";
@@ -27,6 +27,7 @@ export const TasksList = ({
     const [showGroupedTasks, setShowGroupedTasks] = useState(isNarrowScreen);
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [additionalTaskGroups, setAdditionalTaskGroups] = useState<TaskGroup[]>([]);
     const {
         data: taskData,
         error: errorFromGetTasks,
@@ -50,6 +51,27 @@ export const TasksList = ({
                             type: "Task",
                             id: task.id
                         });
+                        setAdditionalTaskGroups(existingGroups => {
+                            if (existingGroups[0]) {
+                                const recentGroup: TaskGroup = existingGroups[0];
+                                const tasksWithoutDupes = recentGroup.tasks.filter(t => t.id !== task.id);
+                                const existingTasks2Max = tasksWithoutDupes.slice(0, 2);
+                                return [
+                                    {
+                                        ...recentGroup,
+                                        tasks: [task, ...existingTasks2Max]
+                                    } as TaskGroup,
+                                ]
+                            } else {
+                                return [
+                                    {
+                                        tasks: [task],
+                                        name: "Recents",
+                                        type: "RECENTS"
+                                    } as TaskGroup
+                                ];
+                            }
+                        });
                     }
                 }}
                 tasks={tasks}
@@ -63,12 +85,12 @@ export const TasksList = ({
                 }}
             />
             {showGroupedTasks && (
-
                 <GroupedTasks
                     {...{
                         setOpenDetailsPanelEntity,
                         setDraggedTask,
                         draggedTask,
+                        additionalTaskGroups,
                     }}
                 />
             )}
