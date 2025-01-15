@@ -214,6 +214,7 @@ export const mutationResolvers = {
                         taskInstances: true,
                         parentTasks: true,
                         childTasks: true,
+                        suggestionConfigs: true,
                     },
                 }
             },
@@ -227,7 +228,8 @@ export const mutationResolvers = {
         const wasOnlyUseOfTask =
             taskInstance.task.taskInstances.length === 1 &&
             taskInstance.task.parentTasks.length === 0 &&
-            taskInstance.task.childTasks.length === 0;
+            taskInstance.task.childTasks.length === 0 &&
+            taskInstance.task.suggestionConfigs.length === 0;
 
         await prisma.taskInstance.delete({
             where: { id: taskInstanceId, userId: user.id },
