@@ -47,7 +47,9 @@ export const TasksList = ({
             <CreateOrSelectTask
                 title={inputText}
                 onTitleChange={setInputText}
-                submitTask={(task) => {
+                submitTask={async (task) => {
+                    setInputText("");
+                    setSelectedTask(null);
                     if (task.id) {
                         const submittedTask = tasks?.find(t => t.id === task.id);
                         setOpenDetailsPanelEntity({
@@ -76,13 +78,33 @@ export const TasksList = ({
                             }
                         });
                     } else {
-                        createTask({
+                        const newTask = await createTask({
                             variables: {
                                 input: {
                                     title: task.title,
                                 }
                             }
                         })
+                        setAdditionalTaskGroups(existingGroups => {
+                            if (existingGroups[0]) {
+                                const recentGroup: TaskGroup = existingGroups[0];
+                                const existingTasks2Max = recentGroup.tasks.slice(0, 2);
+                                return [
+                                    {
+                                        ...recentGroup,
+                                        tasks: [newTask.data.createTask, ...existingTasks2Max]
+                                    } as TaskGroup,
+                                ]
+                            } else {
+                                return [
+                                    {
+                                        tasks: [newTask.data.createTask],
+                                        name: "Recents",
+                                        type: "RECENTS"
+                                    } as TaskGroup
+                                ];
+                            }
+                        });
                     }
                 }}
                 tasks={tasks}
