@@ -1,4 +1,4 @@
-import { Box, FormControlLabel, Switch } from "@mui/material";
+import { Box, FormControlLabel, Switch, Typography } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
@@ -111,6 +111,13 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                                 suggestionsConfig={suggestionsConfig}
                                 handleConfigChange={handleConfigChange}
                             />
+                        )}
+                        {suggestionsConfig.recurringOrOnce === "SOON" && (
+                            <Box mt={2}>
+                                <Typography variant="subtitle2">
+                                    You'll see this task in your suggestions until it's been done.
+                                </Typography>
+                            </Box>
                         )}
                     </Box>
                 )

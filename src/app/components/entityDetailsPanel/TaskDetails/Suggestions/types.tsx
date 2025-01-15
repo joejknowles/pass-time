@@ -3,7 +3,7 @@ export const RECURRING_TYPES = {
     SPECIFIC_DAYS: "SPECIFIC_DAYS" as const
 };
 
-export type RecurringOrOnce = "RECURRING" | "ONE_OFF";
+export type RecurringOrOnce = "RECURRING" | "ONE_OFF" | "SOON";
 export type RecurringType = keyof typeof RECURRING_TYPES;
 
 export interface TaskSuggestionsConfig {

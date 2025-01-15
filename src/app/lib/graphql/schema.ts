@@ -44,6 +44,7 @@ export const typeDefs = gql`
   enum RecurringOrOnce {
     RECURRING
     ONE_OFF
+    SOON
   }
 
   enum RecurringType {

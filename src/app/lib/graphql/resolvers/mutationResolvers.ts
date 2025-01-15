@@ -361,7 +361,7 @@ export const mutationResolvers = {
             input:
             {
                 taskId: number,
-                recurringOrOnce?: 'RECURRING' | 'ONE_OFF',
+                recurringOrOnce?: 'RECURRING' | 'ONE_OFF' | 'SOON',
                 recurringType?: 'DAYS_SINCE_LAST_OCCURRENCE' | 'SPECIFIC_DAYS',
                 daysSinceLastOccurrence?: number,
                 specificDays?: string
