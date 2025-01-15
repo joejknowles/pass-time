@@ -2,6 +2,7 @@ import { ApolloProvider } from '@apollo/client';
 import client from '@/app/lib/graphql/apollo-client';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { TasksProvider } from '@/app/lib/hooks/useTasks';
 
 declare module "@mui/material/styles" {
     interface Palette {
@@ -104,8 +105,10 @@ export default function EverywhereProviders({ children }: { children: React.Reac
     return (
         <ApolloProvider client={client}>
             <ThemeProvider theme={theme}>
-                <CssBaseline />
-                {children}
+                <TasksProvider>
+                    <CssBaseline />
+                    {children}
+                </TasksProvider>
             </ThemeProvider>
         </ApolloProvider>
     );

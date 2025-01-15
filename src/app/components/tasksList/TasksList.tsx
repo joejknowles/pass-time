@@ -4,8 +4,7 @@ import { GroupedTasks } from "./GroupedTasks";
 import { BasicTask, TaskGroup } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
 import { useEffect, useState } from "react";
-import { CREATE_TASK, GET_TASKS } from "@/app/lib/graphql/mutations";
-import { useMutation, useQuery } from "@apollo/client";
+import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TasksListProps {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
@@ -28,15 +27,7 @@ export const TasksList = ({
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [additionalTaskGroups, setAdditionalTaskGroups] = useState<TaskGroup[]>([]);
-    const {
-        data: taskData,
-        error: errorFromGetTasks,
-        loading: loadingTasks,
-        refetch: refetchTasks
-    } = useQuery<{ tasks: Task[] }>(GET_TASKS);
-    const tasks = taskData?.tasks;
-
-    const [createTask, { error: errorFromCreateTask }] = useMutation(CREATE_TASK);
+    const { tasks, createTask } = useTasks();
 
     useEffect(() => {
         setShowGroupedTasks(!isNarrowScreen);
@@ -77,14 +68,8 @@ export const TasksList = ({
                                 ];
                             }
                         });
-                    } else {
-                        const newTask = await createTask({
-                            variables: {
-                                input: {
-                                    title: task.title,
-                                }
-                            }
-                        })
+                    } else if (task.title) {
+                        const newTask = await createTask(task.title);
                         setAdditionalTaskGroups(existingGroups => {
                             if (existingGroups[0]) {
                                 const recentGroup: TaskGroup = existingGroups[0];
@@ -92,13 +77,13 @@ export const TasksList = ({
                                 return [
                                     {
                                         ...recentGroup,
-                                        tasks: [newTask.data.createTask, ...existingTasks2Max]
+                                        tasks: [newTask, ...existingTasks2Max]
                                     } as TaskGroup,
                                 ]
                             } else {
                                 return [
                                     {
-                                        tasks: [newTask.data.createTask],
+                                        tasks: [newTask],
                                         name: "Recents",
                                         type: "RECENTS"
                                     } as TaskGroup

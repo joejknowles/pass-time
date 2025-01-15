@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { Box, LinearProgress, useMediaQuery, Typography, Card, CardContent } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, GET_TASKS, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
+import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
 import EntityDetailsPanel from "../entityDetailsPanel/EntityDetailsPanel";
@@ -14,6 +14,7 @@ import { isToday } from "./utils";
 import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 import { BasicTask } from "../tasksList/types";
+import { useTasks } from "@/app/lib/hooks/useTasks";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
@@ -62,15 +63,7 @@ export const DayCalendar = ({
         pollInterval: minutesToMs(15)
     });
     const taskInstances = taskInstancesData?.taskInstances;
-    const {
-        data: taskData,
-        error: errorFromGetTasks,
-        loading: loadingTasks,
-        refetch: refetchTasks
-    } = useQuery<{ tasks: Task[] }>(GET_TASKS, {
-        pollInterval: minutesToMs(15)
-    });
-    const tasks = taskData?.tasks;
+    const { tasks, refetchTasks, error: errorFromGetTasks, loading: loadingTasks } = useTasks();
 
     const [hasDraggedForABit, setHasDraggedForABit] = useState(false);
 
