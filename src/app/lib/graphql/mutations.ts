@@ -201,3 +201,9 @@ export const UPDATE_TASK_SUGGESTION_CONFIG = gql`
     }
   }
 `;
+
+export const DELETE_TASK = gql`
+  mutation DeleteTask($input: DeleteTaskInput!) {
+    deleteTask(input: $input)
+  }
+`;

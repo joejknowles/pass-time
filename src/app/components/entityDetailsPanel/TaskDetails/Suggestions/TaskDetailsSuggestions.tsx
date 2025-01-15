@@ -6,8 +6,9 @@ import { RecurringInputs } from "./RecurringInputs";
 import { OneOffInputs } from "./OneOffInputs";
 import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 import { GET_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/queries";
-import { UPDATE_TASK_SUGGESTION_CONFIG, UPDATE_TASK } from "@/app/lib/graphql/mutations";
+import { UPDATE_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/mutations";
 import { Task } from "@/app/components/dayGrid/types";
+import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TaskDetailsSuggestionsProps {
     task: Task;
@@ -30,7 +31,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
     });
 
     const [updateTaskSuggestionConfig] = useMutation(UPDATE_TASK_SUGGESTION_CONFIG);
-    const [updateTask] = useMutation(UPDATE_TASK);
+    const { updateTask } = useTasks();
 
     useEffect(() => {
         if (data?.taskSuggestionConfig) {
@@ -78,20 +79,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
             refetch();
         }
 
-        await updateTask({
-            variables: {
-                input: {
-                    id: task.id,
-                    isSuggestingEnabled: newValue,
-                },
-            },
-            optimisticResponse: {
-                updateTask: {
-                    ...task,
-                    isSuggestingEnabled: newValue,
-                },
-            },
-        });
+        await updateTask(task.id, { isSuggestingEnabled: newValue });
     }, [isSuggestingEnabled, suggestionsConfig]);
 
     return (

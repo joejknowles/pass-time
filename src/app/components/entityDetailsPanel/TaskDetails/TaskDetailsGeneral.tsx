@@ -1,36 +1,30 @@
 import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel } from "@mui/material";
-import { useMutation } from "@apollo/client";
-import { UPDATE_TASK } from "../../../lib/graphql/mutations";
 import { Task } from "../../dayGrid/types";
 import { durationOptions } from "../../../lib/utils/durationOptions";
+import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TaskDetailsGeneralProps {
     task: Task;
-    tasks: Task[];
     refetchAllTaskData: () => void;
 }
 
-export const TaskDetailsGeneral = ({ task, tasks, refetchAllTaskData }: TaskDetailsGeneralProps) => {
-    const [updateTask, { error: taskUpdateErrorRaw }] = useMutation(UPDATE_TASK);
+export const TaskDetailsGeneral = ({ task, refetchAllTaskData }: TaskDetailsGeneralProps) => {
+    const { tasks, updateTask, error: taskUpdateErrorRaw } = useTasks();
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
     const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
 
     const handleDurationChange = async (event: SelectChangeEvent<number>) => {
-        await updateTask({
-            variables: {
-                input: {
-                    id: task.id,
-                    defaultDuration: event.target.value,
-                },
-            },
-            optimisticResponse: {
-                updateTask: {
-                    ...task,
-                    defaultDuration: event.target.value,
-                },
-            },
-        });
-        await refetchAllTaskData();
+        if (event.target.value) {
+            await updateTask(task.id, { defaultDuration: event.target.value as number });
+            await refetchAllTaskData();
+        }
+    };
+
+    const handleParentTaskChange = async (_e: any, selection: any) => {
+        if (selection) {
+            await updateTask(task.id, { parentTaskId: selection.id });
+            await refetchAllTaskData();
+        }
     };
 
     return (
@@ -41,21 +35,9 @@ export const TaskDetailsGeneral = ({ task, tasks, refetchAllTaskData }: TaskDeta
                 </Typography>
             )}
             <Autocomplete
-                options={tasks.map((task) => ({ label: task.title, id: task.id }))}
+                options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
                 size="small"
-                onChange={async (_e, selection) => {
-                    if (selection) {
-                        await updateTask({
-                            variables: {
-                                input: {
-                                    id: task.id,
-                                    parentTaskId: selection.id,
-                                },
-                            },
-                        });
-                        await refetchAllTaskData();
-                    }
-                }}
+                onChange={handleParentTaskChange}
                 renderInput={(params) => (
                     <TextField
                         {...params}

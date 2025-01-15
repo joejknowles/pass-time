@@ -18,7 +18,6 @@ interface TaskInstanceDetailsProps {
 
 export const TaskDetails = ({
     task,
-    tasks,
     refetchAllTaskData,
     isMovingATask,
     goBack,
@@ -102,7 +101,6 @@ export const TaskDetails = ({
                 {tabIndex === 0 && (
                     <TaskDetailsGeneral
                         task={task}
-                        tasks={tasks}
                         refetchAllTaskData={refetchAllTaskData}
                     />
                 )}

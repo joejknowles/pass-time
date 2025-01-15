@@ -1,12 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_TASKS, CREATE_TASK } from "@/app/lib/graphql/mutations";
+import { GET_TASKS, CREATE_TASK, UPDATE_TASK } from "@/app/lib/graphql/mutations";
 import { Task } from "@/app/components/dayGrid/types";
 
 interface TasksContextType {
     tasks: Task[] | undefined;
     refetchTasks: () => void;
     createTask: (title: string) => Promise<Task>;
+    updateTask: (
+        id: string,
+        updates: Partial<Task> & { parentTaskId?: string, childTaskId?: string }
+    ) => Promise<Task>;
     error: any;
     loading: boolean;
 }
@@ -16,6 +20,7 @@ const TasksContext = createContext<TasksContextType | undefined>(undefined);
 export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: taskData, refetch: refetchTasks, error, loading } = useQuery<{ tasks: Task[] }>(GET_TASKS);
     const [createTaskMutation] = useMutation(CREATE_TASK);
+    const [updateTaskMutation] = useMutation(UPDATE_TASK);
     const tasks = taskData?.tasks;
 
     const createTask = async (title: string): Promise<Task> => {
@@ -27,8 +32,17 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
         return data.createTask;
     };
 
+    const updateTask = async (id: string, updates: Partial<Task>): Promise<Task> => {
+        const { data } = await updateTaskMutation({
+            variables: {
+                input: { id, ...updates },
+            },
+        });
+        return data.updateTask;
+    };
+
     return (
-        <TasksContext.Provider value={{ tasks, refetchTasks, createTask, error, loading }}>
+        <TasksContext.Provider value={{ tasks, refetchTasks, createTask, updateTask, error, loading }}>
             {children}
         </TasksContext.Provider>
     );
