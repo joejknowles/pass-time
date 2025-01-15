@@ -143,7 +143,6 @@ const EntityDetailsPanel = ({
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
                         task={tasks?.find((t) => t.id == openDetailsPanelEntity.id) as Task}
                         onClose={() => setOpenDetailsPanelEntity(null)}
-                        refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
                         tasks={tasks as Task[]}
                         goBack={previousEntities.length > 0 ? () => {

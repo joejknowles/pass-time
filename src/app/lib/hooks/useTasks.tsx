@@ -29,6 +29,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                 input: { title },
             },
         });
+        refetchTasks();
         return data.createTask;
     };
 
@@ -38,6 +39,7 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
                 input: { id, ...updates },
             },
         });
+        refetchTasks();
         return data.updateTask;
     };
 

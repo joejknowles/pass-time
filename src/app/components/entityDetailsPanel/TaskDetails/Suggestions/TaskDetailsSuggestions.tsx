@@ -26,7 +26,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         oneOffDateType: "BEFORE_OR_ON",
     });
 
-    const { data, loading, refetch } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
+    const { data: suggestionConfigData, loading: isConfigLoading, refetch: refetchSuggestionConfig } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
         variables: { taskId: task.id },
     });
 
@@ -34,11 +34,11 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
     const { updateTask } = useTasks();
 
     useEffect(() => {
-        if (data?.taskSuggestionConfig) {
-            const nonEmptyValues = Object.fromEntries(Object.entries(data.taskSuggestionConfig).filter(([, value]) => value !== null && value !== undefined));
+        if (suggestionConfigData?.taskSuggestionConfig) {
+            const nonEmptyValues = Object.fromEntries(Object.entries(suggestionConfigData.taskSuggestionConfig).filter(([, value]) => value !== null && value !== undefined));
             setSuggestionsConfig(suggestionsConfig => ({ ...suggestionsConfig, ...nonEmptyValues }));
         }
-    }, [data]);
+    }, [suggestionConfigData]);
 
     const handleConfigChange = async (newValues: Partial<TaskSuggestionsConfig>) => {
         setSuggestionsConfig(prevConfig => ({ ...prevConfig, ...newValues }));
@@ -51,7 +51,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 },
             },
         });
-        refetch();
+        refetchSuggestionConfig();
     };
 
     const handleSuggestionsEnabledChange = useCallback(async () => {
@@ -76,7 +76,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                     },
                 },
             });
-            refetch();
+            refetchSuggestionConfig();
         }
 
         await updateTask(task.id, { isSuggestingEnabled: newValue });
@@ -94,7 +94,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 label={`Suggestions are ${isSuggestingEnabled ? "enabled" : "disabled"}`}
             />
             {
-                isSuggestingEnabled && !loading && (
+                isSuggestingEnabled && !isConfigLoading && (
                     <Box>
                         <RecurringOrNotCardsSelect
                             suggestionsConfig={suggestionsConfig}

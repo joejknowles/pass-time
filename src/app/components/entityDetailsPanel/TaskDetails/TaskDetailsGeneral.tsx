@@ -5,10 +5,9 @@ import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TaskDetailsGeneralProps {
     task: Task;
-    refetchAllTaskData: () => void;
 }
 
-export const TaskDetailsGeneral = ({ task, refetchAllTaskData }: TaskDetailsGeneralProps) => {
+export const TaskDetailsGeneral = ({ task }: TaskDetailsGeneralProps) => {
     const { tasks, updateTask, error: taskUpdateErrorRaw } = useTasks();
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
     const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
@@ -16,14 +15,12 @@ export const TaskDetailsGeneral = ({ task, refetchAllTaskData }: TaskDetailsGene
     const handleDurationChange = async (event: SelectChangeEvent<number>) => {
         if (event.target.value) {
             await updateTask(task.id, { defaultDuration: event.target.value as number });
-            await refetchAllTaskData();
         }
     };
 
     const handleParentTaskChange = async (_e: any, selection: any) => {
         if (selection) {
             await updateTask(task.id, { parentTaskId: selection.id });
-            await refetchAllTaskData();
         }
     };
 

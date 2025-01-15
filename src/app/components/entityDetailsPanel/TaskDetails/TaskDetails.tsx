@@ -11,14 +11,12 @@ interface TaskInstanceDetailsProps {
     task: Task;
     tasks: Task[];
     onClose: () => void;
-    refetchAllTaskData: () => void;
     isMovingATask: boolean;
     goBack?: () => void;
 }
 
 export const TaskDetails = ({
     task,
-    refetchAllTaskData,
     isMovingATask,
     goBack,
     onClose,
@@ -101,7 +99,6 @@ export const TaskDetails = ({
                 {tabIndex === 0 && (
                     <TaskDetailsGeneral
                         task={task}
-                        refetchAllTaskData={refetchAllTaskData}
                     />
                 )}
                 {tabIndex === 1 && <TaskDetailsSuggestions task={task} />}
