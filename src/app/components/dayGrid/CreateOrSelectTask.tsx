@@ -1,5 +1,5 @@
 import { Autocomplete, AutocompleteProps, TextField, TextFieldProps } from "@mui/material";
-import { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Task } from "./types";
 
 const CreateOrSelectTask = ({
@@ -22,6 +22,7 @@ const CreateOrSelectTask = ({
     onTaskSelection: (task: Task | null) => void
 }) => {
     const isSubmittingWithOnChangeCallback = useRef(false);
+    const autocompleteRef: React.RefObject<HTMLInputElement> = useRef(null);
 
     const { key, ...spreadableAutocompleteProps } = autocompleteProps || {};
 
@@ -67,6 +68,7 @@ const CreateOrSelectTask = ({
                         id: selection.id,
                         title: selectedTask?.title,
                     });
+                    autocompleteRef.current?.blur();
                 }
             }}
             noOptionsText="Press Enter to create a new task"
@@ -75,6 +77,7 @@ const CreateOrSelectTask = ({
                     {...params}
                     value={title}
                     {...textFieldProps}
+                    inputRef={autocompleteRef}
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
                             setTimeout(() => {
@@ -96,6 +99,7 @@ const CreateOrSelectTask = ({
                                     id,
                                     title,
                                 });
+                                autocompleteRef.current?.blur();
                             }, 100);
                             event.preventDefault();
                         } else if (event.key === "Tab") {
