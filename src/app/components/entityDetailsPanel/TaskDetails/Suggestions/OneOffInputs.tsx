@@ -20,7 +20,7 @@ export const OneOffInputs: React.FC<OneOffInputsProps> = ({ suggestionsConfig, h
                         value={suggestionsConfig.oneOffDate}
                         onChange={(e) => handleConfigChange({
                             oneOffDate: e.target.value,
-                            recurringOrOnce: "ONE_OFF"
+                            suggestionTimingType: "ONE_OFF"
                         })}
                         size="small"
                         slotProps={{

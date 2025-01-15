@@ -1,9 +1,9 @@
 import { Box, FormControlLabel, Switch, Typography } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { RecurringOrNotCardsSelect } from "./RecurringOrNotCardsSelect";
+import { SuggestionTimingTypeCardsSelect } from "./SuggestionTimingTypeCardsSelect";
 import { RecurringInputs } from "./RecurringInputs";
-import { OneOffInputs } from "./OneOffInputs";
+import { DueDateInputs } from "./DueDateInputs";
 import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 import { GET_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/queries";
 import { UPDATE_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/mutations";
@@ -17,13 +17,13 @@ interface TaskDetailsSuggestionsProps {
 export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) => {
     const [isSuggestingEnabled, setIsSuggestingEnabled] = useState<boolean>(task.isSuggestingEnabled);
     const [suggestionsConfig, setSuggestionsConfig] = useState<TaskSuggestionsConfig>({
-        recurringOrOnce: "RECURRING",
+        suggestionTimingType: "RECURRING",
         daysSinceLastOccurrence: 3,
         specificDays: "SUNDAY",
         recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
         // tomorrow
-        oneOffDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
-        oneOffDateType: "BEFORE_OR_ON",
+        dueDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
+        dueDateType: "BEFORE_OR_ON",
     });
 
     const { data: suggestionConfigData, loading: isConfigLoading, refetch: refetchSuggestionConfig } = useQuery(GET_TASK_SUGGESTION_CONFIG, {
@@ -70,7 +70,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                 variables: {
                     input: {
                         taskId: task.id,
-                        recurringOrOnce: suggestionsConfig.recurringOrOnce,
+                        suggestionTimingType: suggestionsConfig.suggestionTimingType,
                         recurringType: suggestionsConfig.recurringType,
                         daysSinceLastOccurrence: suggestionsConfig.daysSinceLastOccurrence,
                     },
@@ -96,23 +96,23 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
             {
                 isSuggestingEnabled && !isConfigLoading && (
                     <Box>
-                        <RecurringOrNotCardsSelect
+                        <SuggestionTimingTypeCardsSelect
                             suggestionsConfig={suggestionsConfig}
                             handleConfigChange={handleConfigChange}
                         />
-                        {suggestionsConfig.recurringOrOnce === "RECURRING" && (
+                        {suggestionsConfig.suggestionTimingType === "RECURRING" && (
                             <RecurringInputs
                                 suggestionsConfig={suggestionsConfig}
                                 handleConfigChange={handleConfigChange}
                             />
                         )}
-                        {suggestionsConfig.recurringOrOnce === "ONE_OFF" && (
-                            <OneOffInputs
+                        {suggestionsConfig.suggestionTimingType === "DUE_DATE" && (
+                            <DueDateInputs
                                 suggestionsConfig={suggestionsConfig}
                                 handleConfigChange={handleConfigChange}
                             />
                         )}
-                        {suggestionsConfig.recurringOrOnce === "SOON" && (
+                        {suggestionsConfig.suggestionTimingType === "SOON" && (
                             <Box mt={2}>
                                 <Typography variant="subtitle2">
                                     You'll see this task in your suggestions until it's been done.

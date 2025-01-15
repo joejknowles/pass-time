@@ -76,9 +76,9 @@ model BalanceTarget {
   @@index([userId])
 }
 
-enum RecurringOrOnce {
+enum SuggestionTimingType {
   RECURRING
-  ONE_OFF
+  DUE_DATE
   SOON
 }
 
@@ -87,7 +87,7 @@ enum RecurringType {
   SPECIFIC_DAYS
 }
 
-enum OneOffDateType {
+enum DueDateType {
   ON_DATE_ONLY
   BEFORE_OR_ON
 }
@@ -98,17 +98,17 @@ model TaskSuggestionConfig {
   task              Task                @relation(fields: [taskId], references: [id])
   userId            Int
   user              User                @relation(fields: [userId], references: [id])
-  recurringOrOnce   RecurringOrOnce?
+  suggestionTimingType   SuggestionTimingType?
   recurringType     RecurringType?
   daysSinceLastOccurrence Int?
   specificDays      String?
-  oneOffDate        String?
-  oneOffDateType    OneOffDateType?
+  dueDate        String?
+  dueDateType    DueDateType?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
   @@index([userId, taskId])
-  @@index([recurringOrOnce])
-  @@index([oneOffDateType, oneOffDate])
-  @@index([oneOffDate])
+  @@index([suggestionTimingType])
+  @@index([dueDateType, dueDate])
+  @@index([dueDate])
 }

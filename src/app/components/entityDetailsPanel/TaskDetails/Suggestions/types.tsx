@@ -3,14 +3,14 @@ export const RECURRING_TYPES = {
     SPECIFIC_DAYS: "SPECIFIC_DAYS" as const
 };
 
-export type RecurringOrOnce = "RECURRING" | "ONE_OFF" | "SOON";
+export type SuggestionTimingType = "RECURRING" | "DUE_DATE" | "SOON";
 export type RecurringType = keyof typeof RECURRING_TYPES;
 
 export interface TaskSuggestionsConfig {
-    recurringOrOnce: RecurringOrOnce;
+    suggestionTimingType: SuggestionTimingType;
     recurringType: RecurringType;
     daysSinceLastOccurrence: number;
     specificDays: string;
-    oneOffDate: string;
-    oneOffDateType: "ON_DATE_ONLY" | "BEFORE_OR_ON";
+    dueDate: string;
+    dueDateType: "ON_DATE_ONLY" | "BEFORE_OR_ON";
 }

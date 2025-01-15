@@ -13,7 +13,7 @@ import { BasicTask, TaskGroup } from "./types";
 const icons = {
     BALANCE_TARGET: TargetIcon,
     RECURRING: RecurringIcon,
-    DATE_SOON: Event,
+    DUE_DATE: Event,
     DATE_TODAY: TodayEvent,
     RECENTS: RecentsIcon
 }
@@ -21,6 +21,7 @@ const icons = {
 const SUGGESTION_GROUP_TYPES = {
     BALANCE_TARGET: 'BALANCE_TARGET',
     RECURRING: 'RECURRING',
+    DUE_DATE: 'DUE_DATE',
 };
 
 

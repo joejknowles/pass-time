@@ -41,9 +41,9 @@ export const typeDefs = gql`
     WEEKLY
   }
 
-  enum RecurringOrOnce {
+  enum SuggestionTimingType {
     RECURRING
-    ONE_OFF
+    DUE_DATE
     SOON
   }
 
@@ -76,12 +76,12 @@ export const typeDefs = gql`
     id: Int!
     taskId: Int!
     userId: Int!
-    recurringOrOnce: RecurringOrOnce
+    suggestionTimingType: SuggestionTimingType
     recurringType: RecurringType
     daysSinceLastOccurrence: Int
     specificDays: String
-    oneOffDate: String
-    oneOffDateType: OneOffDateType
+    dueDate: String
+    dueDateType: DueDateType
   }
 
   type Query {
@@ -136,12 +136,12 @@ export const typeDefs = gql`
 
   input UpdateTaskSuggestionConfigInput {
     taskId: Int!
-    recurringOrOnce: RecurringOrOnce
+    suggestionTimingType: SuggestionTimingType
     recurringType: RecurringType
     daysSinceLastOccurrence: Int
     specificDays: String
-    oneOffDate: String
-    oneOffDateType: OneOffDateType
+    dueDate: String
+    dueDateType: DueDateType
   }
 
   type Mutation {

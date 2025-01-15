@@ -361,10 +361,12 @@ export const mutationResolvers = {
             input:
             {
                 taskId: number,
-                recurringOrOnce?: 'RECURRING' | 'ONE_OFF' | 'SOON',
+                suggestionTimingType?: 'RECURRING' | 'DUE_DATE' | 'SOON',
                 recurringType?: 'DAYS_SINCE_LAST_OCCURRENCE' | 'SPECIFIC_DAYS',
                 daysSinceLastOccurrence?: number,
-                specificDays?: string
+                specificDays?: string,
+                dueDate?: string,
+                dueDateType?: 'ON_DATE_ONLY' | 'BEFORE_OR_ON'
             }
         },
         context: Context
