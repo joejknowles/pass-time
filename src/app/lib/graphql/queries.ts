@@ -46,12 +46,12 @@ export const GET_TASK_SUGGESTION_CONFIG = gql`
       id
       taskId
       userId
-      recurringOrOnce
+      suggestionTimingType
       recurringType
       daysSinceLastOccurrence
       specificDays
-      oneOffDate
-      oneOffDateType
+      dueDate
+      dueDateType
     }
   }
 `;

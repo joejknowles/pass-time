@@ -4,7 +4,7 @@ import { addSpecificDaySuggestions } from "./addSpecificDaySuggestions";
 
 const RECURRING_OR_ONCE = {
     RECURRING: 'RECURRING' as const,
-    ONE_OFF: 'ONE_OFF' as const,
+    DUE_DATE: 'DUE_DATE' as const,
 };
 
 const RECURRING_TYPES = {
@@ -23,12 +23,12 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
             userId: userId,
             task: { isSuggestingEnabled: true },
             OR: [
-                { recurringOrOnce: RECURRING_OR_ONCE.RECURRING },
+                { suggestionTimingType: RECURRING_OR_ONCE.RECURRING },
                 {
-                    recurringOrOnce: RECURRING_OR_ONCE.ONE_OFF,
+                    suggestionTimingType: RECURRING_OR_ONCE.DUE_DATE,
                     OR: [
-                        { oneOffDateType: ONE_OFF_DATE_TYPES.ON_DATE_ONLY, oneOffDate: new Date().toISOString().split('T')[0] },
-                        { oneOffDateType: ONE_OFF_DATE_TYPES.BEFORE_OR_ON, oneOffDate: { gte: new Date().toISOString().split('T')[0] } }
+                        { dueDateType: ONE_OFF_DATE_TYPES.ON_DATE_ONLY, dueDate: new Date().toISOString().split('T')[0] },
+                        { dueDateType: ONE_OFF_DATE_TYPES.BEFORE_OR_ON, dueDate: { gte: new Date().toISOString().split('T')[0] } }
                     ]
                 },
             ],
@@ -36,7 +36,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
         include: { task: true },
     });
 
-    const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.recurringOrOnce || suggestion.recurringOrOnce === RECURRING_OR_ONCE.RECURRING);
+    const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.suggestionTimingType || suggestion.suggestionTimingType === RECURRING_OR_ONCE.RECURRING);
 
     const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
     await addSpecificDaySuggestions(dayOfWeekSuggestions, userId, taskGroups);
@@ -44,9 +44,9 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     const daysSinceLastOccurrenceSuggestions = recurringTaskSuggestions.filter((suggestion) => !suggestion.recurringType || suggestion.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE);
     await addDaysSinceLastOccurrenceSuggestions(daysSinceLastOccurrenceSuggestions, userId, taskGroups);
 
-    const oneOffDateSuggestions = taskSuggestions.filter((suggestion) => suggestion.recurringOrOnce === RECURRING_OR_ONCE.ONE_OFF);
+    const dueDateSuggestions = taskSuggestions.filter((suggestion) => suggestion.suggestionTimingType === RECURRING_OR_ONCE.DUE_DATE);
 
-    const dueSoonSuggestions = oneOffDateSuggestions.filter((suggestion) => suggestion.oneOffDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON);
+    const dueSoonSuggestions = dueDateSuggestions.filter((suggestion) => suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON);
     if (dueSoonSuggestions.length > 0) {
         taskGroups.push({
             name: "Due soon",
@@ -55,7 +55,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
         });
     }
 
-    const onDateSuggestions = oneOffDateSuggestions.filter((suggestion) => suggestion.oneOffDateType === ONE_OFF_DATE_TYPES.ON_DATE_ONLY);
+    const onDateSuggestions = dueDateSuggestions.filter((suggestion) => suggestion.dueDateType === ONE_OFF_DATE_TYPES.ON_DATE_ONLY);
     if (onDateSuggestions.length > 0) {
         taskGroups.unshift({
             name: "Due today!",

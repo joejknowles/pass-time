@@ -52,7 +52,7 @@ export const typeDefs = gql`
     SPECIFIC_DAYS
   }
 
-  enum OneOffDateType {
+  enum DueDateType {
     ON_DATE_ONLY
     BEFORE_OR_ON
   }
