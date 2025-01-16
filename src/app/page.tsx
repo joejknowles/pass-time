@@ -58,7 +58,8 @@ export default function Home() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        ...(isNarrowScreen ? {} : { height: "100vh", overflow: "hidden" }),
+        height: "100vh",
+        overflow: "hidden"
       }}
     >
       <AppBar position="static" sx={{ bgcolor: "white", color: "black" }}>

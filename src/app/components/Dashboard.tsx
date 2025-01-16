@@ -39,22 +39,25 @@ const Dashboard = () => {
             flexDirection: "column",
             alignItems: "center",
             flexGrow: 1,
-            ...(
-                isNarrowScreen ? {} : { overflow: "hidden" }
-            )
+            overflow: "hidden",
+            height: "100%"
         }}>
             <Box
                 sx={{
                     width: "100%",
                     mb: 2,
+                    display: "flex",
+                    flexGrow: 1,
+                    overflow: "hidden",
                     ...(
                         isNarrowScreen
-                            ? undefined
+                            ? {
+                                flexDirection: "column",
+                                gap: 2,
+                                height: "100%"
+                            }
                             : {
-                                display: "flex",
-                                flexGrow: 1,
                                 justifyContent: "center",
-                                overflow: "hidden",
                             }
                     )
                 }
@@ -93,6 +96,7 @@ const Dashboard = () => {
                         p: 2,
                         maxWidth: isNarrowScreen ? undefined : "400px",
                         minWidth: "MIN(360px, 100%)",
+                        overflowY: "hidden",
                     }}
                 >
                     <DayCalendar

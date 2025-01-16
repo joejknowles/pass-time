@@ -296,6 +296,7 @@ export const DayCalendar = ({
             width: '100%',
             overflowY: 'hidden',
             position: 'relative',
+            flexShrink: 1,
         }}
             id="day-grid-root"
         >
