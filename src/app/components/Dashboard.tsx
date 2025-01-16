@@ -61,27 +61,30 @@ const Dashboard = () => {
 
                 }
             >
-                <Box sx={{
-                    maxWidth: isNarrowScreen ? undefined : "380px",
-                    minWidth: 0,
-                    flexGrow: 1,
-                    flexShrink: 5,
-                    p: 2
-                }}>
-                    <TasksList
-                        setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
-                        setDraggedTask={setDraggedTask}
-                        draggedTask={draggedTask}
-                    />
-                </Box>
-                {!isNarrowScreen && (
-                    <Box
-                        sx={{
-                            width: "1px",
-                            bgcolor: "grey.200",
-                        }}
-                    />
-                )}
+                {
+                    !isNarrowScreen && (
+                        <>
+                            <Box sx={{
+                                maxWidth: isNarrowScreen ? undefined : "380px",
+                                minWidth: 0,
+                                flexGrow: 1,
+                                flexShrink: 5,
+                                p: 2
+                            }}>
+                                <TasksList
+                                    setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                                    setDraggedTask={setDraggedTask}
+                                    draggedTask={draggedTask}
+                                />
+                            </Box>
+                            <Box
+                                sx={{
+                                    width: "1px",
+                                    bgcolor: "grey.200",
+                                }}
+                            />
+                        </>
+                    )}
 
                 <Box
                     sx={{
@@ -99,6 +102,22 @@ const Dashboard = () => {
                         setDraggedTask={setDraggedTask}
                     />
                 </Box>
+                {
+                    isNarrowScreen && (
+                        <>
+                            <Box sx={{
+                                minWidth: 0,
+                                p: 2
+                            }}>
+                                <TasksList
+                                    setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                                    setDraggedTask={setDraggedTask}
+                                    draggedTask={draggedTask}
+                                />
+                            </Box>
+                        </>
+                    )
+                }
             </Box>
         </Container>
     );
