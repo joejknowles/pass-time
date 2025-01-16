@@ -78,6 +78,13 @@ const CreateOrSelectTask = ({
                     value={title}
                     {...textFieldProps}
                     inputRef={autocompleteRef}
+                    slotProps={{
+                        ...textFieldProps?.slotProps,
+                        htmlInput: {
+                            ...params.inputProps,
+                            enterKeyHint: "go",
+                        }
+                    }}
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
                             setTimeout(() => {
