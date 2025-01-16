@@ -6,16 +6,20 @@ import { useEffect, useState } from "react";
 import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
 import TodayEvent from "@mui/icons-material/Today";
-import Event from "@mui/icons-material/Event";
+import EventIcon from "@mui/icons-material/Event";
+import SoonIcon from "@mui/icons-material/HelpOutline";
 import RecentsIcon from "@mui/icons-material/WorkHistory";
+import UnknownIcon from "@mui/icons-material/Help";
 import { BasicTask, TaskGroup } from "./types";
 
 const icons = {
     BALANCE_TARGET: TargetIcon,
     RECURRING: RecurringIcon,
-    DUE_DATE: Event,
+    DATE_SOON: EventIcon,
     DATE_TODAY: TodayEvent,
-    RECENTS: RecentsIcon
+    RECENTS: RecentsIcon,
+    SOON: SoonIcon,
+    UNKNOWN: UnknownIcon,
 }
 
 const SUGGESTION_GROUP_TYPES = {
@@ -115,7 +119,7 @@ export const GroupedTasks = ({
     return (
         <>
             {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
-                const Icon = icons[group.type as keyof typeof icons] || icons.BALANCE_TARGET;
+                const Icon = icons[group.type as keyof typeof icons] || icons.UNKNOWN;
 
                 return (
                     <Box

@@ -2,9 +2,10 @@ import { prisma } from "../../../helpers/helpers";
 import { addDaysSinceLastOccurrenceSuggestions } from "./addDaysSinceLastOccurrenceSuggestions";
 import { addSpecificDaySuggestions } from "./addSpecificDaySuggestions";
 
-const RECURRING_OR_ONCE = {
+const SUGGESTION_TIMING_TYPE = {
     RECURRING: 'RECURRING' as const,
     DUE_DATE: 'DUE_DATE' as const,
+    SOON: 'SOON' as const,
 };
 
 const RECURRING_TYPES = {
@@ -23,9 +24,10 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
             userId: userId,
             task: { isSuggestingEnabled: true },
             OR: [
-                { suggestionTimingType: RECURRING_OR_ONCE.RECURRING },
+                { suggestionTimingType: SUGGESTION_TIMING_TYPE.RECURRING },
+                { suggestionTimingType: SUGGESTION_TIMING_TYPE.SOON },
                 {
-                    suggestionTimingType: RECURRING_OR_ONCE.DUE_DATE,
+                    suggestionTimingType: SUGGESTION_TIMING_TYPE.DUE_DATE,
                     OR: [
                         { dueDateType: ONE_OFF_DATE_TYPES.ON_DATE_ONLY, dueDate: new Date().toISOString().split('T')[0] },
                         { dueDateType: ONE_OFF_DATE_TYPES.BEFORE_OR_ON, dueDate: { gte: new Date().toISOString().split('T')[0] } }
@@ -36,7 +38,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
         include: { task: true },
     });
 
-    const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.suggestionTimingType || suggestion.suggestionTimingType === RECURRING_OR_ONCE.RECURRING);
+    const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.suggestionTimingType || suggestion.suggestionTimingType === SUGGESTION_TIMING_TYPE.RECURRING);
 
     const dayOfWeekSuggestions = recurringTaskSuggestions.filter((suggestion) => suggestion.recurringType === RECURRING_TYPES.SPECIFIC_DAYS);
     await addSpecificDaySuggestions(dayOfWeekSuggestions, userId, taskGroups);
@@ -44,23 +46,40 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     const daysSinceLastOccurrenceSuggestions = recurringTaskSuggestions.filter((suggestion) => !suggestion.recurringType || suggestion.recurringType === RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE);
     await addDaysSinceLastOccurrenceSuggestions(daysSinceLastOccurrenceSuggestions, userId, taskGroups);
 
-    const dueDateSuggestions = taskSuggestions.filter((suggestion) => suggestion.suggestionTimingType === RECURRING_OR_ONCE.DUE_DATE);
+    const dueDateSuggestions = taskSuggestions.filter((suggestion) => suggestion.suggestionTimingType === SUGGESTION_TIMING_TYPE.DUE_DATE);
 
-    const dueSoonSuggestions = dueDateSuggestions.filter((suggestion) => suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON);
+    const dueSoonSuggestions = dueDateSuggestions.filter((suggestion) => {
+        return suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON &&
+            suggestion.dueDate &&
+            suggestion.dueDate > new Date().toISOString().split('T')[0];
+    })
     if (dueSoonSuggestions.length > 0) {
         taskGroups.push({
-            name: "Due soon",
+            name: "Upcoming date",
             tasks: dueSoonSuggestions.map((suggestion) => suggestion.task),
             type: "DATE_SOON",
         });
     }
 
-    const onDateSuggestions = dueDateSuggestions.filter((suggestion) => suggestion.dueDateType === ONE_OFF_DATE_TYPES.ON_DATE_ONLY);
+    const onDateSuggestions = dueDateSuggestions.filter((suggestion) => {
+        return suggestion.dueDateType === ONE_OFF_DATE_TYPES.ON_DATE_ONLY ||
+            suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON &&
+            suggestion.dueDate === new Date().toISOString().split('T')[0];
+    });
     if (onDateSuggestions.length > 0) {
         taskGroups.unshift({
             name: "Due today!",
             tasks: onDateSuggestions.map((suggestion) => suggestion.task),
             type: "DATE_TODAY",
+        });
+    }
+
+    const soonSuggestions = taskSuggestions.filter((suggestion) => suggestion.suggestionTimingType === SUGGESTION_TIMING_TYPE.SOON);
+    if (soonSuggestions.length > 0) {
+        taskGroups.push({
+            name: "Soon",
+            tasks: soonSuggestions.map((suggestion) => suggestion.task),
+            type: "SOON",
         });
     }
 
