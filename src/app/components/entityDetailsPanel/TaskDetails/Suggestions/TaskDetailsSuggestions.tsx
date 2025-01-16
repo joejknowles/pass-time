@@ -1,4 +1,4 @@
-import { Box, FormControlLabel, Switch, Typography } from "@mui/material";
+import { Box, FormControlLabel, Switch, Typography, useTheme } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { SuggestionTimingTypeCardsSelect } from "./SuggestionTimingTypeCardsSelect";
@@ -15,6 +15,7 @@ interface TaskDetailsSuggestionsProps {
 }
 
 export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) => {
+    const theme = useTheme();
     const [isSuggestingEnabled, setIsSuggestingEnabled] = useState<boolean>(task.isSuggestingEnabled);
     const [suggestionsConfig, setSuggestionsConfig] = useState<TaskSuggestionsConfig>({
         suggestionTimingType: "RECURRING",
@@ -100,6 +101,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                             suggestionsConfig={suggestionsConfig}
                             handleConfigChange={handleConfigChange}
                         />
+                        <Box component="hr" sx={{ borderTop: theme.palette.grey[300], mb: 3, mt: 3 }} />
                         {suggestionsConfig.suggestionTimingType === "RECURRING" && (
                             <RecurringInputs
                                 suggestionsConfig={suggestionsConfig}
@@ -113,8 +115,8 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
                             />
                         )}
                         {suggestionsConfig.suggestionTimingType === "SOON" && (
-                            <Box mt={2}>
-                                <Typography variant="subtitle2">
+                            <Box mt={3}>
+                                <Typography variant="subtitle2" color="textSecondary">
                                     You'll see this task in your suggestions until it's been done.
                                 </Typography>
                             </Box>
