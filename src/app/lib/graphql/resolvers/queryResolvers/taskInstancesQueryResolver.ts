@@ -35,5 +35,8 @@ export const taskInstancesQueryResolver = async (_parent: any, args: {
                 },
             }
         },
+        orderBy: {
+            startTime: 'asc'
+        }
     });
 };
