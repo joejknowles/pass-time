@@ -1,4 +1,4 @@
-import { Box, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import EventIcon from '@mui/icons-material/Event';
 import RepeatIcon from '@mui/icons-material/Repeat';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -11,8 +11,6 @@ interface SuggestionTimingTypeCardsSelectProps {
 }
 
 export const SuggestionTimingTypeCardsSelect = ({ suggestionsConfig, handleConfigChange }: SuggestionTimingTypeCardsSelectProps) => {
-    const theme = useTheme();
-
     return (
         <Box display="flex" justifyContent="center" gap={2} mt={2}>
             <IconCard
@@ -25,7 +23,11 @@ export const SuggestionTimingTypeCardsSelect = ({ suggestionsConfig, handleConfi
                 icon={RepeatIcon}
                 name="Recurring"
                 isSelected={suggestionsConfig.suggestionTimingType === "RECURRING"}
-                onClick={() => handleConfigChange({ suggestionTimingType: "RECURRING" })}
+                onClick={() => handleConfigChange({
+                    suggestionTimingType: "RECURRING",
+                    recurringType: suggestionsConfig.recurringType,
+                    daysSinceLastOccurrence: suggestionsConfig.daysSinceLastOccurrence
+                })}
             />
             <IconCard
                 icon={EventIcon}

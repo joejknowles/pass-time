@@ -49,6 +49,14 @@ export const mutationResolvers = {
                 title: args.input.title,
                 userId: user.id,
                 isSuggestingEnabled: true,
+                suggestionConfigs: {
+                    createMany: {
+                        data: {
+                            userId: user.id,
+                            suggestionTimingType: 'SOON',
+                        }
+                    },
+                }
             },
             include: {
                 user: true,
