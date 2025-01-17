@@ -37,7 +37,10 @@ const TaskInstanceCard = ({
             hourBlockHeight={hourBlockHeight}
             isThisTaskDetailsOpen={isThisTaskDetailsOpen}
             handleClick={handleClick}
-            sx={{ cursor }}
+            sx={{
+                cursor,
+                zIndex: isThisTaskDetailsOpen ? 2 : undefined,
+            }}
             onMouseDown={(event) => {
                 event.stopPropagation();
                 startMovingTaskInstance(taskInstance, "both")
