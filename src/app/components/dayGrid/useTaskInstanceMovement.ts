@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TaskInstance, MoveType, DraftTaskInstance, Task, MovingTaskInfo } from "./types";
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
-import { BasicTask } from "../tasksList/types";
+import { BasicTask, DraggedTask } from "../tasksList/types";
 import { HOUR_COLUMN_WIDTH } from "./consts";
 import { getTimeFromCursor } from "./utils";
 
@@ -11,8 +11,8 @@ export const useTaskInstanceMovement = (
     draftTaskInstance: DraftTaskInstance | null,
     updateDraftTaskInstance: any,
     finalizeDraftTaskInstance: any,
-    draggedTask: { task: Task | BasicTask, position: { x: number, y: number }, width: number } | null,
-    setDraggedTask: React.Dispatch<React.SetStateAction<{ task: Task | BasicTask, position: { x: number, y: number }, width: number } | null>>,
+    draggedTask: DraggedTask | null,
+    setDraggedTask: React.Dispatch<React.SetStateAction<DraggedTask | null>>,
     setDraftTaskInstance: React.Dispatch<React.SetStateAction<DraftTaskInstance | null>>,
     daytimeHours: number[],
 ) => {

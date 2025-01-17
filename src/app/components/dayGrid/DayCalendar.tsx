@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
-import { Box, LinearProgress, useMediaQuery, Typography, Card, CardContent } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Box, LinearProgress, useMediaQuery, Typography } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
@@ -9,8 +9,7 @@ import CurrentTimeBar from "./CurrentTimeBar";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 import HourGrid from "./HourGrid";
 import CurrentDayHeader from "./CurrentDayHeader";
-import TaskInstanceCard from "./TaskInstanceCard";
-import { isToday } from "./utils";
+import { getCursor } from "./utils";
 import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 import { BasicTask, DraggedTask } from "../tasksList/types";
@@ -171,18 +170,6 @@ export const DayCalendar = ({
         return <Typography color="error">Error saving data. Please refresh and try again.</Typography>;
     }
 
-    const getCursor = () => {
-        const isGrabbing = movingTaskInfo?.moveType === "both" || !!draggedTask;
-        if (isGrabbing) {
-            return 'grabbing';
-        }
-        const isResizing = movingTaskInfo && movingTaskInfo.moveType !== "both"
-        if (isResizing) {
-            return 'ns-resize';
-        }
-        return '';
-    }
-
     return (
         <Box sx={{
             height: '100%',
@@ -210,7 +197,7 @@ export const DayCalendar = ({
                 height: '100%',
                 overflowY: 'auto',
                 pt: 1,
-                cursor: getCursor(),
+                cursor: getCursor(movingTaskInfo, draggedTask),
             }} >
                 <Box id="day-grid-container" sx={{ position: 'relative' }}>
                     {(loadingTaskInstances || loadingTasks) && (
