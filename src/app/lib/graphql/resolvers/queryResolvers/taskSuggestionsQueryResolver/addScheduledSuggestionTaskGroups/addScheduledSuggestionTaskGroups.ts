@@ -25,7 +25,11 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
             task: { isSuggestingEnabled: true },
             OR: [
                 { suggestionTimingType: SUGGESTION_TIMING_TYPE.RECURRING },
-                { suggestionTimingType: SUGGESTION_TIMING_TYPE.SOON },
+                {
+                    suggestionTimingType: SUGGESTION_TIMING_TYPE.SOON,
+                    // TODO: performance issue here, need to optimize
+                    task: { taskInstances: { none: {} } }
+                },
                 {
                     suggestionTimingType: SUGGESTION_TIMING_TYPE.DUE_DATE,
                     OR: [
@@ -35,7 +39,9 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
                 },
             ],
         },
-        include: { task: true },
+        include: {
+            task: { include: { taskInstances: true } }
+        },
     });
 
     const recurringTaskSuggestions = taskSuggestions.filter((suggestion) => !suggestion.suggestionTimingType || suggestion.suggestionTimingType === SUGGESTION_TIMING_TYPE.RECURRING);
