@@ -16,7 +16,7 @@ const TaskInstanceCard = ({
     effectiveStart: { hour: number, minute: number },
     effectiveDuration: number,
     movingTaskInfo: any,
-    startMovingTaskInstance: (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => void,
+    startMovingTaskInstance: (taskInstance: TaskInstance, moveType: MoveType) => void,
     isThisTaskDetailsOpen: boolean,
     handleClick: () => void,
     hourBlockHeight: number,
@@ -38,7 +38,10 @@ const TaskInstanceCard = ({
             isThisTaskDetailsOpen={isThisTaskDetailsOpen}
             handleClick={handleClick}
             sx={{ cursor }}
-            onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "both")}
+            onMouseDown={(event) => {
+                event.stopPropagation();
+                startMovingTaskInstance(taskInstance, "both")
+            }}
             absoluteChildren={
                 <>
                     <Box
@@ -54,7 +57,10 @@ const TaskInstanceCard = ({
                             alignItems: 'center',
                             overflow: 'hidden',
                         }}
-                        onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "start")}
+                        onMouseDown={(event) => {
+                            event.stopPropagation();
+                            startMovingTaskInstance(taskInstance, "start")
+                        }}
                     />
                     <Box
                         sx={{
@@ -65,7 +71,9 @@ const TaskInstanceCard = ({
                             height: effectiveDuration === 15 ? "3px" : "5px",
                             cursor: handleCursor,
                         }}
-                        onMouseDown={(e) => startMovingTaskInstance(taskInstance, e, "end")}
+                        onMouseDown={(event) => {
+                            event.stopPropagation(); startMovingTaskInstance(taskInstance, "end")
+                        }}
                     />
                 </>
             }

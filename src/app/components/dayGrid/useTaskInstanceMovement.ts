@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TaskInstance, MoveType, DraftTaskInstance, Task } from "./types";
+import { TaskInstance, MoveType, DraftTaskInstance, Task, MovingTaskInfo } from "./types";
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
 import { BasicTask } from "../tasksList/types";
 
@@ -12,18 +12,11 @@ export const useTaskInstanceMovement = (
     getTimeFromCursor: (clientY: number) => { startHour: number, startMinute: number },
     draggedTask: { task:  Task | BasicTask, position: { x: number, y: number }, width: number } | null
 ) => {
-    const [movingTaskInfo, setMovingTaskInfo] = useState<{
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null>(null);
+    const [movingTaskInfo, setMovingTaskInfo] = useState<MovingTaskInfo | null>(null);
 
-    const startMovingTaskInstance = (taskInstance: TaskInstance, event: React.MouseEvent, moveType: MoveType) => {
-        setMovingTaskInfo({ taskInstance, moveType });
+    const startMovingTaskInstance = (taskInstance: TaskInstance, moveType: string) => {
+        setMovingTaskInfo({ taskInstance, moveType: moveType as MoveType });
         document.body.style.userSelect = "none";
-        event.stopPropagation();
     };
 
     const handleMouseMove = (event: MouseEvent) => {

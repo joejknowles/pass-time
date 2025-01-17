@@ -16,6 +16,7 @@ import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 import { BasicTask, DraggedTask } from "../tasksList/types";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { DraggedTaskCard } from "./DraggedTaskCard";
+import PositionedTaskInstanceCards from "./PositionedTaskInstanceCards";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
@@ -327,41 +328,14 @@ export const DayCalendar = ({
                         />
                     )}
                     <HourGrid addDraftTaskInstance={addDraftTaskInstance} hourBlockHeight={hourBlockHeight} />
-                    {taskInstances?.map((taskInstance, index) => {
-                        const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
-                        const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
-                        const effectiveStart = isResizing ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
-
-                        const isCurrentlyOpen =
-                            openDetailsPanelEntity?.type === "TaskInstance" &&
-                            openDetailsPanelEntity.id === taskInstance.id;
-                        return (
-                            <TaskInstanceCard
-                                key={index}
-                                taskInstance={taskInstance}
-                                effectiveStart={effectiveStart}
-                                effectiveDuration={effectiveDuration}
-                                movingTaskInfo={movingTaskInfo}
-                                startMovingTaskInstance={startMovingTaskInstance}
-                                isThisTaskDetailsOpen={isCurrentlyOpen}
-                                handleClick={() => {
-                                    if (movingTaskInfo?.hasChanged) {
-                                        return;
-                                    }
-                                    if (isCurrentlyOpen) {
-                                        setOpenDetailsPanelEntity(null)
-                                    } else {
-                                        setOpenDetailsPanelEntity({
-                                            id: taskInstance.id,
-                                            type: "TaskInstance"
-                                        })
-                                    }
-                                }}
-                                hourBlockHeight={hourBlockHeight}
-                            />
-                        );
-                    })}
-
+                    <PositionedTaskInstanceCards
+                        taskInstances={taskInstances}
+                        openDetailsPanelEntity={openDetailsPanelEntity}
+                        movingTaskInfo={movingTaskInfo}
+                        startMovingTaskInstance={startMovingTaskInstance}
+                        setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
+                        hourBlockHeight={hourBlockHeight}
+                    />
                     {draftTaskInstance && (
                         <DraftTaskInstanceCard
                             draftTaskInstance={draftTaskInstance}

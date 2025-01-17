@@ -31,6 +31,14 @@ export interface DraftTaskInstance {
 
 export type MoveType = "start" | "end" | "both";
 
+export interface MovingTaskInfo {
+    taskInstance: TaskInstance,
+    moveType: MoveType,
+    cursorMinutesFromStart?: number,
+    hasChanged?: boolean,
+    isSubmitting?: boolean,
+}
+
 export interface OpenDetailsPanelEntity {
     id: string;
     type: "Task" | "TaskInstance";
