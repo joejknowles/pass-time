@@ -130,7 +130,9 @@ export const DayCalendar = ({
         updateDraftTaskInstance,
         finalizeDraftTaskInstance,
         getTimeFromCursor,
-        draggedTask
+        draggedTask,
+        setDraggedTask,
+        setDraftTaskInstance
     );
 
     const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
@@ -195,47 +197,6 @@ export const DayCalendar = ({
             type: "TaskInstance"
         });
     }, [draftTaskInstance]);
-
-    const handleMouseMove = (event: MouseEvent) => {
-        if (draggedTask) {
-            setDraggedTask(draggedTask => draggedTask ? ({
-                ...draggedTask,
-                position: { x: event.clientX, y: event.clientY }
-            }) : null);
-            const gridRect = document.getElementById("day-grid-container")!.getBoundingClientRect();
-            const isPastLeftSide = event.clientX > (HOUR_COLUMN_WIDTH + gridRect.left + 10);
-            const isOverDayGrid = event.clientY > gridRect.top &&
-                event.clientY < gridRect.bottom &&
-                event.clientX < (gridRect.right - 10) &&
-                isPastLeftSide
-            if (!draftTaskInstance && isOverDayGrid) {
-                const { startHour, startMinute } = getTimeFromCursor(event.clientY);
-                updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task as Task });
-            } else if (draftTaskInstance && !isOverDayGrid) {
-                setDraftTaskInstance(null);
-            }
-        }
-    };
-
-    useEffect(() => {
-        if (draggedTask) {
-            const handleMouseUp = () => {
-                if (!draftTaskInstance) {
-                    setDraggedTask(null);
-                    document.body.style.userSelect = ''; // Re-enable text selection
-                }
-            };
-
-            window.addEventListener("mousemove", handleMouseMove);
-            window.addEventListener("mouseup", handleMouseUp);
-
-            return () => {
-                window.removeEventListener("mousemove", handleMouseMove);
-                window.removeEventListener("mouseup", handleMouseUp);
-                document.body.style.userSelect = ''; // Re-enable text selection
-            };
-        }
-    }, [draggedTask, draftTaskInstance]);
 
     const addDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task }) => {
         const newTaskInstance: DraftTaskInstance = {

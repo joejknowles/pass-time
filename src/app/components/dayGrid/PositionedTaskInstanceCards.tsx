@@ -22,9 +22,9 @@ const PositionedTaskInstanceCards: React.FC<PositionedTaskInstanceCardsProps> = 
     return (
         <>
             {taskInstances?.map((taskInstance, index) => {
-                const isResizing = movingTaskInfo?.taskInstance?.id === taskInstance.id;
-                const effectiveDuration = isResizing ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
-                const effectiveStart = isResizing ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
+                const isMoving = movingTaskInfo?.taskInstance?.id === taskInstance.id;
+                const effectiveDuration = isMoving ? movingTaskInfo?.taskInstance?.duration : taskInstance.duration;
+                const effectiveStart = isMoving ? movingTaskInfo?.taskInstance?.start : taskInstance.start;
 
                 const isCurrentlyOpen =
                     openDetailsPanelEntity?.type === "TaskInstance" &&

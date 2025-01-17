@@ -37,6 +37,7 @@ export interface MovingTaskInfo {
     cursorMinutesFromStart?: number,
     hasChanged?: boolean,
     isSubmitting?: boolean,
+    isSameAsInitial?: boolean,
 }
 
 export interface OpenDetailsPanelEntity {

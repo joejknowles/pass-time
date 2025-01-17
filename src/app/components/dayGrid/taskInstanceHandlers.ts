@@ -1,32 +1,22 @@
-import { TaskInstance, MoveType } from "./types";
+import { TaskInstance, MoveType, MovingTaskInfo } from "./types";
 import { daytimeHours } from "./consts";
 
 export const moveTaskInstance = (
     event: MouseEvent,
-    movingTaskInfo: {
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null,
-    setMovingTaskInfo: React.Dispatch<React.SetStateAction<{
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null>>,
+    movingTaskInfo: MovingTaskInfo | null,
+    setMovingTaskInfo: React.Dispatch<React.SetStateAction<MovingTaskInfo | null>>,
     taskInstances: TaskInstance[] | undefined
 ) => {
     if (movingTaskInfo && !movingTaskInfo.isSubmitting) {
+        const movingTaskInstance = movingTaskInfo.taskInstance;
+        const originalTaskInstance = taskInstances?.find(taskInstance => taskInstance.id === movingTaskInstance.id) as TaskInstance;
+
         const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
         const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
         const yPosition = event.clientY - gridOffsetTop;
         const THRESHOLD_OFFSET = 3;
         const cursorMinutesFromDaytimeStart = Math.floor(((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
         const preciseCursorMinutesFromDaytimeStart = ((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60;
-        const movingTaskInstance = movingTaskInfo.taskInstance;
 
         const taskInstanceStart = movingTaskInstance.start;
         const taskInstanceMinutesFromDaytimeStart = taskInstanceStart.hour * 60 + taskInstanceStart.minute - daytimeHours[0] * 60;
@@ -39,6 +29,7 @@ export const moveTaskInstance = (
                 taskInstance: { ...movingTaskInstance, duration: newDuration },
                 hasChanged: movingTaskInfo.hasChanged ||
                     newDuration !== movingTaskInstance.duration,
+                isSameAsInitial: newDuration === originalTaskInstance.duration,
             });
         } else if (movingTaskInfo?.moveType === "start" || movingTaskInfo?.moveType === "both") {
             let startMinutesFromDaytimeStart = cursorMinutesFromDaytimeStart;
@@ -55,7 +46,6 @@ export const moveTaskInstance = (
             const newStartHour = Math.floor(minutesFromDayStart / 60);
             const newStartMinute = minutesFromDayStart % 60;
 
-            const originalTaskInstance = taskInstances?.find(taskInstance => taskInstance.id === movingTaskInstance.id) as TaskInstance;
             const updatedDuration = Math.max(
                 movingTaskInfo?.moveType === "both" ?
                     originalTaskInstance.duration :
@@ -80,7 +70,10 @@ export const moveTaskInstance = (
                     (updatedDuration !== movingTaskInstance.duration ||
                         newStartHour !== movingTaskInstance.start.hour ||
                         newStartMinute !== movingTaskInstance.start.minute
-                    )
+                    ),
+                isSameAsInitial: updatedDuration === originalTaskInstance.duration &&
+                    newStartHour === originalTaskInstance.start.hour &&
+                    newStartMinute === originalTaskInstance.start.minute,
             }) : state);
 
         }
@@ -88,25 +81,15 @@ export const moveTaskInstance = (
 };
 
 export const stopMovingTaskInstance = async (
-    movingTaskInfo: {
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null,
-    setMovingTaskInfo: React.Dispatch<React.SetStateAction<{
-        taskInstance: TaskInstance,
-        moveType: MoveType,
-        cursorMinutesFromStart?: number,
-        hasChanged?: boolean,
-        isSubmitting?: boolean,
-    } | null>>,
+    movingTaskInfo: MovingTaskInfo | null,
+    setMovingTaskInfo: React.Dispatch<
+        React.SetStateAction<MovingTaskInfo | null>
+    >,
     updateTaskInstance: any
 ) => {
     document.body.style.userSelect = "";
 
-    if (movingTaskInfo) {
+    if (movingTaskInfo && !movingTaskInfo.isSameAsInitial) {
         const { taskInstance, moveType } = movingTaskInfo;
         setMovingTaskInfo({ ...movingTaskInfo, isSubmitting: true });
         await updateTaskInstance({
@@ -132,5 +115,5 @@ export const stopMovingTaskInstance = async (
         });
     }
 
-    setMovingTaskInfo(null);
+    setTimeout(() => setMovingTaskInfo(null), 100);
 };
