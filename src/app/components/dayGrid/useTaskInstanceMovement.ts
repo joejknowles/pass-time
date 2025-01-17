@@ -3,6 +3,7 @@ import { TaskInstance, MoveType, DraftTaskInstance, Task, MovingTaskInfo } from 
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
 import { BasicTask } from "../tasksList/types";
 import { HOUR_COLUMN_WIDTH } from "./consts";
+import { getTimeFromCursor } from "./utils";
 
 export const useTaskInstanceMovement = (
     taskInstances: TaskInstance[] | undefined,
@@ -10,10 +11,10 @@ export const useTaskInstanceMovement = (
     draftTaskInstance: DraftTaskInstance | null,
     updateDraftTaskInstance: any,
     finalizeDraftTaskInstance: any,
-    getTimeFromCursor: (clientY: number) => { startHour: number, startMinute: number },
     draggedTask: { task: Task | BasicTask, position: { x: number, y: number }, width: number } | null,
     setDraggedTask: React.Dispatch<React.SetStateAction<{ task: Task | BasicTask, position: { x: number, y: number }, width: number } | null>>,
-    setDraftTaskInstance: React.Dispatch<React.SetStateAction<DraftTaskInstance | null>>
+    setDraftTaskInstance: React.Dispatch<React.SetStateAction<DraftTaskInstance | null>>,
+    daytimeHours: number[],
 ) => {
     const [movingTaskInfo, setMovingTaskInfo] = useState<MovingTaskInfo | null>(null);
 
@@ -26,7 +27,7 @@ export const useTaskInstanceMovement = (
         if (movingTaskInfo) {
             moveTaskInstance(event, movingTaskInfo, setMovingTaskInfo, taskInstances);
         } else if (draftTaskInstance && draggedTask) {
-            const { startHour, startMinute } = getTimeFromCursor(event.clientY);
+            const { startHour, startMinute } = getTimeFromCursor(event.clientY, draftTaskInstance.duration, daytimeHours);
             updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task });
         }
 
@@ -42,7 +43,7 @@ export const useTaskInstanceMovement = (
                 event.clientX < (gridRect.right - 10) &&
                 isPastLeftSide;
             if (!draftTaskInstance && isOverDayGrid) {
-                const { startHour, startMinute } = getTimeFromCursor(event.clientY);
+                const { startHour, startMinute } = getTimeFromCursor(event.clientY, draggedTask.task.defaultDuration, daytimeHours);
                 updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task as Task });
             } else if (draftTaskInstance && !isOverDayGrid) {
                 setDraftTaskInstance(null);

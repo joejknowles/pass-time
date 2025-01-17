@@ -80,25 +80,6 @@ export const DayCalendar = ({
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
 
-    const getTimeFromCursor = (clientY: number) => {
-        const container = document.getElementById("day-grid-container");
-        if (!container) return { startHour: 0, startMinute: 0 };
-
-        const rect = container.getBoundingClientRect();
-        const taskDuration = draftTaskInstance?.duration || 30;
-        const offsetsByDuration = {
-            15: 2,
-            30: 10,
-        }
-        const THRESHOLD_OFFSET = offsetsByDuration[taskDuration as keyof typeof offsetsByDuration] || 15;
-        const y = clientY - rect.top - THRESHOLD_OFFSET;
-        const totalMinutes = (y / rect.height) * (daytimeHours.length * 60);
-        const startHour = Math.floor(totalMinutes / 60) + daytimeHours[0];
-
-        const startMinute = Math.floor(Math.floor(totalMinutes % 60) / 15) * 15;
-
-        return { startHour, startMinute };
-    };
 
     const updateDraftTaskInstance = ({ startHour, startMinute, task }: { startHour: number, startMinute: number, task?: Task | BasicTask }) => {
         const newTaskInstance: DraftTaskInstance = {
@@ -129,10 +110,10 @@ export const DayCalendar = ({
         draftTaskInstance,
         updateDraftTaskInstance,
         finalizeDraftTaskInstance,
-        getTimeFromCursor,
         draggedTask,
         setDraggedTask,
-        setDraftTaskInstance
+        setDraftTaskInstance,
+        daytimeHours,
     );
 
     const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
