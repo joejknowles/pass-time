@@ -13,16 +13,11 @@ import TaskInstanceCard from "./TaskInstanceCard";
 import { isToday } from "./utils";
 import type { DraftTaskInstance, OpenDetailsPanelEntity, Task, TaskInstance } from "./types";
 import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
-import { BasicTask } from "../tasksList/types";
+import { BasicTask, DraggedTask } from "../tasksList/types";
 import { useTasks } from "@/app/lib/hooks/useTasks";
+import { DraggedTaskCard } from "./DraggedTaskCard";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
-
-interface DraggedTask {
-    task: Task | BasicTask;
-    position: { x: number, y: number };
-    width: number;
-}
 
 interface DayCalendarProps {
     openDetailsPanelEntity: OpenDetailsPanelEntity | null;
@@ -384,30 +379,7 @@ export const DayCalendar = ({
                 </Box>
             </Box>
             {!draftTaskInstance && draggedTask && hasDraggedForABit && (
-                <Card
-                    raised
-                    sx={{
-                        backgroundColor: 'white',
-                        cursor: 'grabbing',
-                        position: 'fixed',
-                        top: draggedTask.position.y,
-                        left: draggedTask.position.x,
-                        transform: 'translate(-50%, -50%) rotate(-1deg)',
-                        width: draggedTask.width,
-                    }}
-                >
-                    <CardContent
-                        sx={{
-                            '&:last-child': {
-                                pb: 2,
-                            },
-                        }}
-                    >
-                        <Typography variant="body1" color="text.primary">
-                            {draggedTask.task.title}
-                        </Typography>
-                    </CardContent>
-                </Card>
+                <DraggedTaskCard draggedTask={draggedTask} />
             )}
         </Box>
     );

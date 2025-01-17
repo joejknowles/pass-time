@@ -21,3 +21,9 @@ export interface TaskGroup {
     type: string;
     data?: BalanceTarget;
 }
+
+export interface DraggedTask {
+    task: Task | BasicTask;
+    position: { x: number, y: number };
+    width: number;
+}
