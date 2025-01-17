@@ -17,6 +17,7 @@ import { BasicTask, DraggedTask } from "../tasksList/types";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { DraggedTaskCard } from "./DraggedTaskCard";
 import PositionedTaskInstanceCards from "./PositionedTaskInstanceCards";
+import { useCurrentTimeAndDay } from "./useCurrentTimeAndDay";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
@@ -33,8 +34,13 @@ export const DayCalendar = ({
     draggedTask,
     setDraggedTask,
 }: DayCalendarProps) => {
-    const [currentDay, setCurrentDay] = useState(new Date(new Date().toDateString()));
-    const [nowMinuteOfDay, setNowMinuteOfDay] = useState(new Date().getHours() * 60 + new Date().getMinutes());
+    const {
+        currentDay,
+        setCurrentDay,
+        nowMinuteOfDay,
+        isViewingToday
+    } = useCurrentTimeAndDay();
+
     const [draftTaskInstance, setDraftTaskInstance] = useState<DraftTaskInstance | null>(null);
 
     const [isSubmittingTaskInstance, setIsSubmittingTaskInstance] = useState(false);
@@ -115,42 +121,6 @@ export const DayCalendar = ({
         setDraftTaskInstance,
         daytimeHours,
     );
-
-    const isViewingToday = useMemo(() => isToday(currentDay), [currentDay, nowMinuteOfDay]);
-
-    useEffect(() => {
-        let interval: NodeJS.Timeout | undefined;
-
-        const updateNowMinuteOfDay = () => {
-            setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
-        };
-
-        const setUpInterval = () => {
-            clearInterval(interval);
-            updateNowMinuteOfDay();
-            interval = setInterval(updateNowMinuteOfDay, 60 * 1000);
-        };
-
-        const nextMinuteStartsInMs = (60 - new Date().getSeconds()) * 1000;
-        const initialTimeout = setTimeout(setUpInterval, nextMinuteStartsInMs);
-
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                if (isViewingToday && currentDay.getTime() !== new Date().getTime()) {
-                    setCurrentDay(new Date(new Date().toDateString()));
-                }
-                setUpInterval();
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            clearInterval(interval);
-            clearTimeout(initialTimeout);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [isViewingToday]);
 
     useEffect(() => {
         refetchAllTaskData();
