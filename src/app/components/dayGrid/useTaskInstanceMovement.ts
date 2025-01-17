@@ -17,6 +17,20 @@ export const useTaskInstanceMovement = (
     daytimeHours: number[],
 ) => {
     const [movingTaskInfo, setMovingTaskInfo] = useState<MovingTaskInfo | null>(null);
+    const [hasDraggedForABit, setHasDraggedForABit] = useState(false);
+
+    useEffect(() => {
+        if (draggedTask?.task.id) {
+            if (!hasDraggedForABit) {
+                const timeout = setTimeout(() => {
+                    setHasDraggedForABit(true);
+                }, 200);
+                return () => clearTimeout(timeout);
+            }
+        } else if (hasDraggedForABit) {
+            setHasDraggedForABit(false);
+        }
+    }, [draggedTask?.task.id]);
 
     const startMovingTaskInstance = (taskInstance: TaskInstance, moveType: string) => {
         setMovingTaskInfo({ taskInstance, moveType: moveType as MoveType, isSameAsInitial: true, hasChanged: false });
@@ -72,5 +86,5 @@ export const useTaskInstanceMovement = (
         };
     }, [movingTaskInfo, draftTaskInstance, draggedTask, taskInstances, updateTaskInstance]);
 
-    return { movingTaskInfo, startMovingTaskInstance, setMovingTaskInfo };
+    return { movingTaskInfo, startMovingTaskInstance, setMovingTaskInfo, hasDraggedForABit };
 };

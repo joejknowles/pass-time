@@ -67,21 +67,6 @@ export const DayCalendar = ({
     const taskInstances = taskInstancesData?.taskInstances;
     const { tasks, refetchTasks, error: errorFromGetTasks, loading: loadingTasks } = useTasks();
 
-    const [hasDraggedForABit, setHasDraggedForABit] = useState(false);
-
-    useEffect(() => {
-        if (draggedTask?.task.id) {
-            if (!hasDraggedForABit) {
-                const timeout = setTimeout(() => {
-                    setHasDraggedForABit(true);
-                }, 200);
-                return () => clearTimeout(timeout);
-            }
-        } else if (hasDraggedForABit) {
-            setHasDraggedForABit(false);
-        }
-    }, [draggedTask?.task.id]);
-
     const refetchAllTaskData = useCallback(async () => {
         await Promise.all([refetchTaskInstances(), refetchTasks()]);
     }, [refetchTaskInstances, refetchTasks]);
@@ -110,7 +95,7 @@ export const DayCalendar = ({
         }
     };
 
-    const { movingTaskInfo, startMovingTaskInstance } = useTaskInstanceMovement(
+    const { movingTaskInfo, startMovingTaskInstance, hasDraggedForABit } = useTaskInstanceMovement(
         taskInstances,
         updateTaskInstance,
         draftTaskInstance,
