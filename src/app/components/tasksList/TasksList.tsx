@@ -35,7 +35,15 @@ export const TasksList = ({
     }, [isPhabletWidthOrLess]);
 
     return (
-        <Box sx={{ height: '100%', padding: 1, pt: 0, overflowY: 'auto', scrollbarGutter: 'none' }}>
+        <Box sx={{
+            height: '100%',
+            pt: 0,
+            overflowY: 'auto',
+            scrollbarGutter: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+        }}>
             <CreateOrSelectTask
                 title={inputText}
                 onTitleChange={setInputText}
@@ -96,9 +104,6 @@ export const TasksList = ({
                 tasks={tasks}
                 selectedTask={selectedTask}
                 onTaskSelection={setSelectedTask}
-                autocompleteProps={{
-                    sx: { mb: 2 }
-                }}
                 textFieldProps={{
                     placeholder: "Search for a task",
                 }}

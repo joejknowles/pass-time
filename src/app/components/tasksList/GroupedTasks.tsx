@@ -117,7 +117,7 @@ export const GroupedTasks = ({
     })
 
     return (
-        <>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
                 const Icon = icons[group.type as keyof typeof icons] || icons.UNKNOWN;
 
@@ -125,7 +125,6 @@ export const GroupedTasks = ({
                     <Box
                         key={index}
                         sx={{
-                            mb: 2,
                             backgroundColor: 'grey.100',
                             p: 1,
                             borderRadius: 1,
@@ -186,6 +185,6 @@ export const GroupedTasks = ({
                     </Box>
                 )
             })}
-        </>
+        </Box>
     );
 };

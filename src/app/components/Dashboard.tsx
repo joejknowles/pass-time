@@ -14,7 +14,17 @@ interface DraggedTask {
 }
 
 const Dashboard = () => {
-    const { isPhabletWidthOrLess } = useDevice();
+    const { isPhabletWidthOrLess, values: {
+        sectionPadding
+    } } = useDevice({
+        sectionPadding: {
+            smallPhoneWidthOrLess: 0.5,
+            largePhoneWidthOrLess: 1,
+            widerThanLargePhoneWidth: 2,
+            widerThanPhabletWidth: 3,
+        }
+    });
+
 
     const [openDetailsPanelEntity, setOpenDetailsPanelEntityRaw] = useState<OpenDetailsPanelEntity | null>(null);
     const [draggedTask, setDraggedTask] = useState<DraggedTask | null>(null);
@@ -34,15 +44,17 @@ const Dashboard = () => {
     }
 
     return (
-        <Container sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flexGrow: 1,
-            mt: isPhabletWidthOrLess ? 1 : 2,
-            overflow: "hidden",
-            height: "100%"
-        }}>
+        <Container
+            disableGutters
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flexGrow: 1,
+                mt: isPhabletWidthOrLess ? 1 : 2,
+                overflow: "hidden",
+                height: "100%",
+            }}>
             <Box
                 sx={{
                     width: "100%",
@@ -53,7 +65,6 @@ const Dashboard = () => {
                         isPhabletWidthOrLess
                             ? {
                                 flexDirection: "column",
-                                gap: 2,
                                 height: "100%"
                             }
                             : {
@@ -68,11 +79,11 @@ const Dashboard = () => {
                     !isPhabletWidthOrLess && (
                         <>
                             <Box sx={{
-                                maxWidth: isPhabletWidthOrLess ? undefined : "380px",
+                                maxWidth: "380px",
                                 minWidth: 0,
                                 flexGrow: 1,
                                 flexShrink: 5,
-                                p: 2
+                                p: sectionPadding
                             }}>
                                 <TasksList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
@@ -94,7 +105,7 @@ const Dashboard = () => {
                         flexGrow: 1,
                         flexShrink: 1,
                         mt: -1,
-                        p: 2,
+                        p: sectionPadding,
                         maxWidth: isPhabletWidthOrLess ? undefined : "400px",
                         minWidth: "MIN(360px, 100%)",
                         overflowY: "hidden",
@@ -112,7 +123,7 @@ const Dashboard = () => {
                         <>
                             <Box sx={{
                                 minWidth: 0,
-                                p: 2
+                                p: sectionPadding
                             }}>
                                 <TasksList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
