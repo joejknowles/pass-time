@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, useMediaQuery, TextField } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -8,6 +8,7 @@ import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { TaskInstance } from "../dayGrid/types";
 import GoToTaskIcon from '@mui/icons-material/Visibility';
+import { useDevice } from "@/app/lib/hooks/useDevice";
 
 interface TaskInstanceDetailsProps {
     taskInstance?: TaskInstance;
@@ -39,7 +40,7 @@ export const TaskInstanceDetails = ({
     }
     const taskInstance = lastPresentTaskInstance.current;
 
-    const isNarrowScreen = useMediaQuery("(max-width: 720px)");
+    const { isPhabletWidthOrLess } = useDevice();
     const [isEditingTime, setIsEditingTime] = useState(false);
     const headerMenuAnchorEl = useRef(null);
     const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
@@ -228,7 +229,7 @@ export const TaskInstanceDetails = ({
                             display: "flex",
                             alignItems: "center",
                             padding: 0.75,
-                            visibility: isNarrowScreen ? "visible" : "hidden",
+                            visibility: isPhabletWidthOrLess ? "visible" : "hidden",
                             margin: -0.25,
                         }}
                     >
@@ -276,7 +277,7 @@ export const TaskInstanceDetails = ({
                                     onClick={() => setIsEditingTime(true)}
                                     sx={{
                                         padding: 0.75,
-                                        visibility: isNarrowScreen ? undefined : "hidden",
+                                        visibility: isPhabletWidthOrLess ? undefined : "hidden",
                                         margin: -0.25,
                                     }}
                                     size="small"

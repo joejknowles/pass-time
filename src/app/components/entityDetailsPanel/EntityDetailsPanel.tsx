@@ -1,8 +1,9 @@
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { TaskDetails } from "./TaskDetails/TaskDetails";
 import { OpenDetailsPanelEntity, Task, TaskInstance } from "../dayGrid/types";
+import { useDevice } from "@/app/lib/hooks/useDevice";
 
 interface EntityDetailsPanelProps {
     openDetailsPanelEntity: OpenDetailsPanelEntity | null;
@@ -26,7 +27,7 @@ const EntityDetailsPanel = ({
     setCurrentDay,
 }: EntityDetailsPanelProps) => {
     const theme = useTheme();
-    const isNarrowScreen = useMediaQuery("(max-width:710px)");
+    const { isPhabletWidthOrLess } = useDevice();
 
     const isOpen = !!openDetailsPanelEntity;
     const isTaskType = openDetailsPanelEntity?.type === "Task";
@@ -53,7 +54,7 @@ const EntityDetailsPanel = ({
     }, [isOpen]);
 
     const calculateStyles = () => {
-        if (isNarrowScreen) {
+        if (isPhabletWidthOrLess) {
             setModalStyles({
                 top: isTaskType ? "10px" : undefined,
                 bottom: "10px",
@@ -81,17 +82,17 @@ const EntityDetailsPanel = ({
         const handleResize = () => calculateStyles();
         window.addEventListener("resize", handleResize);
 
-        if (isNarrowScreen) {
+        if (isPhabletWidthOrLess) {
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         }
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [isNarrowScreen, openDetailsPanelEntity?.type]);
+    }, [isPhabletWidthOrLess, openDetailsPanelEntity?.type]);
 
     useLayoutEffect(() => {
-        if (isOpen && isNarrowScreen && isTaskType) {
+        if (isOpen && isPhabletWidthOrLess && isTaskType) {
             document.documentElement.style.overflow = "hidden";
             document.body.style.overflow = "hidden";
         } else {
@@ -102,7 +103,7 @@ const EntityDetailsPanel = ({
             document.documentElement.style.overflow = "";
             document.body.style.overflow = "";
         };
-    }, [isOpen, isNarrowScreen, isTaskType]);
+    }, [isOpen, isPhabletWidthOrLess, isTaskType]);
 
     if (!isOpen) return null;
 
@@ -113,7 +114,7 @@ const EntityDetailsPanel = ({
                 position: "fixed",
                 backgroundColor: "white",
                 border: `1px solid ${theme.palette.grey[300]}`,
-                borderRadius: isNarrowScreen ? "8px" : "4px",
+                borderRadius: isPhabletWidthOrLess ? "8px" : "4px",
                 boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                 zIndex: 1000,
                 overflowY: "auto",

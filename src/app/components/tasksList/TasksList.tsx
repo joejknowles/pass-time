@@ -1,10 +1,11 @@
-import { Box, useMediaQuery } from "@mui/material";
+import { Box } from "@mui/material";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { GroupedTasks } from "./GroupedTasks";
 import { BasicTask, TaskGroup } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
 import { useEffect, useState } from "react";
 import { useTasks } from "@/app/lib/hooks/useTasks";
+import { useDevice } from "@/app/lib/hooks/useDevice";
 
 interface TasksListProps {
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
@@ -22,16 +23,16 @@ export const TasksList = ({
     setDraggedTask,
     draggedTask,
 }: TasksListProps) => {
-    const isNarrowScreen = useMediaQuery("(max-width:710px)");
-    const [showGroupedTasks, setShowGroupedTasks] = useState(isNarrowScreen);
+    const { isPhabletWidthOrLess } = useDevice();
+    const [showGroupedTasks, setShowGroupedTasks] = useState(!isPhabletWidthOrLess);
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [additionalTaskGroups, setAdditionalTaskGroups] = useState<TaskGroup[]>([]);
     const { tasks, createTask } = useTasks();
 
     useEffect(() => {
-        setShowGroupedTasks(!isNarrowScreen);
-    }, [isNarrowScreen]);
+        setShowGroupedTasks(!isPhabletWidthOrLess);
+    }, [isPhabletWidthOrLess]);
 
     return (
         <Box sx={{ height: '100%', padding: 1, pt: 0, overflowY: 'auto', scrollbarGutter: 'none' }}>

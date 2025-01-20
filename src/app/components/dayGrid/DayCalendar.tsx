@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, LinearProgress, useMediaQuery, Typography } from "@mui/material";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { useMutation, useQuery } from "@apollo/client";
@@ -17,6 +17,7 @@ import { useTasks } from "@/app/lib/hooks/useTasks";
 import { DraggedTaskCard } from "./DraggedTaskCard";
 import PositionedTaskInstanceCards from "./PositionedTaskInstanceCards";
 import { useCurrentTimeAndDay } from "./useCurrentTimeAndDay";
+import { useDevice } from "@/app/lib/hooks/useDevice";
 
 const minutesToMs = (minutes: number) => minutes * 60 * 1000;
 
@@ -44,7 +45,7 @@ export const DayCalendar = ({
 
     const [isSubmittingTaskInstance, setIsSubmittingTaskInstance] = useState(false);
 
-    const isNarrowScreen = useMediaQuery("(max-width:710px)");
+    const { isPhabletWidthOrLess } = useDevice();
 
     const [createTaskInstance, {
         error: errorFromCreatingTaskInstance
@@ -160,7 +161,7 @@ export const DayCalendar = ({
         }
     }
 
-    const hourBlockHeight = isNarrowScreen ? 60 : 60;
+    const hourBlockHeight = isPhabletWidthOrLess ? 60 : 60;
 
     if (errorFromGetTaskInstances || errorFromGetTasks) {
         return <Typography color="error">Error loading data, please reload the page or contact us</Typography>;
