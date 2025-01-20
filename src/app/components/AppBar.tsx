@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { User, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useDevice } from "../lib/hooks/useDevice";
 
 interface AppBarProps {
   user: User | null;
@@ -10,6 +11,13 @@ interface AppBarProps {
 }
 
 export default function AppBar({ user, onBalanceTargetsOpen }: AppBarProps) {
+  const { values: { padding } } = useDevice({
+    padding: {
+      smallPhoneWidthOrLess: "2px 2px 2px 8px",
+      largePhoneWidthOrLess: "4px 16px",
+      widerThanLargePhoneWidth: "8px 24px",
+    },
+  });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -31,8 +39,15 @@ export default function AppBar({ user, onBalanceTargetsOpen }: AppBarProps) {
   };
 
   return (
-    <MuiAppBar position="static" sx={{ bgcolor: "white", color: "black" }}>
-      <Toolbar>
+    <MuiAppBar
+      position="static"
+      sx={{
+        bgcolor: "white",
+        color: "black",
+
+      }}
+    >
+      <Toolbar disableGutters sx={{ padding, minHeight: '0 !important' }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           PassTime
         </Typography>
