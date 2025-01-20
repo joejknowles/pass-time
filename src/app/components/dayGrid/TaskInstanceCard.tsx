@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { MoveType, MovingTaskInfo, TaskInstance } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
+import { TaskInstanceMovement } from "./useTaskInstanceMovement";
 
 const TaskInstanceCard = ({
     taskInstance,
@@ -11,6 +12,7 @@ const TaskInstanceCard = ({
     isThisTaskDetailsOpen,
     handleClick,
     hourBlockHeight,
+    taskInstanceMovement
 }: {
     taskInstance: TaskInstance,
     effectiveStart: { hour: number, minute: number },
@@ -20,6 +22,7 @@ const TaskInstanceCard = ({
     isThisTaskDetailsOpen: boolean,
     handleClick: () => void,
     hourBlockHeight: number,
+    taskInstanceMovement?: TaskInstanceMovement,
 }) => {
     const isThisCardSubmittingChanges = movingTaskInfo?.isSubmitting && movingTaskInfo.taskInstance.id === taskInstance.id;
 
@@ -46,11 +49,15 @@ const TaskInstanceCard = ({
             sx={{
                 cursor,
                 zIndex: isThisTaskDetailsOpen ? 2 : undefined,
+                outline: taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id ? "2px solid rgba(0, 0, 0, 0.7)" : undefined,
             }}
             onMouseDown={!isThisCardSubmittingChanges ? (event) => {
                 event.stopPropagation();
                 startMovingTaskInstance(taskInstance, "both")
             } : undefined}
+            onTouchStart={(event) => {
+                taskInstanceMovement?.handleTouchStartOnInstance(event, taskInstance)
+            }}
             absoluteChildren={
                 <>
                     <Box

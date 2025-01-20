@@ -1,6 +1,7 @@
 import React from "react";
 import TaskInstanceCard from "./TaskInstanceCard";
 import type { TaskInstance, OpenDetailsPanelEntity, MovingTaskInfo } from "./types";
+import { TaskInstanceMovement } from "./useTaskInstanceMovement";
 
 interface PositionedTaskInstanceCardsProps {
     taskInstances: TaskInstance[] | undefined;
@@ -9,6 +10,7 @@ interface PositionedTaskInstanceCardsProps {
     startMovingTaskInstance: (taskInstance: TaskInstance, moveType: string) => void;
     setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
     hourBlockHeight: number;
+    taskInstanceMovement: TaskInstanceMovement;
 }
 
 const PositionedTaskInstanceCards: React.FC<PositionedTaskInstanceCardsProps> = ({
@@ -18,6 +20,7 @@ const PositionedTaskInstanceCards: React.FC<PositionedTaskInstanceCardsProps> = 
     startMovingTaskInstance,
     setOpenDetailsPanelEntity,
     hourBlockHeight,
+    taskInstanceMovement,
 }) => {
     return (
         <>
@@ -38,6 +41,7 @@ const PositionedTaskInstanceCards: React.FC<PositionedTaskInstanceCardsProps> = 
                         movingTaskInfo={movingTaskInfo}
                         startMovingTaskInstance={startMovingTaskInstance}
                         isThisTaskDetailsOpen={isCurrentlyOpen}
+                        taskInstanceMovement={taskInstanceMovement}
                         handleClick={() => {
                             if (movingTaskInfo?.hasChanged) {
                                 return;

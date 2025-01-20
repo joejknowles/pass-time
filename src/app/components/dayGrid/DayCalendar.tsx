@@ -95,7 +95,7 @@ export const DayCalendar = ({
         }
     };
 
-    const { movingTaskInfo, startMovingTaskInstance, hasDraggedForABit } = useTaskInstanceMovement(
+    const taskInstanceMovement = useTaskInstanceMovement(
         taskInstances,
         updateTaskInstance,
         draftTaskInstance,
@@ -105,7 +105,13 @@ export const DayCalendar = ({
         setDraggedTask,
         setDraftTaskInstance,
         daytimeHours,
+        !!openDetailsPanelEntity,
     );
+    const {
+        movingTaskInfo,
+        startMovingTaskInstance,
+        hasDraggedForABit,
+    } = taskInstanceMovement;
 
     useEffect(() => {
         refetchAllTaskData();
@@ -220,6 +226,7 @@ export const DayCalendar = ({
                         startMovingTaskInstance={startMovingTaskInstance}
                         setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}
                         hourBlockHeight={hourBlockHeight}
+                        taskInstanceMovement={taskInstanceMovement}
                     />
                     {draftTaskInstance && (
                         <DraftTaskInstanceCard

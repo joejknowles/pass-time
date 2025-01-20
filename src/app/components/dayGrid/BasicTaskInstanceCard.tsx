@@ -1,5 +1,6 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
+import { TouchEventHandler } from "react";
 
 const BasicTaskInstanceCard = ({
     taskId,
@@ -11,6 +12,7 @@ const BasicTaskInstanceCard = ({
     handleClick,
     sx,
     onMouseDown,
+    onTouchStart,
     absoluteChildren,
 }: {
     taskId?: string,
@@ -23,6 +25,7 @@ const BasicTaskInstanceCard = ({
     sx?: object,
     onMouseDown?: (event: React.MouseEvent) => void,
     absoluteChildren?: React.ReactNode,
+    onTouchStart?:  TouchEventHandler<HTMLDivElement>,
 }) => {
     const theme = useTheme();
 
@@ -43,6 +46,8 @@ const BasicTaskInstanceCard = ({
             }}
             onClick={handleClick}
             onMouseDown={onMouseDown}
+            onTouchStart={onTouchStart}
+            contextMenu="none"
             id={taskId ? `task-instance-calendar-card-${taskId}` : 'new-task-instance-calendar-card'}
         >
             <Typography variant="body2" color="primary" sx={{

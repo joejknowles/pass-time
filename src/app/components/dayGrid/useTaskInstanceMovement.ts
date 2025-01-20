@@ -1,9 +1,18 @@
-import { useEffect, useState } from "react";
+import { TouchEvent, useEffect, useRef, useState } from "react";
 import { TaskInstance, MoveType, DraftTaskInstance, Task, MovingTaskInfo } from "./types";
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
-import { BasicTask, DraggedTask } from "../tasksList/types";
+import { DraggedTask } from "../tasksList/types";
 import { HOUR_COLUMN_WIDTH } from "./consts";
 import { getTimeFromCursor } from "./utils";
+
+export interface TaskInstanceMovement {
+    movingTaskInfo: MovingTaskInfo | null;
+    startMovingTaskInstance: (taskInstance: TaskInstance, moveType: string) => void;
+    hasDraggedForABit: boolean;
+    taskInstanceInTouchEditMode: string | null;
+    setTaskInstanceInTouchEditMode: React.Dispatch<React.SetStateAction<string | null>>;
+    handleTouchStartOnInstance: (event: TouchEvent<HTMLDivElement>, taskInstance: TaskInstance) => void;
+}
 
 export const useTaskInstanceMovement = (
     taskInstances: TaskInstance[] | undefined,
@@ -15,9 +24,12 @@ export const useTaskInstanceMovement = (
     setDraggedTask: React.Dispatch<React.SetStateAction<DraggedTask | null>>,
     setDraftTaskInstance: React.Dispatch<React.SetStateAction<DraftTaskInstance | null>>,
     daytimeHours: number[],
-) => {
+    entityDetailsPanelOpen: boolean,
+): TaskInstanceMovement => {
     const [movingTaskInfo, setMovingTaskInfo] = useState<MovingTaskInfo | null>(null);
+    const [taskInstanceInTouchEditMode, setTaskInstanceInTouchEditMode] = useState<string | null>(null);
     const [hasDraggedForABit, setHasDraggedForABit] = useState(false);
+    const touchEditModeTimerInProgress = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (draggedTask?.task.id) {
@@ -31,6 +43,12 @@ export const useTaskInstanceMovement = (
             setHasDraggedForABit(false);
         }
     }, [draggedTask?.task.id]);
+
+    useEffect(() => {
+        if (entityDetailsPanelOpen) {
+            setTaskInstanceInTouchEditMode(null);
+        }
+    }, [entityDetailsPanelOpen]);
 
     const startMovingTaskInstance = (taskInstance: TaskInstance, moveType: string) => {
         setMovingTaskInfo({ taskInstance, moveType: moveType as MoveType, isSameAsInitial: true, hasChanged: false });
@@ -76,15 +94,48 @@ export const useTaskInstanceMovement = (
         }
     };
 
+    const handleTouchStartOnInstance = (event: TouchEvent, taskInstance: TaskInstance) => {
+        touchEditModeTimerInProgress.current = setTimeout(() => {
+            setTaskInstanceInTouchEditMode(taskInstance.id);
+            touchEditModeTimerInProgress.current = null;
+        }, 500);
+    }
+
+    const handleTouchEnd = () => {
+        if (touchEditModeTimerInProgress.current) {
+            clearTimeout(touchEditModeTimerInProgress.current);
+        }
+    };
+
+    const handleTouchMove: EventListener = (event) => {
+        if (taskInstanceInTouchEditMode) {
+            event.preventDefault();
+        }
+        if (touchEditModeTimerInProgress.current) {
+            clearTimeout(touchEditModeTimerInProgress.current);
+        }
+    }
+
     useEffect(() => {
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("mouseup", handleMouseUp);
+        window.addEventListener("touchend", handleTouchEnd);
+        window.addEventListener("touchmove", handleTouchMove);
 
         return () => {
             window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mouseup", handleMouseUp);
+            window.removeEventListener("touchend", handleTouchEnd);
+            window.removeEventListener("touchmove", handleTouchMove);
         };
     }, [movingTaskInfo, draftTaskInstance, draggedTask, taskInstances, updateTaskInstance]);
 
-    return { movingTaskInfo, startMovingTaskInstance, setMovingTaskInfo, hasDraggedForABit };
+    return {
+        movingTaskInfo,
+        startMovingTaskInstance,
+        hasDraggedForABit,
+        taskInstanceInTouchEditMode,
+        setTaskInstanceInTouchEditMode,
+        handleTouchStartOnInstance
+    };
 };
