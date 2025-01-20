@@ -1,7 +1,8 @@
-import { Box } from "@mui/material";
+import { Box, ClickAwayListener } from "@mui/material";
 import { MoveType, MovingTaskInfo, TaskInstance } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
 import { TaskInstanceMovement } from "./useTaskInstanceMovement";
+import { useEffect, useRef } from "react";
 
 const TaskInstanceCard = ({
     taskInstance,
@@ -24,6 +25,7 @@ const TaskInstanceCard = ({
     hourBlockHeight: number,
     taskInstanceMovement?: TaskInstanceMovement,
 }) => {
+    const thisRef = useRef<HTMLDivElement>(null);
     const isThisCardSubmittingChanges = movingTaskInfo?.isSubmitting && movingTaskInfo.taskInstance.id === taskInstance.id;
 
     let cursor = movingTaskInfo ?
@@ -37,8 +39,21 @@ const TaskInstanceCard = ({
         handleCursor = "wait";
     }
 
+    useEffect(() => {
+        if (taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id) {
+            const handleTouchAway: EventListener = function (event) {
+                if (event.target && !thisRef.current?.contains(event.target as Node)) {
+                    taskInstanceMovement.setTaskInstanceInTouchEditMode(null);
+                }
+            }
+            document.addEventListener('touchend', handleTouchAway);
+            return () => document.removeEventListener('touchend', handleTouchAway);
+        }
+    }, [taskInstanceMovement?.taskInstanceInTouchEditMode]);
+
     return (
         <BasicTaskInstanceCard
+            ref={thisRef}
             taskId={taskInstance.id}
             title={taskInstance.task.title}
             start={effectiveStart}

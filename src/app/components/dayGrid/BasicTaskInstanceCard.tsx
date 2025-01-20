@@ -1,8 +1,9 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
-import { TouchEventHandler } from "react";
+import { forwardRef, TouchEventHandler } from "react";
 
-const BasicTaskInstanceCard = ({
+
+const BasicTaskInstanceCard = forwardRef(({
     taskId,
     title,
     start,
@@ -25,12 +26,13 @@ const BasicTaskInstanceCard = ({
     sx?: object,
     onMouseDown?: (event: React.MouseEvent) => void,
     absoluteChildren?: React.ReactNode,
-    onTouchStart?:  TouchEventHandler<HTMLDivElement>,
-}) => {
+    onTouchStart?: TouchEventHandler<HTMLDivElement>,
+}, ref) => {
     const theme = useTheme();
 
     return (
         <Box
+            ref={ref}
             sx={{
                 position: "absolute",
                 top: `CALC(1px + ${(((start.hour - daytimeHours[0]) * 60 + start.minute) / (daytimeHours.length * 60)) * 100}%)`,
@@ -58,6 +60,6 @@ const BasicTaskInstanceCard = ({
             {absoluteChildren}
         </Box>
     );
-};
+});
 
 export default BasicTaskInstanceCard;
