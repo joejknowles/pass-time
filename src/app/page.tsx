@@ -13,9 +13,9 @@ import EverywhereProviders from "./components/EverywhereProviders";
 import AppBar from "./components/AppBar";
 
 // stops press to hold right click. TODO: make it only on mobile
-window.addEventListener('contextmenu', function (e) {
-  e.preventDefault();
-}, true);
+// window.addEventListener('contextmenu', function (e) {
+//   e.preventDefault();
+// }, true);
 
 
 export default function Home() {
