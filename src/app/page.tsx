@@ -1,52 +1,31 @@
 "use client";
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, User, signOut } from "firebase/auth";
-import Link from "next/link";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
-  Button,
-  Menu,
-  MenuItem,
   Container,
   Box,
-  useMediaQuery,
 } from "@mui/material";
 import Dashboard from "./components/Dashboard";
 import { BalanceTargetsModal } from "./components/BalanceTargetsModal";
 import EverywhereProviders from "./components/EverywhereProviders";
+import AppBar from "./components/AppBar";
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const isNarrowScreen = useMediaQuery("(max-width:710px)");
   const [balanceTargetsOpen, setBalanceTargetsOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
-    return () => unsubscribe(); // Cleanup on unmount
+    return () => unsubscribe();
   }, []);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleSignOut = () => {
-    signOut(auth);
-    handleMenuClose();
-  };
 
   const handleBalanceTargetsOpen = () => {
     setBalanceTargetsOpen(true);
-    handleMenuClose();
   };
 
   const handleBalanceTargetsClose = () => {
@@ -62,59 +41,10 @@ export default function Home() {
         overflow: "hidden"
       }}
     >
-      <AppBar position="static" sx={{ bgcolor: "white", color: "black" }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            PassTime
-          </Typography>
-          {user ? (
-            <>
-              <Button
-                color="inherit"
-                onClick={handleMenuOpen}
-                aria-controls="user-menu"
-                aria-haspopup="true"
-                sx={{
-                  display: "inline-block",
-                  maxWidth: "200px",
-                  textOverflow: "ellipsis",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {user.email}
-              </Button>
-              <Menu
-                id="user-menu"
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <MenuItem onClick={handleBalanceTargetsOpen}>Targets</MenuItem>
-                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <>
-              <Button color="inherit" component={Link} href="/login">
-                Log in
-              </Button>
-              <Button color="inherit" component={Link} href="/signup">
-                Sign up
-              </Button>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
-
+      <AppBar
+        user={user}
+        onBalanceTargetsOpen={handleBalanceTargetsOpen}
+      />
       {
         user && (
           <EverywhereProviders>
@@ -122,12 +52,11 @@ export default function Home() {
           </EverywhereProviders>
         )
       }
-
       {
         user ? (
           <Dashboard />
         ) : (
-          <Container>
+          <Container sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
               Please log in or sign up.
             </Typography>
