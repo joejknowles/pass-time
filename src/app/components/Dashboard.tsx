@@ -41,8 +41,18 @@ const Dashboard = () => {
                 const dayCalendar = document.getElementById("day-grid-scroll-container");
                 if (dayCalendar) {
                     const taskCardTop = taskInstanceCard.getBoundingClientRect().top;
+                    const taskCardHeight = taskInstanceCard.offsetHeight;
                     const calendarTop = dayCalendar.getBoundingClientRect().top;
-                    const topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - (dayCalendar.clientHeight / 2) + 120;
+                    const windowMidPoint = window.innerHeight / 2;
+                    const gridMidPointOffset = windowMidPoint - calendarTop;
+
+                    let topOffset;
+
+                    if (taskCardHeight <= gridMidPointOffset) {
+                        topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - gridMidPointOffset + taskCardHeight + 50;
+                    } else {
+                        topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - 30;
+                    }
 
                     setTimeout(() => {
                         dayCalendar.scrollTo({ top: topOffset, behavior: 'smooth' });
