@@ -2,7 +2,7 @@ import { TaskInstance, MoveType, MovingTaskInfo } from "./types";
 import { daytimeHours } from "./consts";
 
 export const moveTaskInstance = (
-    event: MouseEvent,
+    clientY: number,
     movingTaskInfo: MovingTaskInfo | null,
     setMovingTaskInfo: React.Dispatch<React.SetStateAction<MovingTaskInfo | null>>,
     taskInstances: TaskInstance[] | undefined
@@ -13,7 +13,7 @@ export const moveTaskInstance = (
 
         const gridOffsetTop = document.querySelector("#day-grid-container")?.getBoundingClientRect().top || 0;
         const containerHeight = (document.querySelector("#day-grid-container")?.clientHeight || 1);
-        const yPosition = event.clientY - gridOffsetTop;
+        const yPosition = clientY - gridOffsetTop;
         const THRESHOLD_OFFSET = 3;
         const cursorMinutesFromDaytimeStart = Math.floor(((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60 / 15) * 15;
         const preciseCursorMinutesFromDaytimeStart = ((yPosition + THRESHOLD_OFFSET) / containerHeight) * daytimeHours.length * 60;

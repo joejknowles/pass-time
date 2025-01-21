@@ -1,4 +1,4 @@
-import { TouchEvent, useEffect, useRef, useState } from "react";
+import { TouchEvent as ReactTouchEvent, useEffect, useRef, useState } from "react";
 import { TaskInstance, MoveType, DraftTaskInstance, Task, MovingTaskInfo } from "./types";
 import { moveTaskInstance, stopMovingTaskInstance } from "./taskInstanceHandlers";
 import { DraggedTask } from "../tasksList/types";
@@ -11,7 +11,7 @@ export interface TaskInstanceMovement {
     hasDraggedForABit: boolean;
     taskInstanceInTouchEditMode: string | null;
     setTaskInstanceInTouchEditMode: React.Dispatch<React.SetStateAction<string | null>>;
-    handleTouchStartOnInstance: (event: TouchEvent<HTMLDivElement>, taskInstance: TaskInstance) => void;
+    handleTouchStartOnInstance: (event: ReactTouchEvent<HTMLDivElement>, taskInstance: TaskInstance) => void;
 }
 
 export const useTaskInstanceMovement = (
@@ -57,7 +57,7 @@ export const useTaskInstanceMovement = (
 
     const handleMouseMove = (event: MouseEvent) => {
         if (movingTaskInfo) {
-            moveTaskInstance(event, movingTaskInfo, setMovingTaskInfo, taskInstances);
+            moveTaskInstance(event.clientY, movingTaskInfo, setMovingTaskInfo, taskInstances);
         } else if (draftTaskInstance && draggedTask) {
             const { startHour, startMinute } = getTimeFromCursor(event.clientY, draftTaskInstance.duration, daytimeHours);
             updateDraftTaskInstance({ startHour, startMinute, task: draggedTask.task });
@@ -94,7 +94,7 @@ export const useTaskInstanceMovement = (
         }
     };
 
-    const handleTouchStartOnInstance = (event: TouchEvent, taskInstance: TaskInstance) => {
+    const handleTouchStartOnInstance = (event: ReactTouchEvent, taskInstance: TaskInstance) => {
         touchEditModeTimerInProgress.current = setTimeout(() => {
             setTaskInstanceInTouchEditMode(taskInstance.id);
             touchEditModeTimerInProgress.current = null;
@@ -105,11 +105,14 @@ export const useTaskInstanceMovement = (
         if (touchEditModeTimerInProgress.current) {
             clearTimeout(touchEditModeTimerInProgress.current);
         }
+        if (taskInstanceInTouchEditMode) {
+            stopMovingTaskInstance(movingTaskInfo, setMovingTaskInfo, updateTaskInstance);
+        }
     };
 
-    const handleTouchMove: EventListener = (event) => {
-        if (taskInstanceInTouchEditMode) {
-            event.preventDefault();
+    const handleTouchMove = (event: TouchEvent) => {
+        if (taskInstanceInTouchEditMode && movingTaskInfo) {
+            moveTaskInstance(event.touches[0].clientY, movingTaskInfo, setMovingTaskInfo, taskInstances);
         }
         if (touchEditModeTimerInProgress.current) {
             clearTimeout(touchEditModeTimerInProgress.current);
@@ -128,7 +131,7 @@ export const useTaskInstanceMovement = (
             window.removeEventListener("touchend", handleTouchEnd);
             window.removeEventListener("touchmove", handleTouchMove);
         };
-    }, [movingTaskInfo, draftTaskInstance, draggedTask, taskInstances, updateTaskInstance]);
+    }, [movingTaskInfo, draftTaskInstance, draggedTask, taskInstances, updateTaskInstance, taskInstanceInTouchEditMode]);
 
     return {
         movingTaskInfo,
@@ -136,6 +139,6 @@ export const useTaskInstanceMovement = (
         hasDraggedForABit,
         taskInstanceInTouchEditMode,
         setTaskInstanceInTouchEditMode,
-        handleTouchStartOnInstance
+        handleTouchStartOnInstance,
     };
 };

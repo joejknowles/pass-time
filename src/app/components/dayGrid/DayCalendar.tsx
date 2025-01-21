@@ -111,6 +111,7 @@ export const DayCalendar = ({
         movingTaskInfo,
         startMovingTaskInstance,
         hasDraggedForABit,
+        taskInstanceInTouchEditMode
     } = taskInstanceMovement;
 
     useEffect(() => {
@@ -200,13 +201,22 @@ export const DayCalendar = ({
                 movingTaskInfo={movingTaskInfo}
                 setCurrentDay={setCurrentDay}
             />
-            <Box sx={{
-                height: '100%',
-                overflowY: 'auto',
-                pt: 1,
-                cursor: getCursor(movingTaskInfo, draggedTask),
-            }} >
-                <Box id="day-grid-container" sx={{ position: 'relative' }}>
+            <Box
+                sx={{
+                    height: '100%',
+                    overflowY: 'auto',
+                    pt: 1,
+                    cursor: getCursor(movingTaskInfo, draggedTask),
+                    // causes issues on desktop touches, but seems fine on mobiles
+                    touchAction: taskInstanceInTouchEditMode ? "none" : "auto",
+                }}
+            >
+                <Box
+                    id="day-grid-container"
+                    sx={{
+                        position: 'relative'
+                    }}
+                >
                     {(loadingTaskInstances || loadingTasks) && (
                         <LinearProgress
                             sx={{

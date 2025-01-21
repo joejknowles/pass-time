@@ -1,4 +1,5 @@
-import { Box, ClickAwayListener } from "@mui/material";
+import { Box } from "@mui/material";
+import DragIndicatorIcon from '@mui/icons-material/UnfoldMore';
 import { MoveType, MovingTaskInfo, TaskInstance } from "./types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
 import { TaskInstanceMovement } from "./useTaskInstanceMovement";
@@ -27,6 +28,7 @@ const TaskInstanceCard = ({
 }) => {
     const thisRef = useRef<HTMLDivElement>(null);
     const isThisCardSubmittingChanges = movingTaskInfo?.isSubmitting && movingTaskInfo.taskInstance.id === taskInstance.id;
+    const isThisCardInTouchEditMode = taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id;
 
     let cursor = movingTaskInfo ?
         movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
@@ -40,7 +42,7 @@ const TaskInstanceCard = ({
     }
 
     useEffect(() => {
-        if (taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id) {
+        if (isThisCardInTouchEditMode) {
             const handleTouchAway: EventListener = function (event) {
                 if (event.target && !thisRef.current?.contains(event.target as Node)) {
                     taskInstanceMovement.setTaskInstanceInTouchEditMode(null);
@@ -49,7 +51,7 @@ const TaskInstanceCard = ({
             document.addEventListener('touchend', handleTouchAway);
             return () => document.removeEventListener('touchend', handleTouchAway);
         }
-    }, [taskInstanceMovement?.taskInstanceInTouchEditMode]);
+    }, [isThisCardInTouchEditMode]);
 
     return (
         <BasicTaskInstanceCard
@@ -64,7 +66,7 @@ const TaskInstanceCard = ({
             sx={{
                 cursor,
                 zIndex: isThisTaskDetailsOpen ? 2 : undefined,
-                outline: taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id ? "2px solid rgba(0, 0, 0, 0.7)" : undefined,
+                outline: isThisCardInTouchEditMode ? "2px solid rgba(0, 0, 0, 0.7)" : undefined,
             }}
             onMouseDown={!isThisCardSubmittingChanges ? (event) => {
                 event.stopPropagation();
@@ -103,9 +105,51 @@ const TaskInstanceCard = ({
                             cursor: handleCursor,
                         }}
                         onMouseDown={!isThisCardSubmittingChanges ? (event) => {
-                            event.stopPropagation(); startMovingTaskInstance(taskInstance, "end")
+                            event.stopPropagation();
+                            startMovingTaskInstance(taskInstance, "end")
                         } : undefined}
                     />
+                    {
+                        isThisCardInTouchEditMode && (
+                            <>
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        top: "-13px",
+                                        left: "0",
+                                        right: "0",
+                                        height: "24px",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                    }}
+                                    onTouchStart={(event) => {
+                                        startMovingTaskInstance(taskInstance, "start");
+                                    }}
+                                >
+                                    <DragIndicatorIcon />
+                                </Box>
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        bottom: "-13px",
+                                        left: "0",
+                                        right: "0",
+                                        height: "24px",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        zIndex: 2,
+                                    }}
+                                    onTouchStart={(event) => {
+                                        startMovingTaskInstance(taskInstance, "end");
+                                    }}
+                                >
+                                    <DragIndicatorIcon />
+                                </Box>
+                            </>
+                        )
+                    }
                 </>
             }
         />
