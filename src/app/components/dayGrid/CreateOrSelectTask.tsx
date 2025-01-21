@@ -85,6 +85,7 @@ const CreateOrSelectTask = ({
                             enterKeyHint: "go",
                         }
                     }}
+                    autoCapitalize="sentences"
                     onKeyDown={(event) => {
                         if (event.key === "Enter") {
                             setTimeout(() => {
