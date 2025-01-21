@@ -45,7 +45,9 @@ const TaskInstanceCard = ({
         if (isThisCardInTouchEditMode) {
             const handleTouchAway: EventListener = function (event) {
                 if (event.target && !thisRef.current?.contains(event.target as Node)) {
-                    taskInstanceMovement.setTaskInstanceInTouchEditMode(null);
+                    setTimeout(() => {
+                        taskInstanceMovement.setTaskInstanceInTouchEditMode(null);
+                    }, 10);
                 }
             }
             document.addEventListener('touchend', handleTouchAway);

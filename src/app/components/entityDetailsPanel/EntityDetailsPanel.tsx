@@ -105,6 +105,12 @@ const EntityDetailsPanel = ({
         };
     }, [isOpen, isPhabletWidthOrLess, isTaskType]);
 
+    const handleClose = () => {
+        setTimeout(() => {
+            setOpenDetailsPanelEntity(null);
+        }, 10);
+    }
+
     if (!isOpen) return null;
 
     return (
@@ -126,7 +132,7 @@ const EntityDetailsPanel = ({
                     <TaskInstanceDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
                         taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
-                        onClose={() => setOpenDetailsPanelEntity(null)}
+                        onClose={handleClose}
                         goToTaskDetails={(taskId: string) => {
                             setPreviousEntities([...previousEntities, openDetailsPanelEntity]);
                             setOpenDetailsPanelEntity({ type: "Task", id: taskId });
@@ -143,7 +149,7 @@ const EntityDetailsPanel = ({
                     <TaskDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
                         task={tasks?.find((t) => t.id == openDetailsPanelEntity.id) as Task}
-                        onClose={() => setOpenDetailsPanelEntity(null)}
+                        onClose={handleClose}
                         isMovingATask={!!movingTaskInfo}
                         tasks={tasks as Task[]}
                         goBack={previousEntities.length > 0 ? () => {

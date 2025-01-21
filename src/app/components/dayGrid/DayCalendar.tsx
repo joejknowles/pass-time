@@ -228,7 +228,14 @@ export const DayCalendar = ({
                             }}
                         />
                     )}
-                    <HourGrid addDraftTaskInstance={addDraftTaskInstance} hourBlockHeight={hourBlockHeight} />
+                    <HourGrid
+                        addDraftTaskInstance={(time) => {
+                            if (!isSubmittingTaskInstance && !draftTaskInstance && !openDetailsPanelEntity && !taskInstanceInTouchEditMode) {
+                                addDraftTaskInstance(time);
+                            }
+                        }}
+                        hourBlockHeight={hourBlockHeight}
+                    />
                     <PositionedTaskInstanceCards
                         taskInstances={taskInstances}
                         openDetailsPanelEntity={openDetailsPanelEntity}
