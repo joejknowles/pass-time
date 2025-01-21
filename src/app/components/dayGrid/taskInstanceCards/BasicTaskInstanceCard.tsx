@@ -51,7 +51,6 @@ const BasicTaskInstanceCard = forwardRef(({
             onClick={handleClick}
             onMouseDown={onMouseDown}
             onTouchStart={onTouchStart}
-            contextMenu="none"
             id={taskId ? `task-instance-calendar-card-${taskId}` : 'new-task-instance-calendar-card'}
         >
             <Typography variant="body2" color="primary" sx={{

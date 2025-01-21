@@ -31,17 +31,27 @@ const Dashboard = () => {
 
     const setOpenDetailsPanelEntity = (newOpenEntity: OpenDetailsPanelEntity | null) => {
         setOpenDetailsPanelEntityRaw(newOpenEntity);
+
         if (newOpenEntity?.type === "TaskInstance" && isPhabletWidthOrLess) {
             let taskInstanceCard = document.getElementById(`task-instance-calendar-card-${newOpenEntity.id}`);
             if (!taskInstanceCard) {
                 taskInstanceCard = document.getElementById('new-task-instance-calendar-card');
             }
             if (taskInstanceCard) {
-                const topOffset = taskInstanceCard.getBoundingClientRect().top + window.scrollY - (window.innerHeight / 2) + 100;
-                window.scrollTo({ top: topOffset, behavior: 'smooth' });
+                const dayCalendar = document.getElementById("day-grid-scroll-container");
+                if (dayCalendar) {
+                    const taskCardTop = taskInstanceCard.getBoundingClientRect().top;
+                    const calendarTop = dayCalendar.getBoundingClientRect().top;
+                    const topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - (dayCalendar.clientHeight / 2) + 120;
+
+                    setTimeout(() => {
+                        dayCalendar.scrollTo({ top: topOffset, behavior: 'smooth' });
+                    }, 100);
+                }
             }
         }
-    }
+    };
+
 
     return (
         <Container

@@ -202,11 +202,12 @@ export const DayCalendar = ({
                 setCurrentDay={setCurrentDay}
             />
             <Box
+                id="day-grid-scroll-container"
                 sx={{
                     height: '100%',
                     overflowY: 'auto',
                     pt: 1,
-                    pb: isPhabletWidthOrLess ? 0 : 1,
+                    pb: openDetailsPanelEntity ? '50dvh' : isPhabletWidthOrLess ? 0 : 1,
                     cursor: getCursor(movingTaskInfo, draggedTask),
                     // causes issues on desktop touches, but seems fine on mobiles
                     touchAction: taskInstanceInTouchEditMode ? "none" : "auto",
