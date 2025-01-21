@@ -53,6 +53,8 @@ const TaskInstanceCard = ({
         }
     }, [isThisCardInTouchEditMode]);
 
+    const TOUCH_DRAG_HANDLE_HEIGHT = 27;
+
     return (
         <BasicTaskInstanceCard
             ref={thisRef}
@@ -115,10 +117,10 @@ const TaskInstanceCard = ({
                                 <Box
                                     sx={{
                                         position: "absolute",
-                                        top: "-13px",
+                                        top: `-${TOUCH_DRAG_HANDLE_HEIGHT / 2 + 1}px`,
                                         left: "0",
                                         right: "0",
-                                        height: "24px",
+                                        height: TOUCH_DRAG_HANDLE_HEIGHT,
                                         display: "flex",
                                         justifyContent: "center",
                                         alignItems: "center",
@@ -132,10 +134,10 @@ const TaskInstanceCard = ({
                                 <Box
                                     sx={{
                                         position: "absolute",
-                                        bottom: "-13px",
+                                        bottom: `-${TOUCH_DRAG_HANDLE_HEIGHT / 2 + 1}px`,
                                         left: "0",
                                         right: "0",
-                                        height: "24px",
+                                        height: TOUCH_DRAG_HANDLE_HEIGHT,
                                         display: "flex",
                                         justifyContent: "center",
                                         alignItems: "center",
