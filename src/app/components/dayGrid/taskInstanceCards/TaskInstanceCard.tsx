@@ -29,6 +29,7 @@ const TaskInstanceCard = ({
     const thisRef = useRef<HTMLDivElement>(null);
     const isThisCardSubmittingChanges = movingTaskInfo?.isSubmitting && movingTaskInfo.taskInstance.id === taskInstance.id;
     const isThisCardInTouchEditMode = taskInstanceMovement?.taskInstanceInTouchEditMode === taskInstance.id;
+    const is15MinuteTask = effectiveDuration === 15;
 
     let cursor = movingTaskInfo ?
         movingTaskInfo.moveType === "both" ? "grabbing" : 'ns-resize'
@@ -57,6 +58,8 @@ const TaskInstanceCard = ({
 
     const TOUCH_DRAG_HANDLE_HEIGHT = 27;
 
+    const touchDragIndicatorColor = `rgba(0, 0, 0, ${movingTaskInfo?.isSubmitting ? 0.4 : 0.7})`
+
     return (
         <BasicTaskInstanceCard
             ref={thisRef}
@@ -70,7 +73,7 @@ const TaskInstanceCard = ({
             sx={{
                 cursor,
                 zIndex: isThisTaskDetailsOpen ? 2 : undefined,
-                outline: isThisCardInTouchEditMode ? "2px solid rgba(0, 0, 0, 0.7)" : undefined,
+                outline: isThisCardInTouchEditMode ? `2px solid ${touchDragIndicatorColor}` : undefined,
             }}
             onMouseDown={!isThisCardSubmittingChanges ? (event) => {
                 event.stopPropagation();
@@ -87,7 +90,7 @@ const TaskInstanceCard = ({
                             top: 0,
                             left: 0,
                             right: 0,
-                            height: effectiveDuration === 15 ? "3px" : "5px",
+                            height: is15MinuteTask ? "3px" : "5px",
                             cursor: handleCursor,
                             display: 'flex',
                             justifyContent: 'center',
@@ -105,7 +108,7 @@ const TaskInstanceCard = ({
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            height: effectiveDuration === 15 ? "3px" : "5px",
+                            height: is15MinuteTask ? "3px" : "5px",
                             cursor: handleCursor,
                         }}
                         onMouseDown={!isThisCardSubmittingChanges ? (event) => {
@@ -127,11 +130,14 @@ const TaskInstanceCard = ({
                                         justifyContent: "center",
                                         alignItems: "center",
                                     }}
-                                    onTouchStart={(event) => {
+                                    onTouchStart={movingTaskInfo?.isSubmitting ? undefined : (event) => {
                                         startMovingTaskInstance(taskInstance, "start");
                                     }}
                                 >
-                                    <DragIndicatorIcon />
+                                    <DragIndicatorIcon
+                                        fontSize={is15MinuteTask ? "small" : "medium"}
+                                        sx={{ color: touchDragIndicatorColor }}
+                                    />
                                 </Box>
                                 <Box
                                     sx={{
@@ -145,11 +151,14 @@ const TaskInstanceCard = ({
                                         alignItems: "center",
                                         zIndex: 2,
                                     }}
-                                    onTouchStart={(event) => {
+                                    onTouchStart={movingTaskInfo?.isSubmitting ? undefined : (event) => {
                                         startMovingTaskInstance(taskInstance, "end");
                                     }}
                                 >
-                                    <DragIndicatorIcon />
+                                    <DragIndicatorIcon
+                                        fontSize={is15MinuteTask ? "small" : "medium"}
+                                        sx={{ color: touchDragIndicatorColor }}
+                                    />
                                 </Box>
                             </>
                         )
