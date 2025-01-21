@@ -5,9 +5,10 @@ import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TaskDetailsGeneralProps {
     task: Task;
+    goToTaskDetails: (taskId: string) => void;
 }
 
-export const TaskDetailsGeneral = ({ task }: TaskDetailsGeneralProps) => {
+export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneralProps) => {
     const { tasks, updateTask, error: taskUpdateErrorRaw } = useTasks();
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
     const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
@@ -50,7 +51,13 @@ export const TaskDetailsGeneral = ({ task }: TaskDetailsGeneralProps) => {
                         Parent Tasks:
                     </Typography>
                     {task.parentTasks.map((parentTask) => (
-                        <Chip key={parentTask.id} label={parentTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
+                        <Chip
+                            key={parentTask.id}
+                            label={parentTask.title}
+                            size="small"
+                            sx={{ marginRight: 1, marginTop: 1 }}
+                            onClick={() => goToTaskDetails(parentTask.id)}
+                        />
                     ))}
                 </Box>
             )}
@@ -60,7 +67,13 @@ export const TaskDetailsGeneral = ({ task }: TaskDetailsGeneralProps) => {
                         Child Tasks:
                     </Typography>
                     {task.childTasks.map((childTask) => (
-                        <Chip key={childTask.id} label={childTask.title} size="small" sx={{ marginRight: 1, marginTop: 1 }} />
+                        <Chip
+                            key={childTask.id}
+                            label={childTask.title}
+                            size="small"
+                            sx={{ marginRight: 1, marginTop: 1 }}
+                            onClick={() => goToTaskDetails(childTask.id)}
+                        />
                     ))}
                 </Box>
             )}

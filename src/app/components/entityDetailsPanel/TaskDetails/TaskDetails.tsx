@@ -9,10 +9,10 @@ import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 
 interface TaskInstanceDetailsProps {
     task: Task;
-    tasks: Task[];
     onClose: () => void;
     isMovingATask: boolean;
     goBack?: () => void;
+    goToTaskDetails: (taskId: string) => void
 }
 
 export const TaskDetails = ({
@@ -20,6 +20,7 @@ export const TaskDetails = ({
     isMovingATask,
     goBack,
     onClose,
+    goToTaskDetails,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const [tabIndex, setTabIndex] = useState(0);
@@ -99,6 +100,7 @@ export const TaskDetails = ({
                 {tabIndex === 0 && (
                     <TaskDetailsGeneral
                         task={task}
+                        goToTaskDetails={goToTaskDetails}
                     />
                 )}
                 {tabIndex === 1 && <TaskDetailsSuggestions task={task} />}

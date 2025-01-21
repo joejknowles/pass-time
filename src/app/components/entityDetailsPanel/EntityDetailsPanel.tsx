@@ -111,6 +111,11 @@ const EntityDetailsPanel = ({
         }, 10);
     }
 
+    const handleGoToTaskDetails = (taskId: string) => {
+        setPreviousEntities([...previousEntities, openDetailsPanelEntity as OpenDetailsPanelEntity]);
+        setOpenDetailsPanelEntity({ type: "Task", id: taskId });
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -151,12 +156,12 @@ const EntityDetailsPanel = ({
                         task={tasks?.find((t) => t.id == openDetailsPanelEntity.id) as Task}
                         onClose={handleClose}
                         isMovingATask={!!movingTaskInfo}
-                        tasks={tasks as Task[]}
                         goBack={previousEntities.length > 0 ? () => {
                             const lastEntity = previousEntities[previousEntities.length - 1];
                             setOpenDetailsPanelEntity(lastEntity);
                             setPreviousEntities(previousEntities.slice(0, -1));
                         } : undefined}
+                        goToTaskDetails={handleGoToTaskDetails}
                     />
                 )
             }
