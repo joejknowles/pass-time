@@ -44,6 +44,7 @@ const BasicTaskInstanceCard = forwardRef(({
                 padding: duration === 15 ? "1px 4px" : "4px",
                 boxSizing: "border-box",
                 boxShadow: isThisTaskDetailsOpen ? "2px 2px 10px 1px rgba(123, 158, 206, 0.9)" : "",
+                userSelect: 'none',
                 ...sx,
             }}
             onClick={handleClick}
