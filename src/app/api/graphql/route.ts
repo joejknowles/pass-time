@@ -34,7 +34,6 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
       console.log('context handler user: ', user);
       if (!user) {
         console.error('User not found');
-        throw new Error('User not found');
       }
       return { user };
     } catch (error) {
