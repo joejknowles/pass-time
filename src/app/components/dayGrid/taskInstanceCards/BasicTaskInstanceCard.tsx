@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
+import { daytimeHours, HOUR_COLUMN_WIDTH } from "../consts";
 import { forwardRef, TouchEventHandler } from "react";
 
 
@@ -45,6 +45,7 @@ const BasicTaskInstanceCard = forwardRef(({
                 boxSizing: "border-box",
                 boxShadow: isThisTaskDetailsOpen ? "2px 2px 10px 1px rgba(123, 158, 206, 0.9)" : "",
                 userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
                 ...sx,
             }}
             onClick={handleClick}

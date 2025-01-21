@@ -2,7 +2,7 @@
 import { Box, ClickAwayListener, Button } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Task } from "./types";
-import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
+import BasicTaskInstanceCard from "./taskInstanceCards/BasicTaskInstanceCard";
 import CreateOrSelectTask from "./CreateOrSelectTask";
 
 interface DraftTaskInstance {

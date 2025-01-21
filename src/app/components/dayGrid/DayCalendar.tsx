@@ -15,7 +15,7 @@ import { useTaskInstanceMovement } from "./useTaskInstanceMovement";
 import { BasicTask, DraggedTask } from "../tasksList/types";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { DraggedTaskCard } from "./DraggedTaskCard";
-import PositionedTaskInstanceCards from "./PositionedTaskInstanceCards";
+import PositionedTaskInstanceCards from "./taskInstanceCards/PositionedTaskInstanceCards";
 import { useCurrentTimeAndDay } from "./useCurrentTimeAndDay";
 import { useDevice } from "@/app/lib/hooks/useDevice";
 

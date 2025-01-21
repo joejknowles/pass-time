@@ -1,7 +1,7 @@
 import React from "react";
 import TaskInstanceCard from "./TaskInstanceCard";
-import type { TaskInstance, OpenDetailsPanelEntity, MovingTaskInfo } from "./types";
-import { TaskInstanceMovement } from "./useTaskInstanceMovement";
+import type { TaskInstance, OpenDetailsPanelEntity, MovingTaskInfo } from "../types";
+import { TaskInstanceMovement } from "../useTaskInstanceMovement";
 
 interface PositionedTaskInstanceCardsProps {
     taskInstances: TaskInstance[] | undefined;
@@ -43,7 +43,7 @@ const PositionedTaskInstanceCards: React.FC<PositionedTaskInstanceCardsProps> = 
                         isThisTaskDetailsOpen={isCurrentlyOpen}
                         taskInstanceMovement={taskInstanceMovement}
                         handleClick={() => {
-                            if (movingTaskInfo?.hasChanged) {
+                            if (movingTaskInfo?.hasChanged || taskInstanceMovement.taskInstanceInTouchEditMode) {
                                 return;
                             }
                             if (isCurrentlyOpen) {

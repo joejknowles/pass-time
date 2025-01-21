@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import DragIndicatorIcon from '@mui/icons-material/UnfoldMore';
-import { MoveType, MovingTaskInfo, TaskInstance } from "./types";
+import { MoveType, MovingTaskInfo, TaskInstance } from "../types";
 import BasicTaskInstanceCard from "./BasicTaskInstanceCard";
-import { TaskInstanceMovement } from "./useTaskInstanceMovement";
+import { TaskInstanceMovement } from "../useTaskInstanceMovement";
 import { useEffect, useRef } from "react";
 
 const TaskInstanceCard = ({
