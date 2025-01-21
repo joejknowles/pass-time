@@ -206,6 +206,7 @@ export const DayCalendar = ({
                     height: '100%',
                     overflowY: 'auto',
                     pt: 1,
+                    pb: isPhabletWidthOrLess ? 0 : 1,
                     cursor: getCursor(movingTaskInfo, draggedTask),
                     // causes issues on desktop touches, but seems fine on mobiles
                     touchAction: taskInstanceInTouchEditMode ? "none" : "auto",
