@@ -44,12 +44,12 @@ const Dashboard = () => {
                     const taskCardHeight = taskInstanceCard.offsetHeight;
                     const calendarTop = dayCalendar.getBoundingClientRect().top;
                     const windowMidPoint = window.innerHeight / 2;
-                    const gridMidPointOffset = windowMidPoint - calendarTop;
+                    const gridMidPointOffset = windowMidPoint - calendarTop - 60;
 
                     let topOffset;
 
                     if (taskCardHeight <= gridMidPointOffset) {
-                        topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - gridMidPointOffset + taskCardHeight + 50;
+                        topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - gridMidPointOffset + taskCardHeight;
                     } else {
                         topOffset = taskCardTop - calendarTop + dayCalendar.scrollTop - 30;
                     }
