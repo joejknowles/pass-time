@@ -5,6 +5,17 @@ export interface Task {
     childTasks: Task[];
     defaultDuration: number;
     isSuggestingEnabled: boolean;
+    taskInstances: BasicTaskInstance[];
+}
+
+export interface BasicTaskInstance {
+    id: string;
+    start: {
+        date: string;
+        hour: number;
+        minute: number;
+    };
+    duration: number;
 }
 
 export interface TaskInstance {

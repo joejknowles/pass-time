@@ -147,7 +147,8 @@ export const GET_TASKS = gql`
           date
           hour
           minute
-        }
+        },
+        duration
       }
     }
   }
