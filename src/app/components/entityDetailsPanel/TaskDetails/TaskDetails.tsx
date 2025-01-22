@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
+import { useCallOnEscapePress } from "@/app/lib/hooks/useCallOnEscapePress";
 
 interface TaskInstanceDetailsProps {
     task: Task;
@@ -25,17 +26,7 @@ export const TaskDetails = ({
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const [tabIndex, setTabIndex] = useState(0);
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                onClose();
-            }
-        };
-        document.addEventListener("keydown", handleKeyDown);
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [onClose, isMovingATask]);
+    useCallOnEscapePress(onClose);
 
     if (!task) {
         return null;
