@@ -1,7 +1,8 @@
-import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel } from "@mui/material";
+import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel, ClickAwayListener } from "@mui/material";
 import { Task } from "../../dayGrid/types";
 import { durationOptions } from "../../../lib/utils/durationOptions";
 import { useTasks } from "@/app/lib/hooks/useTasks";
+import { useState } from "react";
 
 interface TaskDetailsGeneralProps {
     task: Task;
@@ -12,6 +13,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
     const { tasks, updateTask, error: taskUpdateErrorRaw } = useTasks();
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
     const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
+    const [isAddingParentTask, setIsAddingParentTask] = useState(false);
 
     const handleDurationChange = async (event: SelectChangeEvent<number>) => {
         if (event.target.value) {
@@ -22,6 +24,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
     const handleParentTaskChange = async (_e: any, selection: any) => {
         if (selection) {
             await updateTask(task.id, { parentTaskId: selection.id });
+            setIsAddingParentTask(false);
         }
     };
 
@@ -32,52 +35,67 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                     {genericErrorMessage}
                 </Typography>
             )}
-            <Autocomplete
-                options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
-                size="small"
-                onChange={handleParentTaskChange}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label="Parent Task"
-                        error={taskUpdateError?.extensions?.fieldName === "parentTaskId"}
-                        helperText={taskUpdateError?.extensions?.fieldName === "parentTaskId" && taskUpdateError.message}
-                    />
-                )}
-            />
-            {task.parentTasks.length > 0 && (
-                <Box sx={{ marginTop: 2 }}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                        Parent Tasks:
-                    </Typography>
-                    {task.parentTasks.map((parentTask) => (
-                        <Chip
-                            key={parentTask.id}
-                            label={parentTask.title}
-                            size="small"
-                            sx={{ marginRight: 1, marginTop: 1 }}
-                            onClick={() => goToTaskDetails(parentTask.id)}
-                        />
-                    ))}
+            <Box sx={{ marginTop: 2 }}>
+                <Typography variant="caption" color="textSecondary">
+                    Parent Tasks:
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                        {task.parentTasks.map((parentTask) => (
+                            <Chip
+                                key={parentTask.id}
+                                label={parentTask.title}
+                                size="small"
+                                onClick={() => goToTaskDetails(parentTask.id)}
+                            />
+                        ))}
+                        {!isAddingParentTask && (
+                            <Chip
+                                label="+ Add"
+                                size="small"
+                                onClick={() => setIsAddingParentTask(true)}
+                            />
+                        )}
+                    </Box>
+                    {isAddingParentTask && (
+                        <ClickAwayListener onClickAway={() => setIsAddingParentTask(false)}>
+                            <Autocomplete
+                                openOnFocus
+                                options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
+                                size="small"
+                                onChange={handleParentTaskChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        autoFocus
+                                        label="Parent Task"
+                                        error={taskUpdateError?.extensions?.fieldName === "parentTaskId"}
+                                        helperText={taskUpdateError?.extensions?.fieldName === "parentTaskId" && taskUpdateError.message}
+                                    />
+                                )}
+                            />
+                        </ClickAwayListener>
+                    )}
                 </Box>
-            )}
+            </Box>
             {task.childTasks.length > 0 && (
-                <Box sx={{ marginTop: 2 }}>
-                    <Typography variant="subtitle2" color="textSecondary">
+                <Box sx={{ marginTop: 1 }}>
+                    <Typography variant="caption" color="textSecondary">
                         Child Tasks:
                     </Typography>
-                    {task.childTasks.map((childTask) => (
-                        <Chip
-                            key={childTask.id}
-                            label={childTask.title}
-                            size="small"
-                            sx={{ marginRight: 1, marginTop: 1 }}
-                            onClick={() => goToTaskDetails(childTask.id)}
-                        />
-                    ))}
+                    <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                        {task.childTasks.map((childTask) => (
+                            <Chip
+                                key={childTask.id}
+                                label={childTask.title}
+                                size="small"
+                                onClick={() => goToTaskDetails(childTask.id)}
+                            />
+                        ))}
+                    </Box>
                 </Box>
             )}
-            <Box sx={{ marginTop: 2 }}>
+            <Box sx={{ mt: 4 }}>
                 <FormControl sx={{ minWidth: 150 }} variant="outlined">
                     <InputLabel id="duration-label">Default duration</InputLabel>
                     <Select
