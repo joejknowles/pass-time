@@ -29,7 +29,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
         }
     };
 
-    const lastTaskInstance = task.taskInstances[task.taskInstances.length - 1];
+    const latestTaskInstance = task.taskInstances[0];
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
@@ -125,7 +125,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             </Box>
             <Box sx={{ mt: 'auto' }}>
                 <Typography variant="caption">Usage</Typography>
-                <Typography variant="body2">Latest: {lastTaskInstance?.start.date}</Typography>
+                <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
                 <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
                     {showFullHistory ? "Hide" : "More"}
                 </Link>
