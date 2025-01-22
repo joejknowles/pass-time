@@ -1,4 +1,4 @@
-import { Box, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { daytimeHours, HOUR_COLUMN_WIDTH } from "./consts";
 
 interface HourGridProps {
@@ -13,8 +13,8 @@ const HourGrid: React.FC<HourGridProps> = ({ addDraftTaskInstance, hourBlockHeig
         <>
             {daytimeHours.map((hour) => (
                 <Box key={hour} sx={{ display: 'flex', height: hourBlockHeight }}>
-                    <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-12px', textAlign: 'right', mr: 1 }}>
-                        {hour}:00
+                    <Box sx={{ width: HOUR_COLUMN_WIDTH, marginTop: '-9px', textAlign: 'right', mr: 1 }}>
+                        <Typography variant="body2" color="textSecondary">{hour < 10 && 0}{hour}:00</Typography>
                     </Box>
                     <Box
                         sx={{
