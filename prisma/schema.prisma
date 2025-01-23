@@ -18,6 +18,7 @@ model User {
   firebaseId String   @unique
   email      String   @unique
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   tasks         Task[]
   taskInstances TaskInstance[]
@@ -40,19 +41,24 @@ model Task {
   taskInstances     TaskInstance[]
   balanceTargets    BalanceTarget[]
 
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
   @@index([userId])
   @@index([title])
   @@index([isSuggestingEnabled])
 }
 
 model TaskInstance {
-  id     Int     @id @default(autoincrement())
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int
-  task   Task    @relation(fields: [taskId], references: [id])
-  taskId Int
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  taskId    Int
   startTime DateTime
-  duration Int   @default(60)
+  duration  Int      @default(60)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, taskId, startTime])
 }
@@ -72,6 +78,8 @@ model BalanceTarget {
   task         Task       @relation(fields: [taskId], references: [id])
   user         User       @relation(fields: [userId], references: [id])
 
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@index([userId])
 }
