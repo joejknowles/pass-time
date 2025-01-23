@@ -1,7 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
-import { CREATE_TASK_INSTANCE, GET_TASK_INSTANCES, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
+import { CREATE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
+import { GET_TASK_INSTANCES } from '@/app/lib/graphql/queries';
 import { useMutation, useQuery } from "@apollo/client";
 import { DraftTaskInstanceCard as DraftTaskInstanceCard } from "./DraftTaskInstanceCard";
 import EntityDetailsPanel from "../entityDetailsPanel/EntityDetailsPanel";

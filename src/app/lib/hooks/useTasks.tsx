@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_TASKS, CREATE_TASK, UPDATE_TASK } from "@/app/lib/graphql/mutations";
+import { CREATE_TASK, UPDATE_TASK } from "@/app/lib/graphql/mutations";
+import { GET_TASKS } from '../graphql/queries';
 import { Task } from "@/app/components/dayGrid/types";
 
 interface TasksContextType {

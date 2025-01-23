@@ -1,7 +1,8 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, Typography, Autocomplete } from "@mui/material";
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { CREATE_BALANCE_TARGET, GET_TASKS } from "../lib/graphql/mutations";
+import { CREATE_BALANCE_TARGET } from "../lib/graphql/mutations";
+import { GET_TASKS } from '../lib/graphql/queries';
 import { durationOptions } from "../lib/utils/durationOptions";
 
 interface CreateBalanceTargetModalProps {

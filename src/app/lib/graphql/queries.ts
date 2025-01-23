@@ -55,3 +55,63 @@ export const GET_TASK_SUGGESTION_CONFIG = gql`
     }
   }
 `;
+export const GET_TASK_INSTANCES = gql`
+  query GetTaskInstances($input: GetTaskInstancesInput!) {
+    taskInstances(input: $input) {
+      id
+      duration
+      start {
+        date
+        hour
+        minute
+      }
+      user {
+        id
+        email
+      }
+      task {
+        id,
+        title,
+        parentTasks {
+          id
+          title
+        }
+        childTasks {
+          id
+          title
+        }
+      }
+    }
+  }
+`;export const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      title
+      defaultDuration
+      isSuggestingEnabled
+      user {
+        id
+        email
+      }
+      parentTasks {
+        id
+        title
+      }
+      childTasks {
+        id
+        title
+      }
+      taskInstances {
+        id,
+        start {
+          date
+          hour
+          minute
+        },
+        duration
+      }
+    }
+  }
+`;
+
