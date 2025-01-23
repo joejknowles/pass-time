@@ -2,7 +2,7 @@
 import { Box, Typography, IconButton, ClickAwayListener, Tabs, Tab } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { DetailedTask, Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
@@ -33,11 +33,15 @@ export const TaskDetails = ({
     const { data: detailedTaskData, refetch: refetchDetailedTask } = useQuery<{ task: DetailedTask }>(GET_TASK, {
         variables: { taskId: standardTask.id },
         fetchPolicy: "cache-and-network",
-        pollInterval: secondsInMs(30),
+        pollInterval: secondsInMs(60),
     });
     const detailedTask = detailedTaskData?.task;
 
     const task = detailedTask || standardTask;
+
+    useEffect(() => {
+        refetchDetailedTask();
+    }, [JSON.stringify(standardTask)]);
 
     useCallOnEscapePress(onClose);
 
