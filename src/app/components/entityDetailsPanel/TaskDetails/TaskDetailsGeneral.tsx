@@ -141,13 +141,13 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             </Box>
             <Box sx={{ mt: 'auto' }}>
                 <Typography variant="caption">Usage</Typography>
-                <Typography>
+                <Typography variant="body2">
                     Today: {displayMinutes(durationToday)}
                 </Typography>
-                <Typography>
+                <Typography variant="body2">
                     This week: {displayMinutes(durationThisWeek)}
                 </Typography>
-                <Typography>
+                <Typography variant="body2">
                     All time: {displayMinutes(durationAllTime)}
                 </Typography>
                 <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
