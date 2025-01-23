@@ -141,28 +141,37 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             </Box>
             <Box sx={{ mt: 'auto' }}>
                 <Typography variant="caption">Usage</Typography>
-                <Typography variant="body2">
-                    Today: {displayMinutes(durationToday)}
-                </Typography>
-                <Typography variant="body2">
-                    This week: {displayMinutes(durationThisWeek)}
-                </Typography>
+                {durationAllTime > 0 && (
+                    <>
+                        <Typography variant="body2">
+                            Today: {displayMinutes(durationToday)}
+                        </Typography>
+                        <Typography variant="body2">
+                            This week: {displayMinutes(durationThisWeek)}
+                        </Typography>
+                    </>
+                )}
                 <Typography variant="body2">
                     All time: {displayMinutes(durationAllTime)}
                 </Typography>
-                <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
-                <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
-                    {showFullHistory ? "Hide" : "More"}
-                </Link>
-                {showFullHistory && (
-                    <Box sx={{ mt: 2 }}>
-                        {task.taskInstances.map((instance, index) => (
-                            <Typography key={index} variant="body2">
-                                {instance.start.date} - {instance.duration} minutes
-                            </Typography>
-                        ))}
-                    </Box>
-                )}
+                {
+                    latestTaskInstance && (
+                        <>
+                            <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
+                            <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
+                                {showFullHistory ? "Hide" : "More"}
+                            </Link>
+                            {showFullHistory && (
+                                <Box sx={{ mt: 2 }}>
+                                    {task.taskInstances.map((instance, index) => (
+                                        <Typography key={index} variant="body2">
+                                            {instance.start.date} - {instance.duration} minutes
+                                        </Typography>
+                                    ))}
+                                </Box>
+                            )}
+                        </>
+                    )}
             </Box>
         </Box>
     );
