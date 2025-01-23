@@ -295,18 +295,19 @@ export const TaskInstanceDetails = ({
                                         type="date"
                                         value={taskInstance.start.date}
                                         onChange={handleDateChange}
-                                        variant="standard"
                                         slotProps={{
                                             inputLabel: {
                                                 shrink: true,
                                             },
                                         }}
+                                        size="small"
                                     />
                                 </Box>
                                 <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center", gap: 2 }}>
-                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                    <FormControl sx={{ minWidth: 80 }} >
                                         <InputLabel>From</InputLabel>
                                         <Select
+                                            label="From"
                                             value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
                                             onChange={handleStartChange}
                                             size="small"
@@ -328,9 +329,10 @@ export const TaskInstanceDetails = ({
                                             })}
                                         </Select>
                                     </FormControl>
-                                    <FormControl variant="standard" sx={{ minWidth: 80 }} >
+                                    <FormControl sx={{ minWidth: 80 }} >
                                         <InputLabel>To</InputLabel>
                                         <Select
+                                            label="To"
                                             value={getFormattedEndTime()}
                                             onChange={async (event) => {
                                                 const [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
