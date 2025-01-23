@@ -1,4 +1,4 @@
-import { AppBar as MuiAppBar, Toolbar, Typography, Button, Menu, MenuItem } from "@mui/material";
+import { AppBar as MuiAppBar, Toolbar, Typography, Button, Menu, MenuItem, Box } from "@mui/material";
 import Link from "next/link";
 import { useState } from "react";
 import { User, signOut } from "firebase/auth";
@@ -6,11 +6,12 @@ import { auth } from "@/lib/firebase";
 import { useDevice } from "../lib/hooks/useDevice";
 
 interface AppBarProps {
+  hasLoadedUser: boolean;
   user: User | null;
   onBalanceTargetsOpen: () => void;
 }
 
-export default function AppBar({ user, onBalanceTargetsOpen }: AppBarProps) {
+export default function AppBar({ hasLoadedUser, user, onBalanceTargetsOpen }: AppBarProps) {
   const { values: { padding } } = useDevice({
     padding: {
       smallPhoneWidthOrLess: "2px 2px 2px 8px",
@@ -51,7 +52,11 @@ export default function AppBar({ user, onBalanceTargetsOpen }: AppBarProps) {
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           PassTime
         </Typography>
-        {user ? (
+        {!hasLoadedUser && (
+          <Box sx={{ height: 36.5, width: 1 }} />
+        )}
+
+        {hasLoadedUser && user && (
           <>
             <Button
               color="inherit"
@@ -86,16 +91,19 @@ export default function AppBar({ user, onBalanceTargetsOpen }: AppBarProps) {
               <MenuItem onClick={handleSignOutAndClose}>Sign out</MenuItem>
             </Menu>
           </>
-        ) : (
-          <>
-            <Button color="inherit" component={Link} href="/login">
-              Log in
-            </Button>
-            <Button color="inherit" component={Link} href="/signup">
-              Sign up
-            </Button>
-          </>
-        )}
+        )
+        }
+        {
+          hasLoadedUser && !user && (
+            <>
+              <Button color="inherit" component={Link} href="/login">
+                Log in
+              </Button>
+              <Button color="inherit" component={Link} href="/signup">
+                Sign up
+              </Button>
+            </>
+          )}
       </Toolbar>
     </MuiAppBar>
   );

@@ -6,6 +6,7 @@ import {
   Typography,
   Container,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import Dashboard from "./components/Dashboard";
 import { BalanceTargetsModal } from "./components/BalanceTargetsModal";
@@ -19,11 +20,13 @@ import AppBar from "./components/AppBar";
 
 
 export default function Home() {
+  const [hasLoadedUser, setHasLoadedUser] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [balanceTargetsOpen, setBalanceTargetsOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setHasLoadedUser(true);
       setUser(user);
     });
     return () => unsubscribe();
@@ -48,20 +51,31 @@ export default function Home() {
       }}
     >
       <AppBar
+        hasLoadedUser={hasLoadedUser}
         user={user}
         onBalanceTargetsOpen={handleBalanceTargetsOpen}
       />
+
       {
-        user && (
-          <EverywhereProviders>
-            <BalanceTargetsModal open={balanceTargetsOpen} onClose={handleBalanceTargetsClose} />
-          </EverywhereProviders>
+        !hasLoadedUser && (
+          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexGrow: 1 }}>
+            <CircularProgress sx={{ mb: '20dvh' }} />
+          </Box>
+        )
+      }
+
+      {
+        hasLoadedUser && user && (
+          <>
+            <EverywhereProviders>
+              <BalanceTargetsModal open={balanceTargetsOpen} onClose={handleBalanceTargetsClose} />
+            </EverywhereProviders>
+            <Dashboard />
+          </>
         )
       }
       {
-        user ? (
-          <Dashboard />
-        ) : (
+        hasLoadedUser && !user && (
           <Container sx={{ mt: 4 }}>
             <Typography variant="h5" gutterBottom>
               Please log in or sign up.
@@ -69,6 +83,6 @@ export default function Home() {
           </Container>
         )
       }
-    </Box >
+    </Box>
   );
-}
+};
