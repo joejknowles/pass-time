@@ -11,7 +11,7 @@ export const taskQueryResolver = async (_parent: any, args: { taskId: number }, 
     }
 
     const task = await prisma.task.findUnique({
-        where: { id: args.taskId },
+        where: { id: args.taskId, userId: context.user.id },
         include: {
             user: true,
             taskInstances: {
