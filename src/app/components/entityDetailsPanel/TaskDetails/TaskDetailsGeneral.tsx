@@ -165,7 +165,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                                 <Box sx={{ mt: 2 }}>
                                     {task.taskInstances.map((instance, index) => (
                                         <Typography key={index} variant="body2">
-                                            {instance.start.date} - {instance.duration} minutes
+                                            {instance.start.date} - {displayMinutes(instance.duration)}
                                         </Typography>
                                     ))}
                                 </Box>
