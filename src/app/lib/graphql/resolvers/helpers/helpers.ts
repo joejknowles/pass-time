@@ -6,28 +6,37 @@ import { GraphQLError } from 'graphql';
 export const prisma = new PrismaClient();
 export type Context = BaseContext & { user: User | null };
 
-export const calculateProgress = async (taskId: number, balanceTarget: BalanceTarget, depth: number = 0): Promise<number> => {
+type PROGRESS_TIME_WINDOWS = 'DAILY' | 'WEEKLY' | 'ALL_TIME';
+
+export const calculateProgress = async (taskId: number, timeWindow: PROGRESS_TIME_WINDOWS, userId: number, depth: number = 0): Promise<number> => {
     if (depth > 20) {
         throw new GraphQLError("Too many nested tasks");
     }
+
     const now = new Date();
-    const dayNumberToday = now.getDay();
-    // starts Monday
-    const numberOfDaysSinceStartOfWeek = dayNumberToday === 0
-        ? 6
-        : dayNumberToday - 1;
-    const timeRange = balanceTarget.timeWindow === 'DAILY' ? {
-        gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        lt: new Date(new Date().setHours(24, 0, 0, 0)),
-    } : {
-        gte: new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000 * numberOfDaysSinceStartOfWeek),
-        lt: new Date(new Date().setHours(24, 0, 0, 0)),
+
+    let timeRange = {}
+    if (timeWindow === 'WEEKLY') {
+        const dayNumberToday = now.getDay();
+        // starts Monday
+        const numberOfDaysSinceStartOfWeek = dayNumberToday === 0
+            ? 6
+            : dayNumberToday - 1;
+        timeRange = {
+            gte: new Date(new Date().setHours(0, 0, 0, 0) - 24 * 60 * 60 * 1000 * numberOfDaysSinceStartOfWeek),
+            lt: new Date(new Date().setHours(24, 0, 0, 0)),
+        };
+    } else if (timeWindow === 'DAILY') {
+        timeRange = {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)),
+            lt: new Date(new Date().setHours(24, 0, 0, 0)),
+        };
     }
 
     const task = await prisma.task.findUnique({
         where: {
             id: taskId,
-            userId: balanceTarget.userId,
+            userId: userId,
         },
         include: {
             childTasks: true,
@@ -51,7 +60,7 @@ export const calculateProgress = async (taskId: number, balanceTarget: BalanceTa
     }, 0);
 
     for (const childTask of task.childTasks) {
-        totalDuration += await calculateProgress(childTask.id, balanceTarget);
+        totalDuration += await calculateProgress(childTask.id, timeWindow, userId, depth + 1);
     }
 
     return totalDuration;

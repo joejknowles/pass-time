@@ -83,7 +83,9 @@ export const GET_TASK_INSTANCES = gql`
       }
     }
   }
-`;export const GET_TASKS = gql`
+`;
+
+export const GET_TASKS = gql`
   query GetTasks {
     tasks {
       id
@@ -115,3 +117,39 @@ export const GET_TASK_INSTANCES = gql`
   }
 `;
 
+export const GET_TASK = gql`
+  query GetTask($taskId: Int!) {
+    task(taskId: $taskId) {
+      id
+      progress {
+        today
+        thisWeek
+        allTime
+      }
+      title
+      defaultDuration
+      isSuggestingEnabled
+      user {
+        id
+        email
+      }
+      parentTasks {
+        id
+        title
+      }
+      childTasks {
+        id
+        title
+      }
+      taskInstances {
+        id,
+        start {
+          date
+          hour
+          minute
+        },
+        duration
+      }
+    }
+  }
+`;

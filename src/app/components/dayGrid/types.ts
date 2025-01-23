@@ -8,6 +8,14 @@ export interface Task {
     taskInstances: BasicTaskInstance[];
 }
 
+export type DetailedTask = Task & {
+    progress: {
+        today: number;
+        thisWeek: number;
+        allTime: number;
+    }
+}
+
 export interface BasicTaskInstance {
     id: string;
     start: {

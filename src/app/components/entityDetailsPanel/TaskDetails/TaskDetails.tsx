@@ -2,11 +2,13 @@
 import { Box, Typography, IconButton, ClickAwayListener, Tabs, Tab } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useState, useEffect, useRef } from "react";
-import { Task } from "../../dayGrid/types";
+import { useState, useRef } from "react";
+import { DetailedTask, Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 import { useCallOnEscapePress } from "@/app/lib/hooks/useCallOnEscapePress";
+import { useQuery } from "@apollo/client";
+import { GET_TASK } from "@/app/lib/graphql/queries";
 
 interface TaskInstanceDetailsProps {
     task: Task;
@@ -17,7 +19,7 @@ interface TaskInstanceDetailsProps {
 }
 
 export const TaskDetails = ({
-    task,
+    task: standardTask,
     isMovingATask,
     goBack,
     onClose,
@@ -26,6 +28,12 @@ export const TaskDetails = ({
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const [tabIndex, setTabIndex] = useState(0);
 
+    const { data: detailedTaskData } = useQuery<{ task: DetailedTask }>(GET_TASK, {
+        variables: { taskId: standardTask.id },
+    });
+    const detailedTask = detailedTaskData?.task;
+
+    const task = detailedTask || standardTask;
     useCallOnEscapePress(onClose);
 
     if (!task) {

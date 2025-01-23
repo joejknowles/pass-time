@@ -1,12 +1,12 @@
-import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel, ClickAwayListener, Button, Link } from "@mui/material";
-import { Task } from "../../dayGrid/types";
+import { Box, Typography, Autocomplete, TextField, Chip, Select, MenuItem, SelectChangeEvent, FormControl, InputLabel, ClickAwayListener, Button, Link, duration } from "@mui/material";
+import { DetailedTask, Task } from "../../dayGrid/types";
 import { durationOptions } from "../../../lib/utils/durationOptions";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { useState } from "react";
 import { displayMinutes } from "../../utils/date";
 
 interface TaskDetailsGeneralProps {
-    task: Task;
+    task: Task | DetailedTask;
     goToTaskDetails: (taskId: string) => void;
 }
 
@@ -32,20 +32,9 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
 
     const latestTaskInstance = task.taskInstances[0];
 
-    const instancesToday = task.taskInstances.filter((instance) => instance.start.date === new Date().toISOString().split("T")[0]);
-    const durationToday = instancesToday.reduce((acc, instance) => acc + instance.duration, 0);
-
-    const instancesThisWeek = task.taskInstances.filter((instance) => {
-        const instanceDate = new Date(instance.start.date);
-        const today = new Date();
-        const dayOfWeekStartingFromMonday = today.getDay() === 0 ? 6 : today.getDay() - 1;
-        const startOfWeek = new Date(today.setDate(today.getDate() - dayOfWeekStartingFromMonday));
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return instanceDate >= startOfWeek && instanceDate <= tomorrow;
-    });
-    const durationThisWeek = instancesThisWeek.reduce((acc, instance) => acc + instance.duration, 0);
-    const durationAllTime = task.taskInstances.reduce((acc, instance) => acc + instance.duration, 0);
+    const durationToday = "progress" in task ? task.progress.today : null;
+    const durationThisWeek = "progress" in task ? task.progress.thisWeek : null;
+    const durationAllTime = "progress" in task ? task.progress.allTime : null;
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
@@ -141,19 +130,32 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             </Box>
             <Box sx={{ mt: 'auto' }}>
                 <Typography variant="caption">Usage</Typography>
-                {durationAllTime > 0 && (
-                    <>
-                        <Typography variant="body2">
-                            Today: {displayMinutes(durationToday)}
-                        </Typography>
-                        <Typography variant="body2">
-                            This week: {displayMinutes(durationThisWeek)}
-                        </Typography>
-                    </>
-                )}
-                <Typography variant="body2">
-                    All time: {displayMinutes(durationAllTime)}
-                </Typography>
+                {
+                    durationAllTime === null && (
+                        "..."
+                    )
+                }
+                {
+                    durationAllTime !== null &&
+                    durationToday !== null &&
+                    durationThisWeek !== null &&
+                    (
+                        <>
+                            {durationAllTime > 0 && (
+                                <>
+                                    <Typography variant="body2">
+                                        Today: {displayMinutes(durationToday)}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        This week: {displayMinutes(durationThisWeek)}
+                                    </Typography>
+                                </>
+                            )}
+                            <Typography variant="body2">
+                                All time: {displayMinutes(durationAllTime)}
+                            </Typography>
+                        </>
+                    )}
                 {
                     latestTaskInstance && (
                         <>

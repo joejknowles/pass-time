@@ -1,6 +1,5 @@
-import { Task } from "@prisma/client";
 import { MovingTaskInfo } from "./types";
-import { BasicTask, DraggedTask } from "../tasksList/types";
+import { DraggedTask } from "../tasksList/types";
 
 export const isToday = (date: Date): boolean => {
     return date.toDateString() === new Date().toDateString();

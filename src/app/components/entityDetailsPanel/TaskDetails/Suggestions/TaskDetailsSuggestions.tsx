@@ -7,11 +7,11 @@ import { DueDateInputs } from "./DueDateInputs";
 import { TaskSuggestionsConfig, RECURRING_TYPES } from "./types";
 import { GET_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/queries";
 import { UPDATE_TASK_SUGGESTION_CONFIG } from "@/app/lib/graphql/mutations";
-import { Task } from "@/app/components/dayGrid/types";
+import { DetailedTask, Task } from "@/app/components/dayGrid/types";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 
 interface TaskDetailsSuggestionsProps {
-    task: Task;
+    task: Task | DetailedTask;
 }
 
 export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) => {

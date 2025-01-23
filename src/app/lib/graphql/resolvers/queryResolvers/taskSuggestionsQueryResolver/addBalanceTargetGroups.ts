@@ -1,13 +1,11 @@
 import { prisma } from '../../helpers/helpers';
 import { getChildTaskPaths } from '../../helpers/getChildTaskPaths';
-import { calculateProgressForTasks } from '../../helpers/calculateProgressForTasks';
 
 export const addBalanceTargetGroups = async (taskGroups: any[], userId: number) => {
     const balanceTargets = await prisma.balanceTarget.findMany({
         where: { userId: userId },
         include: { task: true },
     });
-
 
     const priorityTargets = balanceTargets.filter((target) => {
         const isOnlyTargetForTask = balanceTargets.filter((t) => t.taskId === target.taskId).length === 1;

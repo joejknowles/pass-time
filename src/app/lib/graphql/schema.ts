@@ -20,6 +20,13 @@ export const typeDefs = gql`
     defaultDuration: Int!
     isSuggestingEnabled: Boolean
     suggestionConfigs: [TaskSuggestionConfig!]!
+    progress: TaskProgress
+  }
+
+  type TaskProgress {
+    today: Int!
+    thisWeek: Int!
+    allTime: Int!
   }
 
   type TaskInstance {
@@ -87,6 +94,7 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     tasks: [Task!]!
+    task(taskId: Int!): Task
     taskInstances(input: GetTaskInstancesInput!): [TaskInstance!]!
     balanceTargets: [BalanceTarget!]!
     taskSuggestions: [TaskGroup!]!
