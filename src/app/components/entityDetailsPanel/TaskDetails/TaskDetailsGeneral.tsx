@@ -3,6 +3,7 @@ import { Task } from "../../dayGrid/types";
 import { durationOptions } from "../../../lib/utils/durationOptions";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { useState } from "react";
+import { displayMinutes } from "../../utils/date";
 
 interface TaskDetailsGeneralProps {
     task: Task;
@@ -30,6 +31,21 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
     };
 
     const latestTaskInstance = task.taskInstances[0];
+
+    const instancesToday = task.taskInstances.filter((instance) => instance.start.date === new Date().toISOString().split("T")[0]);
+    const durationToday = instancesToday.reduce((acc, instance) => acc + instance.duration, 0);
+
+    const instancesThisWeek = task.taskInstances.filter((instance) => {
+        const instanceDate = new Date(instance.start.date);
+        const today = new Date();
+        const dayOfWeekStartingFromMonday = today.getDay() === 0 ? 6 : today.getDay() - 1;
+        const startOfWeek = new Date(today.setDate(today.getDate() - dayOfWeekStartingFromMonday));
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return instanceDate >= startOfWeek && instanceDate <= tomorrow;
+    });
+    const durationThisWeek = instancesThisWeek.reduce((acc, instance) => acc + instance.duration, 0);
+    const durationAllTime = task.taskInstances.reduce((acc, instance) => acc + instance.duration, 0);
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
@@ -125,6 +141,15 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             </Box>
             <Box sx={{ mt: 'auto' }}>
                 <Typography variant="caption">Usage</Typography>
+                <Typography>
+                    Today: {displayMinutes(durationToday)}
+                </Typography>
+                <Typography>
+                    This week: {displayMinutes(durationThisWeek)}
+                </Typography>
+                <Typography>
+                    All time: {displayMinutes(durationAllTime)}
+                </Typography>
                 <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
                 <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
                     {showFullHistory ? "Hide" : "More"}
