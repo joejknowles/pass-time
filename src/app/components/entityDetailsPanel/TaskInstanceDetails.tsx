@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, TextField } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, TextField, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
-import { DELETE_TASK_INSTANCE, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
+import { DELETE_TASK_INSTANCE, UPDATE_TASK, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { TaskInstance } from "../dayGrid/types";
 import GoToTaskIcon from '@mui/icons-material/Visibility';
 import { useDevice } from "@/app/lib/hooks/useDevice";
@@ -45,8 +45,11 @@ export const TaskInstanceDetails = ({
     const headerMenuAnchorEl = useRef(null);
     const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
 
-    const [deleteTaskInstance] = useMutation(DELETE_TASK_INSTANCE);
-    const [updateTaskInstance] = useMutation(UPDATE_TASK_INSTANCE);
+    const [deleteTaskInstance, { loading: isSubmittingDelete }] = useMutation(DELETE_TASK_INSTANCE);
+    const [updateTaskInstance, { loading: isSubmittingInstanceUpdate }] = useMutation(UPDATE_TASK_INSTANCE);
+    const [updateTask, { loading: isSubmittingTaskUpdate }] = useMutation(UPDATE_TASK);
+
+    const isSubmitting = isSubmittingDelete || isSubmittingInstanceUpdate || isSubmittingTaskUpdate;
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -131,6 +134,8 @@ export const TaskInstanceDetails = ({
         const options = { weekday: 'long' } as const;
         return isToday ? `Today (${dateTime.toLocaleDateString(undefined, options)})` : dateTime.toLocaleDateString();
     }
+
+    const suggestDefaultChange = taskInstance.duration !== (taskInstance.task.defaultDuration || 30);
 
     return (
         <ClickAwayListener onClickAway={closeIfNotMoving}>
@@ -295,6 +300,7 @@ export const TaskInstanceDetails = ({
                                         type="date"
                                         value={taskInstance.start.date}
                                         onChange={handleDateChange}
+                                        disabled={isSubmitting}
                                         slotProps={{
                                             inputLabel: {
                                                 shrink: true,
@@ -303,13 +309,14 @@ export const TaskInstanceDetails = ({
                                         size="small"
                                     />
                                 </Box>
-                                <Box sx={{ marginBottom: 2, display: "flex", alignItems: "center", gap: 2 }}>
-                                    <FormControl sx={{ minWidth: 80 }} >
+                                <Box sx={{ marginBottom: 2, display: "flex", gap: 2 }}>
+                                    <FormControl sx={{ minWidth: 80, flexShrink: 0 }} >
                                         <InputLabel>From</InputLabel>
                                         <Select
                                             label="From"
                                             value={`${taskInstance.start.hour}:${taskInstance.start.minute.toString().padStart(2, '0')}`}
                                             onChange={handleStartChange}
+                                            disabled={isSubmitting}
                                             size="small"
                                             MenuProps={{
                                                 disablePortal: true,
@@ -329,56 +336,84 @@ export const TaskInstanceDetails = ({
                                             })}
                                         </Select>
                                     </FormControl>
-                                    <FormControl sx={{ minWidth: 80 }} >
-                                        <InputLabel>To</InputLabel>
-                                        <Select
-                                            label="To"
-                                            value={getFormattedEndTime()}
-                                            onChange={async (event) => {
-                                                const [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
-                                                const end = new Date(getStartDateTime().getTime());
-                                                end.setHours(hour);
-                                                end.setMinutes(minute);
-                                                const duration = (end.getTime() - getStartDateTime().getTime()) / (60 * 1000);
-                                                await updateTaskInstance({
-                                                    variables: {
-                                                        input: {
-                                                            id: taskInstance.id,
-                                                            duration,
+                                    <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+                                        <FormControl sx={{ minWidth: 80, mr: 1 }} >
+                                            <InputLabel>To</InputLabel>
+                                            <Select
+                                                label="To"
+                                                value={getFormattedEndTime()}
+                                                disabled={isSubmitting}
+                                                onChange={async (event) => {
+                                                    const [hour, minute] = event.target.value.split(":").map((n) => parseInt(n));
+                                                    const end = new Date(getStartDateTime().getTime());
+                                                    end.setHours(hour);
+                                                    end.setMinutes(minute);
+                                                    const duration = (end.getTime() - getStartDateTime().getTime()) / (60 * 1000);
+                                                    await updateTaskInstance({
+                                                        variables: {
+                                                            input: {
+                                                                id: taskInstance.id,
+                                                                duration,
+                                                            },
                                                         },
+                                                    });
+                                                    await refetchAllTaskData();
+                                                }}
+                                                size="small"
+                                                MenuProps={{
+                                                    disablePortal: true,
+                                                    sx: {
+                                                        maxHeight: 350,
                                                     },
-                                                });
-                                                await refetchAllTaskData();
-                                            }}
-                                            size="small"
-                                            MenuProps={{
-                                                disablePortal: true,
-                                                sx: {
-                                                    maxHeight: 350,
-                                                },
-                                            }}
-                                        >
-                                            {Array.from({ length: 24 * 4 }, (_, i) => {
-                                                const endHour = Math.floor(i / 4);
-                                                const endMinute = (i % 4) * 15;
-                                                const endTime = new Date(getStartDateTime().getTime());
-                                                endTime.setHours(endHour);
-                                                endTime.setMinutes(endMinute);
-                                                const duration = (endTime.getTime() - getStartDateTime().getTime()) / (60 * 1000);
-                                                if (duration <= 0) {
-                                                    return null;
-                                                }
-                                                const durationHours = Math.floor(duration / 60);
-                                                const durationMinutes = duration % 60;
-                                                const formattedDuration = `${durationHours > 0 ? `${durationHours}h ` : ""}${durationMinutes > 0 ? `${durationMinutes}m` : ""}`.trim();
-                                                return (
-                                                    <MenuItem key={`${endHour}:${endMinute}`} value={`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`}>
-                                                        {`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')} (${formattedDuration})`}
-                                                    </MenuItem>
-                                                );
-                                            })}
-                                        </Select>
-                                    </FormControl>
+                                                }}
+                                            >
+                                                {Array.from({ length: 24 * 4 }, (_, i) => {
+                                                    const endHour = Math.floor(i / 4);
+                                                    const endMinute = (i % 4) * 15;
+                                                    const endTime = new Date(getStartDateTime().getTime());
+                                                    endTime.setHours(endHour);
+                                                    endTime.setMinutes(endMinute);
+                                                    const duration = (endTime.getTime() - getStartDateTime().getTime()) / (60 * 1000);
+                                                    if (duration <= 0) {
+                                                        return null;
+                                                    }
+                                                    const durationHours = Math.floor(duration / 60);
+                                                    const durationMinutes = duration % 60;
+                                                    const formattedDuration = `${durationHours > 0 ? `${durationHours}h ` : ""}${durationMinutes > 0 ? `${durationMinutes}m` : ""}`.trim();
+                                                    return (
+                                                        <MenuItem key={`${endHour}:${endMinute}`} value={`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`}>
+                                                            {`${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')} (${formattedDuration})`}
+                                                        </MenuItem>
+                                                    );
+                                                })}
+                                            </Select>
+                                        </FormControl>
+                                        {
+                                            suggestDefaultChange && (
+                                                <Button
+                                                    color="warning"
+                                                    sx={{
+                                                        textAlign: "left",
+                                                        ml: -1,
+                                                    }}
+                                                    disabled={isSubmitting}
+                                                    onClick={async () => {
+                                                        await updateTask({
+                                                            variables: {
+                                                                input: {
+                                                                    id: taskInstance.task.id,
+                                                                    defaultDuration: taskInstance.duration,
+                                                                },
+                                                            },
+                                                        });
+                                                        await refetchAllTaskData();
+                                                    }}
+                                                >
+                                                    Set as default duration
+                                                </Button>
+                                            )
+                                        }
+                                    </Box>
                                 </Box>
                             </Box>
                         </ClickAwayListener>
