@@ -18,6 +18,8 @@ interface TaskInstanceDetailsProps {
     goToTaskDetails: (taskId: string) => void
 }
 
+const secondsInMs = (seconds: number) => seconds * 1000;
+
 export const TaskDetails = ({
     task: standardTask,
     isMovingATask,
@@ -28,12 +30,15 @@ export const TaskDetails = ({
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const [tabIndex, setTabIndex] = useState(0);
 
-    const { data: detailedTaskData } = useQuery<{ task: DetailedTask }>(GET_TASK, {
+    const { data: detailedTaskData, refetch: refetchDetailedTask } = useQuery<{ task: DetailedTask }>(GET_TASK, {
         variables: { taskId: standardTask.id },
+        fetchPolicy: "cache-and-network",
+        pollInterval: secondsInMs(30),
     });
     const detailedTask = detailedTaskData?.task;
 
     const task = detailedTask || standardTask;
+
     useCallOnEscapePress(onClose);
 
     if (!task) {
