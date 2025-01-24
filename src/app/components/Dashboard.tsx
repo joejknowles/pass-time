@@ -143,7 +143,8 @@ const Dashboard = () => {
                         <>
                             <Box sx={{
                                 minWidth: 0,
-                                p: sectionPadding
+                                p: sectionPadding,
+                                pt: isPhabletWidthOrLess ? 0 : undefined,
                             }}>
                                 <TasksList
                                     setOpenDetailsPanelEntity={setOpenDetailsPanelEntity}

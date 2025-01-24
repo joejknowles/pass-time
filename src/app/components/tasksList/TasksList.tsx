@@ -3,7 +3,7 @@ import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { GroupedTasks } from "./GroupedTasks";
 import { BasicTask, TaskGroup } from "./types";
 import CreateOrSelectTask from "../dayGrid/CreateOrSelectTask";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { useDevice } from "@/app/lib/hooks/useDevice";
 import MinimizeIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
@@ -26,13 +26,19 @@ export const TasksList = ({
     setDraggedTask,
     draggedTask,
 }: TasksListProps) => {
-    const { isPhabletWidthOrLess } = useDevice();
+    const { isPhabletWidthOrLess, isSmallerPhoneWidthOrLess } = useDevice();
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [additionalTaskGroups, setAdditionalTaskGroups] = useState<TaskGroup[]>([]);
     const { tasks, createTask } = useTasks();
     const [isMinimized, setIsMinimized] = useState(false);
     const [showCreateOrSelectTask, setShowCreateOrSelectTask] = useState(false);
+
+    useEffect(() => {
+        if (!isPhabletWidthOrLess) {
+            setIsMinimized(false);
+        }
+    }, [isPhabletWidthOrLess]);
 
     return (
         <Box sx={{
@@ -51,6 +57,42 @@ export const TasksList = ({
                     px: 1,
                 }}
             >
+                {
+                    isPhabletWidthOrLess && (
+                        <Link
+                            component="button"
+                            variant="body2"
+                            color="textSecondary"
+                            sx={{
+                                textDecoration: 'none',
+                                '&:hover': {
+                                    textDecoration: 'none',
+                                    color: 'text.primary',
+                                },
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                            onClick={() => {
+                                if (!isMinimized) {
+                                    setShowCreateOrSelectTask(false);
+                                }
+                                setIsMinimized(!isMinimized);
+                            }}
+                        >
+                            {
+                                isMinimized ? (
+                                    <>
+                                        <ExpandIcon sx={{ fontSize: 14, mr: 0.25 }} /> Show{!isSmallerPhoneWidthOrLess && " suggestions"}
+                                    </>
+                                ) : (
+                                    <>
+                                        <MinimizeIcon sx={{ fontSize: 14, mr: 0.25 }} /> Hide{!isSmallerPhoneWidthOrLess && " suggestions"}
+                                    </>
+                                )
+                            }
+                        </Link>
+                    )
+                }
                 <Link
                     component="button"
                     variant="body2"
@@ -74,40 +116,9 @@ export const TasksList = ({
                         setShowCreateOrSelectTask(!showCreateOrSelectTask);
                     }}
                 >
-                    <SearchIcon sx={{ fontSize: 18, mr: 0.25 }} />
+                    {!isPhabletWidthOrLess && <SearchIcon sx={{ fontSize: 18, mr: 0.25 }} />}
                     {showCreateOrSelectTask ? "Cancel" : "Find or Add Task"}
-                </Link>
-                <Link
-                    component="button"
-                    variant="body2"
-                    color="textSecondary"
-                    sx={{
-                        textDecoration: 'none',
-                        '&:hover': {
-                            textDecoration: 'none',
-                            color: 'text.primary',
-                        },
-                        display: 'flex',
-                        alignItems: 'center',
-                    }}
-                    onClick={() => {
-                        if (!isMinimized) {
-                            setShowCreateOrSelectTask(false);
-                        }
-                        setIsMinimized(!isMinimized);
-                    }}
-                >
-                    {
-                        isMinimized ? (
-                            <>
-                                Show suggestions <ExpandIcon sx={{ fontSize: 14 }} />
-                            </>
-                        ) : (
-                            <>
-                                Hide suggestions <MinimizeIcon sx={{ fontSize: 14 }} />
-                            </>
-                        )
-                    }
+                    {isPhabletWidthOrLess && <SearchIcon sx={{ fontSize: 18, ml: 0.25 }} />}
                 </Link>
             </Box>
             {
@@ -168,6 +179,7 @@ export const TasksList = ({
                                     }
                                 });
                             }
+                            setShowCreateOrSelectTask(false);
                         }}
                         tasks={tasks}
                         selectedTask={selectedTask}

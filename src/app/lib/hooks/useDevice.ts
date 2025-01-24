@@ -3,6 +3,8 @@ import { useMediaQuery } from "@mui/material";
 interface ValueOptions<T = any> {
     smallestWidthOrLess?: T;
     widerThanSmallestWidth?: T;
+    smallerPhoneWidthOrLess?: T;
+    widerThanSmallerPhoneWidth?: T;
     smallPhoneWidthOrLess?: T;
     widerThanSmallPhoneWidth?: T;
     mediumPhoneWidthOrLess?: T;
@@ -22,6 +24,7 @@ export const useDevice = <T = any>(options: Options<T> = {}) => {
     const isLargePhoneWidthOrLess = useMediaQuery("(max-width:580px)");
     const isMediumPhoneWidthOrLess = useMediaQuery("(max-width:400px)");
     const isSmallPhoneWidthOrLess = useMediaQuery("(max-width:320px)");
+    const isSmallerPhoneWidthOrLess = useMediaQuery("(max-width:300px)");
     const isExtraSmallPhoneWidthOrLess = useMediaQuery("(max-width:280px)");
 
     const breakpoints = [
@@ -29,6 +32,7 @@ export const useDevice = <T = any>(options: Options<T> = {}) => {
         { name: 'largePhoneWidth' as const, query: isLargePhoneWidthOrLess },
         { name: 'mediumPhoneWidth' as const, query: isMediumPhoneWidthOrLess },
         { name: 'smallPhoneWidth' as const, query: isSmallPhoneWidthOrLess },
+        { name: 'smallerPhoneWidth' as const, query: isSmallerPhoneWidthOrLess },
         { name: 'smallestWidth' as const, query: isExtraSmallPhoneWidthOrLess },
     ];
 
@@ -59,6 +63,7 @@ export const useDevice = <T = any>(options: Options<T> = {}) => {
         isLargePhoneWidthOrLess,
         isMediumPhoneWidthOrLess,
         isSmallPhoneWidthOrLess,
+        isSmallerPhoneWidthOrLess,
         isExtraSmallPhoneWidthOrLess,
         values,
     };
