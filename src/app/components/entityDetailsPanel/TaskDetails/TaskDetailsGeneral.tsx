@@ -148,15 +148,36 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                             {durationAllTime > 0 && (
                                 <>
                                     <Typography variant="body2">
-                                        {displayMinutes(durationToday)} <Typography variant="caption" component="span" color="textSecondary">today</Typography>
+                                        {displayMinutes(durationToday)}{" "}
+                                        <Typography
+                                            variant="body2"
+                                            component="span"
+                                            color="textSecondary"
+                                        >
+                                            today
+                                        </Typography>
                                     </Typography>
                                     <Typography variant="body2">
-                                        {displayMinutes(durationThisWeek)} this week
+                                        {displayMinutes(durationThisWeek)}{" "}
+                                        <Typography
+                                            variant="body2"
+                                            component="span"
+                                            color="textSecondary"
+                                        >
+                                            this week
+                                        </Typography>
                                     </Typography>
                                 </>
                             )}
                             <Typography variant="body2">
-                                {displayMinutes(durationAllTime)} all time
+                                {displayMinutes(durationAllTime)}{" "}
+                                <Typography
+                                    variant="body2"
+                                    component="span"
+                                    color="textSecondary"
+                                >
+                                    all time
+                                </Typography>
                             </Typography>
                         </>
                     )}
