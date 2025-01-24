@@ -117,7 +117,7 @@ export const TasksList = ({
                     }}
                 >
                     {!isPhabletWidthOrLess && <SearchIcon sx={{ fontSize: 18, mr: 0.25 }} />}
-                    {showCreateOrSelectTask ? "Cancel" : "Find or Add Task"}
+                    {showCreateOrSelectTask ? "Cancel" : "Find or add task"}
                     {isPhabletWidthOrLess && <SearchIcon sx={{ fontSize: 18, ml: 0.25 }} />}
                 </Link>
             </Box>
