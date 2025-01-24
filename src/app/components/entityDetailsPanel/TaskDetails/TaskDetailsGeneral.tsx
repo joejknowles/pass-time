@@ -144,15 +144,15 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                             {durationAllTime > 0 && (
                                 <>
                                     <Typography variant="body2">
-                                        Today: {displayMinutes(durationToday)}
+                                        {displayMinutes(durationToday)} <Typography variant="caption" component="span" color="textSecondary">today</Typography>
                                     </Typography>
                                     <Typography variant="body2">
-                                        This week: {displayMinutes(durationThisWeek)}
+                                        {displayMinutes(durationThisWeek)} this week
                                     </Typography>
                                 </>
                             )}
                             <Typography variant="body2">
-                                All time: {displayMinutes(durationAllTime)}
+                                {displayMinutes(durationAllTime)} all time
                             </Typography>
                         </>
                     )}
