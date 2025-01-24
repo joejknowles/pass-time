@@ -189,7 +189,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                                 {showFullHistory ? "Hide" : "More"}
                             </Link>
                             {showFullHistory && (
-                                <Box sx={{ mt: 2 }}>
+                                <Box sx={{ my: 2 }}>
                                     {task.taskInstances.map((instance, index) => (
                                         <Typography key={index} variant="body2">
                                             {instance.start.date} - {displayMinutes(instance.duration)}
