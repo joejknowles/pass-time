@@ -24,9 +24,10 @@ interface TaskGroupCardProps {
     title: string;
     type: TaskGroupType;
     children: ReactNode;
+    headerExtraSlot?: ReactNode;
 }
 
-export const TaskGroupCard = ({ title, type, children }: TaskGroupCardProps) => {
+export const TaskGroupCard = ({ title, type, children, headerExtraSlot }: TaskGroupCardProps) => {
     const Icon = takGroupIcons[type] || takGroupIcons.UNKNOWN;
 
     return (
@@ -45,6 +46,7 @@ export const TaskGroupCard = ({ title, type, children }: TaskGroupCardProps) => 
                 <Typography variant="subtitle2" color="textSecondary">
                     {title}
                 </Typography>
+                {headerExtraSlot}
             </Box>
             {children}
         </Box>

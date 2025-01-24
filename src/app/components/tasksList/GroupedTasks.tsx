@@ -106,24 +106,29 @@ export const GroupedTasks = ({
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
+                const headerExtraSlot = group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data ? (
+                    <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
+                        <LinearProgress
+                            variant="determinate"
+                            value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
+                            sx={{
+                                height: 4,
+                                borderRadius: 1,
+                                backgroundColor: 'grey.200',
+                                '& .MuiLinearProgress-bar': {
+                                    backgroundColor: 'grey.500',
+                                },
+                            }}
+                        />
+                    </Box>
+                ) : null;
+
                 return (
-                    <TaskGroupCard key={index} title={group.name} type={group.type as TaskGroupType}>
-                        {group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data && (
-                            <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
-                                <LinearProgress
-                                    variant="determinate"
-                                    value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
-                                    sx={{
-                                        height: 4,
-                                        borderRadius: 1,
-                                        backgroundColor: 'grey.200',
-                                        '& .MuiLinearProgress-bar': {
-                                            backgroundColor: 'grey.500',
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        )}
+                    <TaskGroupCard
+                        key={`${group.type}-${group.name}`}
+                        title={group.name}
+                        type={group.type as TaskGroupType}
+                        headerExtraSlot={headerExtraSlot}>
                         {group.tasks.map((task) => (
                             <TaskCard
                                 key={task.id}
