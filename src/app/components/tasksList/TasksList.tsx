@@ -46,7 +46,7 @@ export const TasksList = ({
             pt: 0,
             display: 'flex',
             flexDirection: 'column',
-            gap: 1,
+            gap: isPhabletWidthOrLess ? 0.5 : 1,
             maxHeight: isPhabletWidthOrLess ? '40dvh' : undefined,
         }}>
             <Box
