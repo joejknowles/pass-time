@@ -1,26 +1,11 @@
-import { Box, Card, CardContent, Typography, LinearProgress } from "@mui/material";
+import { Box, LinearProgress } from "@mui/material";
 import { useQuery } from '@apollo/client';
 import { GET_TASK_SUGGESTIONS } from "../../lib/graphql/queries";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { useEffect, useState } from "react";
-import TargetIcon from "@mui/icons-material/TrackChanges";
-import RecurringIcon from "@mui/icons-material/EventRepeat";
-import TodayEvent from "@mui/icons-material/Today";
-import EventIcon from "@mui/icons-material/Event";
-import SoonIcon from "@mui/icons-material/HelpOutline";
-import RecentsIcon from "@mui/icons-material/WorkHistory";
-import UnknownIcon from "@mui/icons-material/Help";
 import { BasicTask, TaskGroup } from "./types";
-
-const icons = {
-    BALANCE_TARGET: TargetIcon,
-    RECURRING: RecurringIcon,
-    DATE_SOON: EventIcon,
-    DATE_TODAY: TodayEvent,
-    RECENTS: RecentsIcon,
-    SOON: SoonIcon,
-    UNKNOWN: UnknownIcon,
-}
+import { TaskGroupCard, TaskGroupType } from "./TaskGroupCard";
+import { TaskCard } from "./TaskCard";
 
 const SUGGESTION_GROUP_TYPES = {
     BALANCE_TARGET: 'BALANCE_TARGET',
@@ -121,71 +106,38 @@ export const GroupedTasks = ({
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
-                const Icon = icons[group.type as keyof typeof icons] || icons.UNKNOWN;
-
                 return (
-                    <Box
-                        key={index}
-                        sx={{
-                            backgroundColor: 'grey.100',
-                            p: 1,
-                            borderRadius: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 1,
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-                            <Icon sx={{ fontSize: 20, marginLeft: '2px' }} />
-                            <Typography variant="subtitle2" color="textSecondary">
-                                {group.name}
-                            </Typography>
-
-                            {group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data && (
-                                <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
-                                    <LinearProgress
-                                        variant="determinate"
-                                        value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
-                                        sx={{
-                                            height: 4,
-                                            borderRadius: 1,
-                                            backgroundColor: 'grey.200',
-                                            '& .MuiLinearProgress-bar': {
-                                                backgroundColor: 'grey.500',
-                                            },
-                                        }}
-                                    />
-                                </Box>
-                            )}
-                        </Box>
+                    <TaskGroupCard key={index} title={group.name} type={group.type as TaskGroupType}>
+                        {group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data && (
+                            <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
+                                    sx={{
+                                        height: 4,
+                                        borderRadius: 1,
+                                        backgroundColor: 'grey.200',
+                                        '& .MuiLinearProgress-bar': {
+                                            backgroundColor: 'grey.500',
+                                        },
+                                    }}
+                                />
+                            </Box>
+                        )}
                         {group.tasks.map((task) => (
-                            <Card
+                            <TaskCard
                                 key={task.id}
-                                onMouseDown={(event) => handleMouseDown(task, event)}
+                                id={`task-suggestion-task-${task.id}`}
                                 onClick={wasJustDragging ? undefined : () => {
                                     setOpenDetailsPanelEntity({ id: task.id, type: "Task" });
                                 }}
-                                sx={{
-                                    backgroundColor: 'white',
-                                    cursor: 'pointer',
-                                }}
-                                id={`task-suggestion-task-${task.id}`}
+                                onMouseDown={(event) => handleMouseDown(task, event)}
                             >
-                                <CardContent
-                                    sx={{
-                                        '&:last-child': {
-                                            pb: 2,
-                                        },
-                                    }}
-                                >
-                                    <Typography variant="body1" color="text.primary">
-                                        {task.title}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
+                                {task.title}
+                            </TaskCard>
                         ))}
-                    </Box>
-                )
+                    </TaskGroupCard>
+                );
             })}
         </Box>
     );
