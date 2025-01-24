@@ -24,15 +24,10 @@ export const TasksList = ({
     draggedTask,
 }: TasksListProps) => {
     const { isPhabletWidthOrLess } = useDevice();
-    const [showGroupedTasks, setShowGroupedTasks] = useState(!isPhabletWidthOrLess);
     const [inputText, setInputText] = useState("");
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [additionalTaskGroups, setAdditionalTaskGroups] = useState<TaskGroup[]>([]);
     const { tasks, createTask } = useTasks();
-
-    useEffect(() => {
-        setShowGroupedTasks(!isPhabletWidthOrLess);
-    }, [isPhabletWidthOrLess]);
 
     return (
         <Box sx={{
@@ -43,6 +38,7 @@ export const TasksList = ({
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
+            maxHeight: isPhabletWidthOrLess ? '40dvh' : undefined,
         }}>
             <CreateOrSelectTask
                 title={inputText}
@@ -108,16 +104,14 @@ export const TasksList = ({
                     placeholder: "Search for a task",
                 }}
             />
-            {showGroupedTasks && (
-                <GroupedTasks
-                    {...{
-                        setOpenDetailsPanelEntity,
-                        setDraggedTask,
-                        draggedTask,
-                        additionalTaskGroups,
-                    }}
-                />
-            )}
+            <GroupedTasks
+                {...{
+                    setOpenDetailsPanelEntity,
+                    setDraggedTask,
+                    draggedTask,
+                    additionalTaskGroups,
+                }}
+            />
         </Box>
     );
 };
