@@ -1,4 +1,4 @@
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, Typography } from "@mui/material";
 import { useQuery } from '@apollo/client';
 import { GET_TASK_SUGGESTIONS } from "../../lib/graphql/queries";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { BasicTask, TaskGroup } from "./types";
 import { TaskGroupCard, TaskGroupType } from "./TaskGroupCard";
 import { TaskCard } from "./TaskCard";
+import { GroupedTasksPlaceholderLoader } from "./GroupedTasksPlaceholderLoader";
+import { useDevice } from "@/app/lib/hooks/useDevice";
 
 const SUGGESTION_GROUP_TYPES = {
     BALANCE_TARGET: 'BALANCE_TARGET',
@@ -42,7 +44,8 @@ export const GroupedTasks = ({
     additionalTaskGroups,
     isVisible,
 }: GroupedTasksProps) => {
-    const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
+    const { isPhabletWidthOrLess } = useDevice();
+    const { data, loading } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
             console.log("TaskSuggestions:", formattedRequestTime());
         },
@@ -84,8 +87,31 @@ export const GroupedTasks = ({
         document.body.style.userSelect = 'none';
     };
 
-    if (!taskSuggestions || !isVisible) {
+    if (isVisible && loading) {
+        return <GroupedTasksPlaceholderLoader />;
+    }
+
+    if (!isVisible) {
         return null;
+    }
+
+    if (!taskSuggestions) {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: isPhabletWidthOrLess ? 1 : 1,
+                    px: 2,
+                    py: isPhabletWidthOrLess ? 0.5 : 2,
+                }}
+            >
+                <Typography variant="body2" color="textSecondary">No task suggestions right now</Typography>
+                <Typography variant="caption" color="textSecondary">
+                    Configure your suggestions on a task's suggestions tab
+                </Typography>
+            </Box>
+        )
     }
 
     const orderedGroups = [...taskSuggestions].sort((a, b) => {

@@ -26,6 +26,10 @@ declare module "@mui/material/styles" {
             white: string;
             black: string;
         };
+        greyPlus: {
+            150: string;
+            250: string;
+        };
     }
     interface PaletteOptions {
         blue?: {
@@ -47,6 +51,10 @@ declare module "@mui/material/styles" {
             cardIconSelected?: string;
             white?: string;
             black?: string;
+        };
+        greyPlus?: {
+            150?: string;
+            250?: string;
         };
     }
 }
@@ -70,6 +78,10 @@ const rawTheme = createTheme({
             700: 'hsl(0, 0%, 40%)',
             800: 'hsl(0, 0%, 30%)',
             900: 'hsl(0, 0%, 20%)',
+        },
+        greyPlus: {
+            150: 'hsl(0, 0%, 92%)',
+            250: 'hsl(0, 0%, 83%)',
         },
         blue: {
             100: 'hsl(207, 90%, 95%)',

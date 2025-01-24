@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, SxProps, Typography } from "@mui/material";
 import { ReactNode } from "react";
 import TargetIcon from "@mui/icons-material/TrackChanges";
 import RecurringIcon from "@mui/icons-material/EventRepeat";
@@ -21,13 +21,20 @@ const takGroupIcons = {
 export type TaskGroupType = keyof typeof takGroupIcons;
 
 interface TaskGroupCardProps {
-    title: string;
+    title: string | ReactNode;
     type: TaskGroupType;
     children: ReactNode;
     headerExtraSlot?: ReactNode;
+    headerSx?: SxProps;
 }
 
-export const TaskGroupCard = ({ title, type, children, headerExtraSlot }: TaskGroupCardProps) => {
+export const TaskGroupCard = ({
+    title,
+    type,
+    children,
+    headerExtraSlot,
+    headerSx,
+}: TaskGroupCardProps) => {
     const Icon = takGroupIcons[type] || takGroupIcons.UNKNOWN;
 
     return (
@@ -41,7 +48,15 @@ export const TaskGroupCard = ({ title, type, children, headerExtraSlot }: TaskGr
                 gap: 1,
             }}
         >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: 'text.secondary',
+                    ...headerSx
+                }}
+            >
                 <Icon sx={{ fontSize: 20, marginLeft: '2px' }} />
                 <Typography variant="subtitle2" color="textSecondary">
                     {title}

@@ -15,7 +15,7 @@ export const TaskCard = ({ id, onClick, onMouseDown, children }: TaskCardProps) 
         onClick={onClick}
         sx={{
             backgroundColor: 'white',
-            cursor: 'pointer',
+            cursor: onClick ? 'pointer' : 'default',
         }}
     >
         <CardContent
@@ -25,9 +25,13 @@ export const TaskCard = ({ id, onClick, onMouseDown, children }: TaskCardProps) 
                 },
             }}
         >
-            <Typography variant="body1" color="text.primary">
-                {children}
-            </Typography>
+            {
+                typeof children === 'string' ? (
+                    <Typography variant="body1" color="text.primary">
+                        {children}
+                    </Typography>
+                ) : children
+            }
         </CardContent>
     </Card>
 );
