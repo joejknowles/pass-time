@@ -67,7 +67,11 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                             )}
                         </Box>
                         {(isAddingParentTask || taskUpdateErrorRaw) && (
-                            <ClickAwayListener onClickAway={() => setIsAddingParentTask(false)}>
+                            <ClickAwayListener onClickAway={() => {
+                                setTimeout(() => {
+                                    setIsAddingParentTask(false)
+                                }, 100)
+                            }}>
                                 <Autocomplete
                                     openOnFocus
                                     options={tasks?.map((task) => ({ label: task.title, id: task.id })) || []}
