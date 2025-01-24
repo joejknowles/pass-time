@@ -39,6 +39,7 @@ interface GroupedTasksProps {
         } | null) => void;
     draggedTask: { task: BasicTask | Task; position: { x: number; y: number }; width: number } | null;
     additionalTaskGroups: TaskGroup[];
+    isVisible: boolean;
 }
 
 let startTime = performance.now(); // Start time
@@ -54,6 +55,7 @@ export const GroupedTasks = ({
     setDraggedTask,
     draggedTask,
     additionalTaskGroups,
+    isVisible,
 }: GroupedTasksProps) => {
     const { data } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
         onCompleted: (data) => {
@@ -97,7 +99,7 @@ export const GroupedTasks = ({
         document.body.style.userSelect = 'none';
     };
 
-    if (!taskSuggestions) {
+    if (!taskSuggestions || !isVisible) {
         return null;
     }
 
