@@ -19,15 +19,10 @@ export const addBalanceTargetGroups = async (taskGroups: any[], userId: number) 
     for (const balanceTarget of priorityTargets) {
         const childTaskPaths = await getChildTaskPaths(balanceTarget.task.id, userId);
 
-        const taskIds = Array.from(
-            new Set(childTaskPaths.flat().map((task) => task.id))
-        );
-
         const remainingChildTasks: { id: number, title: string }[][] = JSON.parse(JSON.stringify(childTaskPaths));
         const orderedTaskList: { id: number, title: string }[] = [];
 
         while (remainingChildTasks.every((path) => path.length > 0)) {
-            // Orders tasks by lowest level child tasks first
             let longestPathLength = 0;
             for (const path of remainingChildTasks) {
                 if (path.length > longestPathLength) {
@@ -37,8 +32,8 @@ export const addBalanceTargetGroups = async (taskGroups: any[], userId: number) 
 
             for (const path of remainingChildTasks) {
                 if (path.length === longestPathLength) {
-                    const task = path.pop() as { id: number, title: string };
-                    if (!orderedTaskList.find((t) => t.id === task.id)) {
+                    const task = path.pop() as { id: number, title: string, isSuggestingEnabled: boolean };
+                    if (task.isSuggestingEnabled && !orderedTaskList.find((t) => t.id === task.id)) {
                         orderedTaskList.push(task);
                     }
                 }
