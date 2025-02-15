@@ -25,6 +25,6 @@ echo "Building the project..."
 yarn build
 
 echo "Restarting the server..."
-pm2 restart nextjs
+pm2 restart nextjs --update-env
 
 echo "Deployment complete!"
