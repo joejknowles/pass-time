@@ -35,6 +35,8 @@ Setting up a new EC2
     - `cat ~/.zshrc` in first env
     - `nano ~/.zshrc`, and paste in new env
     - `source ~/.zshrc`
+    - echo 'source ~/.zshrc' >> ~/.bash_profile
+    - source ~/.bash_profile
 7. Install pm2: `npm install -g pm2`
 8. Setup server:
     - `cd pass-time`
@@ -90,6 +92,9 @@ Setting up a new EC2
     - Copy config from existing: `sudo cat /etc/nginx/conf.d/*.conf`
     - `sudo nano /etc/nginx/conf.d/passti.me.conf`, paste in new env
     - Install certbot `sudo dnf install -y certbot python3-certbot-nginx`
+    - Check certificates can be created with `sudo certbot --nginx --staging -d passti.me` (staging is Important, because certbot has a limit of 5 requests per week)
+    - If it works, run it for real: `sudo certbot --nginx -d passti.me`
+
     - Renew SSL with: `sudo certbot renew --dry-run`
 
 
