@@ -94,7 +94,8 @@ Setting up a new EC2
     - Install certbot `sudo dnf install -y certbot python3-certbot-nginx`
     - Check certificates can be created with `sudo certbot --nginx --staging -d passti.me` (staging is Important, because certbot has a limit of 5 requests per week)
     - If it works, run it for real: `sudo certbot --nginx -d passti.me`
-
-    - Renew SSL with: `sudo certbot renew --dry-run`
-
-
+    - Set up regular renewal with systemd
+        - copy from existing ec2? `sudo nano /etc/systemd/system/certbot-renew.service`
+        - `sudo nano /etc/systemd/system/certbot-renew.timer`
+        - `sudo systemctl daemon-reload`
+        - `sudo systemctl enable --now certbot-renew.timer`
