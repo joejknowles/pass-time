@@ -92,8 +92,8 @@ Setting up a new EC2
     - Copy config from existing: `sudo cat /etc/nginx/conf.d/*.conf`
     - `sudo nano /etc/nginx/conf.d/passti.me.conf`, paste in new env
     - Install certbot `sudo dnf install -y certbot python3-certbot-nginx`
-    - Check certificates can be created with `sudo certbot --nginx --staging -d passti.me` (staging is Important, because certbot has a limit of 5 requests per week)
-    - If it works, run it for real: `sudo certbot --nginx -d passti.me`
+    - Check certificates can be created with `sudo certbot --nginx --staging -d passti.me -d www.passti.me` (staging is Important, because certbot has a limit of 5 requests per week)
+    - If it works, run it for real: `sudo certbot --nginx -d passti.me -d www.passti.me`
     - Set up regular renewal with systemd
         - copy from existing ec2? `sudo nano /etc/systemd/system/certbot-renew.service`
         - `sudo nano /etc/systemd/system/certbot-renew.timer`
