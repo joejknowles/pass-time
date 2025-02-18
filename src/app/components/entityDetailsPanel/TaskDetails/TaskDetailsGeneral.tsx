@@ -4,6 +4,7 @@ import { durationOptions } from "../../../lib/utils/durationOptions";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { useState } from "react";
 import { displayMinutes } from "../../utils/date";
+import { TaskStats } from './TaskStats';
 
 interface TaskDetailsGeneralProps {
     task: Task | DetailedTask;
@@ -15,7 +16,6 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
     const taskUpdateError = taskUpdateErrorRaw?.graphQLErrors[0];
     const genericErrorMessage = !taskUpdateError?.extensions?.fieldName && taskUpdateError?.message || taskUpdateErrorRaw?.message;
     const [isAddingParentTask, setIsAddingParentTask] = useState(false);
-    const [showFullHistory, setShowFullHistory] = useState(false);
 
     const handleDurationChange = async (event: SelectChangeEvent<number>) => {
         if (event.target.value) {
@@ -29,12 +29,6 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
             setIsAddingParentTask(false);
         }
     };
-
-    const latestTaskInstance = task.taskInstances[0];
-
-    const durationToday = "progress" in task ? task.progress.today : null;
-    const durationThisWeek = "progress" in task ? task.progress.thisWeek : null;
-    const durationAllTime = "progress" in task ? task.progress.allTime : null;
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
@@ -133,72 +127,7 @@ export const TaskDetailsGeneral = ({ task, goToTaskDetails }: TaskDetailsGeneral
                 </Box>
             </Box>
             <Box sx={{ mt: 'auto' }}>
-                <Typography variant="caption">Usage</Typography>
-                {
-                    durationAllTime === null && (
-                        "..."
-                    )
-                }
-                {
-                    durationAllTime !== null &&
-                    durationToday !== null &&
-                    durationThisWeek !== null &&
-                    (
-                        <>
-                            {durationAllTime > 0 && (
-                                <>
-                                    <Typography variant="body2">
-                                        {displayMinutes(durationToday)}{" "}
-                                        <Typography
-                                            variant="body2"
-                                            component="span"
-                                            color="textSecondary"
-                                        >
-                                            today
-                                        </Typography>
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        {displayMinutes(durationThisWeek)}{" "}
-                                        <Typography
-                                            variant="body2"
-                                            component="span"
-                                            color="textSecondary"
-                                        >
-                                            this week
-                                        </Typography>
-                                    </Typography>
-                                </>
-                            )}
-                            <Typography variant="body2">
-                                {displayMinutes(durationAllTime)}{" "}
-                                <Typography
-                                    variant="body2"
-                                    component="span"
-                                    color="textSecondary"
-                                >
-                                    all time
-                                </Typography>
-                            </Typography>
-                        </>
-                    )}
-                {
-                    latestTaskInstance && (
-                        <>
-                            <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
-                            <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
-                                {showFullHistory ? "Hide" : "More"}
-                            </Link>
-                            {showFullHistory && (
-                                <Box sx={{ my: 2 }}>
-                                    {task.taskInstances.map((instance, index) => (
-                                        <Typography key={index} variant="body2">
-                                            {instance.start.date} - {displayMinutes(instance.duration)}
-                                        </Typography>
-                                    ))}
-                                </Box>
-                            )}
-                        </>
-                    )}
+                <TaskStats task={task} />
             </Box>
         </Box>
     );
