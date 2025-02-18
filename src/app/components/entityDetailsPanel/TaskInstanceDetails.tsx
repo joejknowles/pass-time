@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, TextField, Button } from "@mui/material";
+import { Box, Typography, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, ClickAwayListener, Menu, TextField, Button, Link } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -7,9 +7,10 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
 import { DetailedTask, Task, TaskInstance } from "../dayGrid/types";
-import GoToTaskIcon from '@mui/icons-material/Visibility';
+import GoToTaskIcon from '@mui/icons-material/Settings';
 import { useDevice } from "@/app/lib/hooks/useDevice";
 import { TaskStats } from "./TaskDetails/TaskStats";
+import { TASK_DETAILS_TAB_INDEX } from "./TaskDetails/TASK_DETAILS_TAB_INDEX";
 
 interface TaskInstanceDetailsProps {
     taskInstance?: TaskInstance;
@@ -18,7 +19,7 @@ interface TaskInstanceDetailsProps {
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
     setCurrentDay: (day: Date) => void;
-    goToTaskDetails: (taskId: string) => void;
+    goToTaskDetails: (taskId: string, tab?: number) => void;
 }
 
 const cleanApolloEntity = (entity: any) => {
@@ -227,7 +228,7 @@ export const TaskInstanceDetails = ({
                             cursor: "pointer",
                         },
                     }}
-                    onClick={() => goToTaskDetails(taskInstance.task.id)}
+                    onClick={() => goToTaskDetails(taskInstance.task.id, TASK_DETAILS_TAB_INDEX.GENERAL)}
                 >
                     <Typography variant="h6">
                         {taskInstance.task.title}
@@ -423,9 +424,14 @@ export const TaskInstanceDetails = ({
                             </Box>
                         </ClickAwayListener>
                     )}
-
                 <Box sx={{ mt: 'auto' }}>
-                    <TaskStats task={task} />
+                    <TaskStats
+                        task={task}
+                        moreLinkOverride={
+                            <Link component="button" variant="body2" onClick={() => goToTaskDetails(task.id)}>
+                                More stats
+                            </Link>
+                        } />
                 </Box>
             </Box>
         </ClickAwayListener>

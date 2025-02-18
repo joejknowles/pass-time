@@ -62,4 +62,5 @@ export interface MovingTaskInfo {
 export interface OpenDetailsPanelEntity {
     id: string;
     type: "Task" | "TaskInstance";
+    tab?: number;
 }

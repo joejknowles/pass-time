@@ -1,13 +1,14 @@
 import { Box, Typography, Link } from "@mui/material";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { displayMinutes } from "../../utils/date";
 import { DetailedTask, Task } from "../../dayGrid/types";
 
 interface TaskStatsProps {
     task: Task | DetailedTask;
+    moreLinkOverride?: ReactNode;
 }
 
-export const TaskStats = ({ task }: TaskStatsProps) => {
+export const TaskStats = ({ task, moreLinkOverride }: TaskStatsProps) => {
     const [showFullHistory, setShowFullHistory] = useState(false);
 
     const latestTaskInstance = task.taskInstances[0];
@@ -69,9 +70,12 @@ export const TaskStats = ({ task }: TaskStatsProps) => {
                 latestTaskInstance && (
                     <>
                         <Typography variant="body2">Latest: {latestTaskInstance?.start.date}</Typography>
-                        <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
-                            {showFullHistory ? "Hide" : "More"}
-                        </Link>
+                        {
+                            moreLinkOverride ||
+                            <Link component="button" variant="body2" onClick={() => setShowFullHistory(!showFullHistory)}>
+                                {showFullHistory ? "Hide" : "More"}
+                            </Link>
+                        }
                         {showFullHistory && (
                             <Box sx={{ my: 2 }}>
                                 {task.taskInstances.map((instance, index) => (

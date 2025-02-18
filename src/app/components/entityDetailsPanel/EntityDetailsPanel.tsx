@@ -141,9 +141,9 @@ const EntityDetailsPanel = ({
         }, 10);
     }
 
-    const handleGoToTaskDetails = (taskId: string) => {
+    const handleGoToTaskDetails = (taskId: string, tab?: number) => {
         setPreviousEntities([...previousEntities, openDetailsPanelEntity as OpenDetailsPanelEntity]);
-        setOpenDetailsPanelEntity({ type: "Task", id: taskId });
+        setOpenDetailsPanelEntity({ type: "Task", id: taskId, tab });
     };
 
     if (!isOpen) return null;
@@ -169,9 +169,9 @@ const EntityDetailsPanel = ({
                         taskInstance={taskInstance as TaskInstance}
                         task={task as Task | DetailedTask}
                         onClose={handleClose}
-                        goToTaskDetails={(taskId: string) => {
+                        goToTaskDetails={(taskId: string, tab?: number) => {
                             setPreviousEntities([...previousEntities, openDetailsPanelEntity]);
-                            setOpenDetailsPanelEntity({ type: "Task", id: taskId });
+                            setOpenDetailsPanelEntity({ type: "Task", id: taskId, tab });
                         }}
                         refetchAllTaskData={refetchAllTaskData}
                         isMovingATask={!!movingTaskInfo}
@@ -193,6 +193,7 @@ const EntityDetailsPanel = ({
                             setPreviousEntities(previousEntities.slice(0, -1));
                         } : undefined}
                         goToTaskDetails={handleGoToTaskDetails}
+                        initialOpenTab={openDetailsPanelEntity?.tab}
                     />
                 )
             }

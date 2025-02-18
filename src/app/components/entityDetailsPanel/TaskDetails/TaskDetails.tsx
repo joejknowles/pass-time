@@ -8,20 +8,16 @@ import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 import { useCallOnEscapePress } from "@/app/lib/hooks/useCallOnEscapePress";
 import { TaskDetailsActivityStats } from "./TaskDetailsActivityStats";
+import { TASK_DETAILS_TAB_INDEX as TAB_INDEX } from "./TASK_DETAILS_TAB_INDEX";
 
 interface TaskInstanceDetailsProps {
     task: Task | DetailedTask;
     onClose: () => void;
     isMovingATask: boolean;
     goBack?: () => void;
-    goToTaskDetails: (taskId: string) => void
+    goToTaskDetails: (taskId: string) => void;
+    initialOpenTab?: number;
 }
-
-const TAB_INDEX = {
-    ACTIVITY: 0,
-    GENERAL: 1,
-    SUGGESTIONS: 2,
-};
 
 export const TaskDetails = ({
     task,
@@ -29,9 +25,10 @@ export const TaskDetails = ({
     goBack,
     onClose,
     goToTaskDetails,
+    initialOpenTab,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
-    const [tabIndex, setTabIndex] = useState(TAB_INDEX.ACTIVITY);
+    const [tabIndex, setTabIndex] = useState(initialOpenTab || TAB_INDEX.ACTIVITY);
 
     useCallOnEscapePress(onClose);
 
