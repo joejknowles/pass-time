@@ -2,8 +2,10 @@ import { Box, useTheme } from "@mui/material";
 import { TaskInstanceDetails } from "./TaskInstanceDetails";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { TaskDetails } from "./TaskDetails/TaskDetails";
-import { OpenDetailsPanelEntity, Task, TaskInstance } from "../dayGrid/types";
+import { DetailedTask, OpenDetailsPanelEntity, Task, TaskInstance } from "../dayGrid/types";
 import { useDevice } from "@/app/lib/hooks/useDevice";
+import { useQuery } from "@apollo/client";
+import { GET_TASK } from "@/app/lib/graphql/queries";
 
 interface EntityDetailsPanelProps {
     openDetailsPanelEntity: OpenDetailsPanelEntity | null;
@@ -16,6 +18,9 @@ interface EntityDetailsPanelProps {
     movingTaskInfo: any;
     setCurrentDay: (day: Date) => void;
 }
+
+
+const secondsInMs = (seconds: number) => seconds * 1000;
 
 const EntityDetailsPanel = ({
     openDetailsPanelEntity,
@@ -45,6 +50,31 @@ const EntityDetailsPanel = ({
         height: "100%",
         width: "100%",
     });
+
+    const taskInstance = isTaskInstanceType ? taskInstances?.find((ti) => ti.id === openDetailsPanelEntity?.id) : null;
+    const standardTask = isOpen ? tasks?.find((t) => {
+        if (isTaskType) {
+            return t.id === openDetailsPanelEntity?.id
+        } else {
+            return taskInstance ? t.id === taskInstance.task.id : false;
+        }
+    }) as Task : null;
+    const { data: detailedTaskData, refetch: refetchDetailedTask } = useQuery<{ task: DetailedTask }>(GET_TASK, {
+        variables: { taskId: standardTask?.id },
+        fetchPolicy: "cache-and-network",
+        pollInterval: secondsInMs(60),
+        skip: !isOpen
+    });
+    const detailedTask = detailedTaskData?.task;
+
+    let task;
+    if (isOpen) {
+        task = detailedTask || standardTask as Task | DetailedTask;
+    }
+
+    useEffect(() => {
+        refetchDetailedTask();
+    }, [JSON.stringify(standardTask)]);
 
     const [previousEntities, setPreviousEntities] = useState<OpenDetailsPanelEntity[]>([]);
     useEffect(() => {
@@ -136,7 +166,8 @@ const EntityDetailsPanel = ({
                 (
                     <TaskInstanceDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
-                        taskInstance={taskInstances?.find((ti) => ti.id === openDetailsPanelEntity.id) as TaskInstance}
+                        taskInstance={taskInstance as TaskInstance}
+                        task={task as Task | DetailedTask}
                         onClose={handleClose}
                         goToTaskDetails={(taskId: string) => {
                             setPreviousEntities([...previousEntities, openDetailsPanelEntity]);
@@ -153,7 +184,7 @@ const EntityDetailsPanel = ({
                 (
                     <TaskDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
-                        task={tasks?.find((t) => t.id == openDetailsPanelEntity.id) as Task}
+                        task={task as Task | DetailedTask}
                         onClose={handleClose}
                         isMovingATask={!!movingTaskInfo}
                         goBack={previousEntities.length > 0 ? () => {

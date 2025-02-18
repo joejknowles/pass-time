@@ -6,12 +6,14 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { DELETE_TASK_INSTANCE, UPDATE_TASK, UPDATE_TASK_INSTANCE } from "../../lib/graphql/mutations";
-import { TaskInstance } from "../dayGrid/types";
+import { DetailedTask, Task, TaskInstance } from "../dayGrid/types";
 import GoToTaskIcon from '@mui/icons-material/Visibility';
 import { useDevice } from "@/app/lib/hooks/useDevice";
+import { TaskStats } from "./TaskDetails/TaskStats";
 
 interface TaskInstanceDetailsProps {
     taskInstance?: TaskInstance;
+    task: Task | DetailedTask;
     onClose: () => void;
     refetchAllTaskData: () => void;
     isMovingATask: boolean;
@@ -31,6 +33,7 @@ export const TaskInstanceDetails = ({
     isMovingATask,
     setCurrentDay,
     goToTaskDetails,
+    task
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
     const lastPresentTaskInstance = useRef(liveTaskInstance);
@@ -147,6 +150,8 @@ export const TaskInstanceDetails = ({
                     width: "100%",
                     height: "100%",
                     position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
                 }}
             >
                 <Box
@@ -418,6 +423,10 @@ export const TaskInstanceDetails = ({
                             </Box>
                         </ClickAwayListener>
                     )}
+
+                <Box sx={{ mt: 'auto' }}>
+                    <TaskStats task={task} />
+                </Box>
             </Box>
         </ClickAwayListener>
     );
