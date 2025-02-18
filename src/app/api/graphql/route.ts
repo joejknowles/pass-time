@@ -7,7 +7,14 @@ import { Context } from '@/app/lib/graphql/resolvers/helpers/helpers';
 import { admin } from '@/lib/firebaseAdmin';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.PASSTIME_DATABASE_URL,
+    },
+  },
+  log: ["query", "info", "warn", "error"],
+});
 
 const server = new ApolloServer({
   typeDefs,
