@@ -2,13 +2,12 @@
 import { Box, Typography, IconButton, ClickAwayListener, Tabs, Tab } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { DetailedTask, Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 import { useCallOnEscapePress } from "@/app/lib/hooks/useCallOnEscapePress";
-import { useQuery } from "@apollo/client";
-import { GET_TASK } from "@/app/lib/graphql/queries";
+import { TaskDetailsActivityStats } from "./TaskDetailsActivityStats";
 
 interface TaskInstanceDetailsProps {
     task: Task | DetailedTask;
@@ -18,6 +17,12 @@ interface TaskInstanceDetailsProps {
     goToTaskDetails: (taskId: string) => void
 }
 
+const TAB_INDEX = {
+    ACTIVITY: 0,
+    GENERAL: 1,
+    SUGGESTIONS: 2,
+};
+
 export const TaskDetails = ({
     task,
     isMovingATask,
@@ -26,8 +31,7 @@ export const TaskDetails = ({
     goToTaskDetails,
 }: TaskInstanceDetailsProps) => {
     const detailsRef = useRef<HTMLDivElement | null>(null);
-    const [tabIndex, setTabIndex] = useState(0);
-
+    const [tabIndex, setTabIndex] = useState(TAB_INDEX.ACTIVITY);
 
     useCallOnEscapePress(onClose);
 
@@ -90,16 +94,22 @@ export const TaskDetails = ({
                     onChange={(_, newValue) => setTabIndex(newValue)}
                     sx={{ mb: 2 }}
                 >
+                    <Tab label="Activity" />
                     <Tab label="General" />
                     <Tab label="Suggestions" />
                 </Tabs>
-                {tabIndex === 0 && (
+                {
+                    tabIndex === TAB_INDEX.ACTIVITY && (
+                        <TaskDetailsActivityStats task={task} />
+                    )
+                }
+                {tabIndex === TAB_INDEX.GENERAL && (
                     <TaskDetailsGeneral
                         task={task}
                         goToTaskDetails={goToTaskDetails}
                     />
                 )}
-                {tabIndex === 1 && <TaskDetailsSuggestions task={task} />}
+                {tabIndex === TAB_INDEX.SUGGESTIONS && <TaskDetailsSuggestions task={task} />}
             </Box>
         </ClickAwayListener>
     );
