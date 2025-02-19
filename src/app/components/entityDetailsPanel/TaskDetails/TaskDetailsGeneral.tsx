@@ -3,7 +3,7 @@ import { DetailedTask, Task } from "../../dayGrid/types";
 import { durationOptions } from "../../../lib/utils/durationOptions";
 import { useTasks } from "@/app/lib/hooks/useTasks";
 import { useState } from "react";
-import { TaskStats } from './TaskStats';
+import { TaskStats } from './TaskDetailsActivityStats/TaskStats';
 
 interface TaskDetailsGeneralProps {
     task: Task | DetailedTask;

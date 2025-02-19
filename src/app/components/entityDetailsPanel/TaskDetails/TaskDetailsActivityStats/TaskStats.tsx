@@ -1,7 +1,7 @@
 import { Box, Typography, Link } from "@mui/material";
 import { ReactNode, useState } from "react";
-import { displayMinutes } from "../../utils/date";
-import { DetailedTask, Task } from "../../dayGrid/types";
+import { displayMinutes } from "../../../utils/date";
+import { DetailedTask, Task } from "../../../dayGrid/types";
 
 interface TaskStatsProps {
     task: Task | DetailedTask;

@@ -7,7 +7,7 @@ import { DetailedTask, Task } from "../../dayGrid/types";
 import { TaskDetailsGeneral } from "./TaskDetailsGeneral";
 import { TaskDetailsSuggestions } from "./Suggestions/TaskDetailsSuggestions";
 import { useCallOnEscapePress } from "@/app/lib/hooks/useCallOnEscapePress";
-import { TaskDetailsActivityStats } from "./TaskDetailsActivityStats";
+import { TaskDetailsActivityStats } from "./TaskDetailsActivityStats/TaskDetailsActivityStats";
 import { TASK_DETAILS_TAB_INDEX as TAB_INDEX } from "./TASK_DETAILS_TAB_INDEX";
 
 interface TaskInstanceDetailsProps {

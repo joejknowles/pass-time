@@ -9,7 +9,7 @@ import { DELETE_TASK_INSTANCE, UPDATE_TASK, UPDATE_TASK_INSTANCE } from "../../l
 import { DetailedTask, Task, TaskInstance } from "../dayGrid/types";
 import GoToTaskIcon from '@mui/icons-material/Settings';
 import { useDevice } from "@/app/lib/hooks/useDevice";
-import { TaskStats } from "./TaskDetails/TaskStats";
+import { TaskStats } from "./TaskDetails/TaskDetailsActivityStats/TaskStats";
 import { TASK_DETAILS_TAB_INDEX } from "./TaskDetails/TASK_DETAILS_TAB_INDEX";
 
 interface TaskInstanceDetailsProps {
