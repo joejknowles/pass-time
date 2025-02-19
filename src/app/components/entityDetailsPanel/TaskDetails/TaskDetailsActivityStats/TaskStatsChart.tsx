@@ -64,11 +64,12 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                     data: dates,
                     axisTick: {
                         alignWithLabel: true,
-                        length: 7
+                        length: 7,
                     },
                     axisLabel: {
                         interval: 0,
                         rotate: 45,
+                        margin: 12,
                         formatter: (value: string) => {
                             const date = new Date(value);
                             const isToday = date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
@@ -76,7 +77,7 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                                 return 'Today';
                             }
                             return date.toLocaleDateString('en-US', { weekday: 'long' });
-                        }
+                        },
                     },
                 },
                 yAxis: {},
