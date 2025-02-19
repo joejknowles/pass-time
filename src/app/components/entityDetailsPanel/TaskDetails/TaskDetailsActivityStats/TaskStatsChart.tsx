@@ -57,7 +57,7 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
 
             activitiesChart.setOption({
                 title: {
-                    text: 'Last week'
+                    text: 'This week'
                 },
                 tooltip: {},
                 xAxis: {
@@ -73,8 +73,11 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                         formatter: (value: string) => {
                             const date = new Date(value);
                             const isToday = date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
+                            const isYesterday = date.toISOString().split('T')[0] === new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                             if (isToday) {
                                 return 'Today';
+                            } else if (isYesterday) {
+                                return 'Yesterday';
                             }
                             return date.toLocaleDateString('en-US', { weekday: 'long' });
                         },
