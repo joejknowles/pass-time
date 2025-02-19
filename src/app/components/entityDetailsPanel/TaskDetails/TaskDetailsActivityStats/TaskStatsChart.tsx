@@ -83,7 +83,12 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                         },
                     },
                 },
-                yAxis: {},
+                yAxis: {
+                    name: 'minutes',
+                    nameLocation: 'middle',
+                    nameRotate: 90,
+                    nameGap: 40
+                },
                 series: [
                     {
                         name: 'sales',
