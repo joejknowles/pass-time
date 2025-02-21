@@ -52,18 +52,15 @@ const EntityDetailsPanel = ({
     });
 
     const taskInstance = isTaskInstanceType ? taskInstances?.find((ti) => ti.id === openDetailsPanelEntity?.id) : null;
+    const taskId = isTaskInstanceType ? taskInstance?.task.id : openDetailsPanelEntity?.id;
     const standardTask = isOpen ? tasks?.find((t) => {
-        if (isTaskType) {
-            return t.id === openDetailsPanelEntity?.id
-        } else {
-            return taskInstance ? t.id === taskInstance.task.id : false;
-        }
+        return t.id === taskId;
     }) as Task : null;
     const { data: detailedTaskData, refetch: refetchDetailedTask } = useQuery<{ task: DetailedTask }>(GET_TASK, {
-        variables: { taskId: standardTask?.id },
+        variables: { taskId },
         fetchPolicy: "cache-and-network",
         pollInterval: secondsInMs(60),
-        skip: !isOpen || !standardTask?.id,
+        skip: !isOpen,
     });
     const detailedTask = detailedTaskData?.task;
 
