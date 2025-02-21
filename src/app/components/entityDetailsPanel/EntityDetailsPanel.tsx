@@ -55,7 +55,7 @@ const EntityDetailsPanel = ({
     const taskId = isTaskInstanceType ? taskInstance?.task.id : openDetailsPanelEntity?.id;
     const standardTask = isOpen ? tasks?.find((t) => {
         return t.id === taskId;
-    }) as Task : null;
+    }) : null;
     const { data: detailedTaskData, refetch: refetchDetailedTask } = useQuery<{ task: DetailedTask }>(GET_TASK, {
         variables: { taskId },
         fetchPolicy: "cache-and-network",
@@ -64,10 +64,8 @@ const EntityDetailsPanel = ({
     });
     const detailedTask = detailedTaskData?.task;
 
-    let task;
-    if (isOpen) {
-        task = detailedTask || standardTask as Task | DetailedTask;
-    }
+    const task = detailedTask || standardTask as Task | DetailedTask | null;
+
 
     useEffect(() => {
         refetchDetailedTask();
@@ -159,7 +157,7 @@ const EntityDetailsPanel = ({
             }}
         >
             {
-                isTaskInstanceType &&
+                isTaskInstanceType && taskInstance && task &&
                 (
                     <TaskInstanceDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
@@ -177,7 +175,7 @@ const EntityDetailsPanel = ({
                 )
             }
             {
-                isTaskType &&
+                isTaskType && task &&
                 (
                     <TaskDetails
                         key={`${openDetailsPanelEntity?.type}-${openDetailsPanelEntity?.id}`}
