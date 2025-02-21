@@ -60,7 +60,7 @@ const EntityDetailsPanel = ({
         variables: { taskId },
         fetchPolicy: "cache-and-network",
         pollInterval: secondsInMs(60),
-        skip: !isOpen,
+        skip: !isOpen || !taskId,
     });
     const detailedTask = detailedTaskData?.task;
 
