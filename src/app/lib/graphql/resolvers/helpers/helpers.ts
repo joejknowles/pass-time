@@ -1,6 +1,6 @@
 // gradually migrating to `throw new GraphQLError` instead of `throw new Error`
 import { Context as BaseContext } from '@apollo/client';
-import { BalanceTarget, PrismaClient, Task, User } from '@prisma/client';
+import { PrismaClient, Task, User } from '@prisma/client';
 import { GraphQLError } from 'graphql';
 
 export const prisma = new PrismaClient();
