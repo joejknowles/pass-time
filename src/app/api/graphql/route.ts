@@ -7,6 +7,8 @@ import { Context } from '@/app/lib/graphql/resolvers/helpers/helpers';
 import { admin } from '@/lib/firebaseAdmin';
 import { PrismaClient } from '@prisma/client';
 
+console.log(process.env.PASSTIME_DATABASE_URL);
+
 const prisma = new PrismaClient({
   datasources: {
     db: {
@@ -23,6 +25,7 @@ const server = new ApolloServer({
 
 const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
   context: async (req: NextRequest) => {
+    console.log(process.env.PASSTIME_DATABASE_URL);
     const authHeader = req.headers.get('authorization') || '';
     console.log('context handler authHeader:', authHeader);
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;

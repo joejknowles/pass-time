@@ -1,0 +1,10 @@
+node_modules
+.next
+next-env.d.ts
+out
+.env.local
+.env.docker
+.env
+.DS_Store
+build
+*.pem
