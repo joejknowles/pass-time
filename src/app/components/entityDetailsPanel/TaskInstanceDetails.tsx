@@ -11,6 +11,7 @@ import GoToTaskIcon from '@mui/icons-material/Settings';
 import { useDevice } from "@/app/lib/hooks/useDevice";
 import { TaskStats } from "./TaskDetails/TaskDetailsActivityStats/TaskStats";
 import { TASK_DETAILS_TAB_INDEX } from "./TaskDetails/TASK_DETAILS_TAB_INDEX";
+import { TaskStatsChartRecharts } from "./TaskDetails/TaskDetailsActivityStats/TaskStatsChartRecharts";
 
 interface TaskInstanceDetailsProps {
     taskInstance?: TaskInstance;
@@ -425,13 +426,13 @@ export const TaskInstanceDetails = ({
                         </ClickAwayListener>
                     )}
                 <Box sx={{ mt: 'auto' }}>
-                    <TaskStats
-                        task={task}
-                        moreLinkOverride={
-                            <Link component="button" variant="body2" onClick={() => goToTaskDetails(task.id)}>
-                                More stats
-                            </Link>
-                        } />
+                    {
+                        task.taskInstances.length > 0 && (
+                            <TaskStatsChartRecharts task={task} />
+                        )}
+                    <Link className="mt-2" component="button" variant="body2" onClick={() => goToTaskDetails(task.id)}>
+                        {task.taskInstances.length > 0 ? " More stats" : "View stats"}
+                    </Link>
                 </Box>
             </Box>
         </ClickAwayListener>
