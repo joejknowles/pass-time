@@ -12,9 +12,9 @@ export const TaskStats = ({ task, moreLinkOverride }: TaskStatsProps) => {
     const [showFullHistory, setShowFullHistory] = useState(false);
 
     const latestTaskInstance = task.taskInstances[0];
-    const durationToday = "progress" in task ? task.progress.today : null;
-    const durationThisWeek = "progress" in task ? task.progress.thisWeek : null;
-    const durationAllTime = "progress" in task ? task.progress.allTime : null;
+    const durationToday = "stats" in task ? task.stats.totals.today : null;
+    const durationThisWeek = "stats" in task ? task.stats.totals.thisWeek : null;
+    const durationAllTime = "stats" in task ? task.stats.totals.allTime : null;
 
     return (
         <>

@@ -20,10 +20,24 @@ export const typeDefs = gql`
     defaultDuration: Int!
     isSuggestingEnabled: Boolean
     suggestionConfigs: [TaskSuggestionConfig!]!
-    progress: TaskProgress
+    stats: TaskStats
   }
 
-  type TaskProgress {
+  type TaskStats {
+    totals: TaskStatsTotals
+    data: TaskStatsData
+  }
+
+  type TaskStatsData {
+    daily: [TaskStatsDataPoint!]!
+  }
+
+  type TaskStatsDataPoint {
+    date: String!
+    value: Int!
+  }
+
+  type TaskStatsTotals {
     today: Int!
     thisWeek: Int!
     allTime: Int!

@@ -32,7 +32,7 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
     const chartRef = useRef(null);
 
     useLayoutEffect(() => {
-        if (chartRef.current) {
+        if (chartRef.current && "stats" in task) {
             const activitiesChart = echarts.init(chartRef.current);
 
             const dates = Array.from({ length: 7 }, (_, i) => {
@@ -41,18 +41,9 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                 return date.toISOString().split('T')[0];
             }).reverse();
 
-            const groupedInstances = task.taskInstances
-                .filter(instance => {
-                    const instanceDate = new Date(instance.start.date);
-                    const now = new Date();
-                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    return instanceDate >= weekAgo && instanceDate <= now;
-                })
-                .reduce((acc, instance) => {
-                    const date = instance.start.date;
-                    acc[date] = (acc[date] || 0) + instance.duration;
-                    return acc;
-                }, {} as { [key: string]: number });
+            const dataValues = dates.map(date => {
+                return task.stats.data.daily.find((d: { date: string; value: number }) => d.date === date)?.value
+            })
 
             activitiesChart.setOption({
                 title: {
@@ -92,7 +83,7 @@ export const TaskStatsChart = ({ task }: TaskStatsChartProps) => {
                     {
                         name: 'sales',
                         type: 'line',
-                        data: dates.map(date => groupedInstances[date] || 0)
+                        data: dataValues
                     }
                 ]
             });

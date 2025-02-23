@@ -122,10 +122,18 @@ export const GET_TASK = gql`
   query GetTask($taskId: Int!) {
     task(taskId: $taskId) {
       id
-      progress {
-        today
-        thisWeek
-        allTime
+      stats {
+        totals {
+          today
+          thisWeek
+          allTime
+        }
+        data {
+          daily {
+            date
+            value
+          }
+        }
       }
       title
       defaultDuration
@@ -143,12 +151,12 @@ export const GET_TASK = gql`
         title
       }
       taskInstances {
-        id,
+        id
         start {
           date
           hour
           minute
-        },
+        }
         duration
       }
     }
