@@ -60,7 +60,7 @@ export const DayCalendar = ({
     } = useQuery<{ taskInstances: TaskInstance[] }>(GET_TASK_INSTANCES, {
         variables: {
             input: {
-                date: currentDay.toISOString().split('T')[0],
+                date: currentDay.toLocaleDateString('en-CA'),
             },
         },
         pollInterval: minutesToMs(15)
@@ -77,7 +77,7 @@ export const DayCalendar = ({
         const newTaskInstance: DraftTaskInstance = {
             title: task?.title || "",
             start: {
-                date: currentDay.toISOString().split('T')[0],
+                date: currentDay.toLocaleDateString('en-CA'),
                 hour: startHour,
                 minute: startMinute,
             },
@@ -146,7 +146,7 @@ export const DayCalendar = ({
         const newTaskInstance: DraftTaskInstance = {
             title: task?.title || "",
             start: {
-                date: currentDay.toISOString().split('T')[0],
+                date: currentDay.toLocaleDateString('en-CA'),
                 hour: startHour,
                 minute: startMinute,
             },
@@ -163,7 +163,7 @@ export const DayCalendar = ({
                 ...dti,
                 start: {
                     ...dti.start,
-                    date: day.toISOString().split('T')[0]
+                    date: day.toLocaleDateString('en-CA')
                 }
             }) : dti);
         }

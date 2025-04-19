@@ -23,7 +23,7 @@ export const TaskDetailsSuggestions = ({ task }: TaskDetailsSuggestionsProps) =>
         specificDays: "SUNDAY",
         recurringType: RECURRING_TYPES.DAYS_SINCE_LAST_OCCURRENCE,
         // tomorrow
-        dueDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
+        dueDate: new Date(new Date().setDate(new Date().getDate() + 1)).toLocaleDateString('en-CA'),
         dueDateType: "BEFORE_OR_ON",
     });
 

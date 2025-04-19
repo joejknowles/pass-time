@@ -9,7 +9,7 @@ export const TaskStatsChartRecharts = ({ task }: TaskStatsChartProps) => {
     const dates = Array.from({ length: 7 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        return date.toISOString().split('T')[0];
+        return date.toLocaleDateString('en-CA');
     }).reverse();
 
     const groupedInstances = task.taskInstances
@@ -38,8 +38,8 @@ export const TaskStatsChartRecharts = ({ task }: TaskStatsChartProps) => {
                     dataKey="date"
                     tickFormatter={(value) => {
                         const date = new Date(value);
-                        const isToday = date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
-                        const isYesterday = date.toISOString().split('T')[0] === new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        const isToday = date.toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+                        const isYesterday = date.toLocaleDateString('en-CA') === new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
                         if (isToday) {
                             return 'Today';
                         } else if (isYesterday) {

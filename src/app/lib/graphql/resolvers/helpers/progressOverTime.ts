@@ -22,7 +22,7 @@ export const progressOverTime = async (taskIds: number[], userId: number, range:
     `, taskIds, range.from, range.to, userId);
 
     return result.map(row => ({
-        date: row.date.toISOString().split('T')[0],
+        date: row.date.toLocaleDateString('en-CA'),
         value: row.value
     }));
 };

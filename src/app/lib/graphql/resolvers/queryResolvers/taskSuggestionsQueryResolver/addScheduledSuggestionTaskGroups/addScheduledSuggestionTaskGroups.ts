@@ -33,8 +33,8 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
                 {
                     suggestionTimingType: SUGGESTION_TIMING_TYPE.DUE_DATE,
                     OR: [
-                        { dueDateType: ONE_OFF_DATE_TYPES.ON_DATE_ONLY, dueDate: new Date().toISOString().split('T')[0] },
-                        { dueDateType: ONE_OFF_DATE_TYPES.BEFORE_OR_ON, dueDate: { gte: new Date().toISOString().split('T')[0] } }
+                        { dueDateType: ONE_OFF_DATE_TYPES.ON_DATE_ONLY, dueDate: new Date().toLocaleDateString('en-CA') },
+                        { dueDateType: ONE_OFF_DATE_TYPES.BEFORE_OR_ON, dueDate: { gte: new Date().toLocaleDateString('en-CA') } }
                     ]
                 },
             ],
@@ -57,7 +57,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     const dueSoonSuggestions = dueDateSuggestions.filter((suggestion) => {
         return suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON &&
             suggestion.dueDate &&
-            suggestion.dueDate > new Date().toISOString().split('T')[0];
+            suggestion.dueDate > new Date().toLocaleDateString('en-CA');
     })
     if (dueSoonSuggestions.length > 0) {
         taskGroups.push({
@@ -70,7 +70,7 @@ export const addScheduledSuggestionTaskGroups = async (taskGroups: any[], userId
     const onDateSuggestions = dueDateSuggestions.filter((suggestion) => {
         return suggestion.dueDateType === ONE_OFF_DATE_TYPES.ON_DATE_ONLY ||
             suggestion.dueDateType === ONE_OFF_DATE_TYPES.BEFORE_OR_ON &&
-            suggestion.dueDate === new Date().toISOString().split('T')[0];
+            suggestion.dueDate === new Date().toLocaleDateString('en-CA');
     });
     if (onDateSuggestions.length > 0) {
         taskGroups.unshift({

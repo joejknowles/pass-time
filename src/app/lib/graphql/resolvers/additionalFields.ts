@@ -68,7 +68,7 @@ export const additionalFields = {
         start: (parent: TaskInstance) => {
             const startTime = new Date(parent.startTime);
             return {
-                date: startTime.toISOString().split('T')[0],
+                date: startTime.toLocaleDateString('en-CA'),
                 hour: startTime.getUTCHours(),
                 minute: startTime.getUTCMinutes(),
             };
