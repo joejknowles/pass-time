@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@apollo/client";
 import { GET_TASK_SUGGESTIONS } from "../../lib/graphql/queries";
 import { OpenDetailsPanelEntity, Task } from "../dayGrid/types";
 import { useEffect, useState } from "react";
@@ -10,166 +10,214 @@ import { GroupedTasksPlaceholderLoader } from "./GroupedTasksPlaceholderLoader";
 import { useDevice } from "@/app/lib/hooks/useDevice";
 
 const SUGGESTION_GROUP_TYPES = {
-    BALANCE_TARGET: 'BALANCE_TARGET',
-    RECURRING: 'RECURRING',
-    DUE_DATE: 'DUE_DATE',
+  BALANCE_TARGET: "BALANCE_TARGET",
+  RECURRING: "RECURRING",
+  DUE_DATE: "DUE_DATE",
+  SOON: "SOON",
 };
 
-
 interface GroupedTasksProps {
-    setOpenDetailsPanelEntity: (newOpenEntity: OpenDetailsPanelEntity | null) => void;
-    setDraggedTask: (task:
-        {
-            task: BasicTask | Task;
-            position: { x: number, y: number };
-            width: number
-        } | null) => void;
-    draggedTask: { task: BasicTask | Task; position: { x: number; y: number }; width: number } | null;
-    additionalTaskGroups: TaskGroup[];
-    isVisible: boolean;
+  setOpenDetailsPanelEntity: (
+    newOpenEntity: OpenDetailsPanelEntity | null
+  ) => void;
+  setDraggedTask: (
+    task: {
+      task: BasicTask | Task;
+      position: { x: number; y: number };
+      width: number;
+    } | null
+  ) => void;
+  draggedTask: {
+    task: BasicTask | Task;
+    position: { x: number; y: number };
+    width: number;
+  } | null;
+  additionalTaskGroups: TaskGroup[];
+  isVisible: boolean;
 }
 
 let startTime = performance.now(); // Start time
 
 const formattedRequestTime = () => {
-    const endTime = performance.now(); // End time
-    const elapsedTime = endTime - startTime;
-    return `${Math.round(elapsedTime / 10) / 100} seconds`;
-}
+  const endTime = performance.now(); // End time
+  const elapsedTime = endTime - startTime;
+  return `${Math.round(elapsedTime / 10) / 100} seconds`;
+};
 
 export const GroupedTasks = ({
-    setOpenDetailsPanelEntity,
-    setDraggedTask,
-    draggedTask,
-    additionalTaskGroups,
-    isVisible,
+  setOpenDetailsPanelEntity,
+  setDraggedTask,
+  draggedTask,
+  additionalTaskGroups,
+  isVisible,
 }: GroupedTasksProps) => {
-    const { isPhabletWidthOrLess } = useDevice();
-    const { data, loading } = useQuery<{ taskSuggestions: TaskGroup[] }>(GET_TASK_SUGGESTIONS, {
-        onCompleted: (data) => {
-            console.log("TaskSuggestions:", formattedRequestTime());
-        },
-        onError: (error) => {
-            console.log("TaskSuggestions failed:", formattedRequestTime(), error);
-        },
-    });
-    const taskSuggestions = data?.taskSuggestions;
-    const [wasJustDragging, setWasJustDragging] = useState(false);
-
-    useEffect(() => {
-        startTime = performance.now(); // Reset start time
-    }, []);
-
-    useEffect(() => {
-        if (draggedTask?.task.id) {
-            if (!wasJustDragging) {
-                setTimeout(() => {
-                    setWasJustDragging(true);
-                }, 500);
-            }
-        } else {
-            setTimeout(() => {
-                setWasJustDragging(false);
-            }, 500);
-        }
-    }, [draggedTask?.task.id]);
-
-    const handleMouseDown = (task: Task | BasicTask, event: React.MouseEvent) => {
-        const originalCard = document.getElementById(`task-suggestion-task-${task.id}`);
-        if (originalCard) {
-            const rect = originalCard.getBoundingClientRect();
-            setDraggedTask({
-                task,
-                position: { x: event.clientX, y: event.clientY },
-                width: rect.width,
-            });
-        }
-        document.body.style.userSelect = 'none';
-    };
-
-    if (isVisible && loading) {
-        return <GroupedTasksPlaceholderLoader />;
+  const { isPhabletWidthOrLess } = useDevice();
+  const { data, loading } = useQuery<{ taskSuggestions: TaskGroup[] }>(
+    GET_TASK_SUGGESTIONS,
+    {
+      onCompleted: (data) => {
+        console.log("TaskSuggestions:", formattedRequestTime());
+      },
+      onError: (error) => {
+        console.log("TaskSuggestions failed:", formattedRequestTime(), error);
+      },
     }
+  );
+  const taskSuggestions = data?.taskSuggestions;
+  const [wasJustDragging, setWasJustDragging] = useState(false);
 
-    if (!isVisible) {
-        return null;
+  useEffect(() => {
+    startTime = performance.now(); // Reset start time
+  }, []);
+
+  useEffect(() => {
+    if (draggedTask?.task.id) {
+      if (!wasJustDragging) {
+        setTimeout(() => {
+          setWasJustDragging(true);
+        }, 500);
+      }
+    } else {
+      setTimeout(() => {
+        setWasJustDragging(false);
+      }, 500);
     }
+  }, [draggedTask?.task.id]);
 
-    if (!taskSuggestions) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: isPhabletWidthOrLess ? 1 : 1,
-                    px: 2,
-                    py: isPhabletWidthOrLess ? 0.5 : 2,
-                }}
-            >
-                <Typography variant="body2" color="textSecondary">No task suggestions right now</Typography>
-                <Typography variant="caption" color="textSecondary">
-                    Configure your suggestions on a task's suggestions tab
-                </Typography>
-            </Box>
-        )
-    }
-
-    const orderedGroups = [...taskSuggestions].sort((a, b) => {
-        if (a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && b.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
-            return 1;
-        }
-        if (b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && a.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
-            return -1;
-        }
-        if (a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET) {
-            if (a.data && b.data) {
-                return a.data.progress - b.data.progress;
-            }
-        }
-        return 0;
-    })
-
-    return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
-                const headerExtraSlot = group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data ? (
-                    <Box sx={{ maxWidth: 40, flexGrow: 1 }} >
-                        <LinearProgress
-                            variant="determinate"
-                            value={Math.min((group.data.progress / group.data.targetAmount) * 100, 100)}
-                            sx={{
-                                height: 4,
-                                borderRadius: 1,
-                                backgroundColor: 'grey.200',
-                                '& .MuiLinearProgress-bar': {
-                                    backgroundColor: 'grey.500',
-                                },
-                            }}
-                        />
-                    </Box>
-                ) : null;
-
-                return (
-                    <TaskGroupCard
-                        key={`${group.type}-${group.name}`}
-                        title={group.name}
-                        type={group.type as TaskGroupType}
-                        headerExtraSlot={headerExtraSlot}>
-                        {group.tasks.map((task) => (
-                            <TaskCard
-                                key={task.id}
-                                id={`task-suggestion-task-${task.id}`}
-                                onClick={wasJustDragging ? undefined : () => {
-                                    setOpenDetailsPanelEntity({ id: task.id, type: "Task" });
-                                }}
-                                onMouseDown={(event) => handleMouseDown(task, event)}
-                            >
-                                {task.title}
-                            </TaskCard>
-                        ))}
-                    </TaskGroupCard>
-                );
-            })}
-        </Box>
+  const handleMouseDown = (task: Task | BasicTask, event: React.MouseEvent) => {
+    const originalCard = document.getElementById(
+      `task-suggestion-task-${task.id}`
     );
+    if (originalCard) {
+      const rect = originalCard.getBoundingClientRect();
+      setDraggedTask({
+        task,
+        position: { x: event.clientX, y: event.clientY },
+        width: rect.width,
+      });
+    }
+    document.body.style.userSelect = "none";
+  };
+
+  if (isVisible && loading) {
+    return <GroupedTasksPlaceholderLoader />;
+  }
+
+  if (!isVisible) {
+    return null;
+  }
+
+  if (!taskSuggestions) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: isPhabletWidthOrLess ? 1 : 1,
+          px: 2,
+          py: isPhabletWidthOrLess ? 0.5 : 2,
+        }}
+      >
+        <Typography variant="body2" color="textSecondary">
+          No task suggestions right now
+        </Typography>
+        <Typography variant="caption" color="textSecondary">
+          Configure your suggestions on a task's suggestions tab
+        </Typography>
+      </Box>
+    );
+  }
+
+  const orderedGroups = [...taskSuggestions].sort((a, b) => {
+    if (
+      a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET &&
+      b.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET
+    ) {
+      return 1;
+    }
+    if (
+      b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET &&
+      a.type !== SUGGESTION_GROUP_TYPES.BALANCE_TARGET
+    ) {
+      return -1;
+    }
+    if (
+      a.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET &&
+      b.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET
+    ) {
+      if (a.data && b.data) {
+        return a.data.progress - b.data.progress;
+      }
+    }
+    if (
+      a.type === SUGGESTION_GROUP_TYPES.SOON &&
+      b.type !== SUGGESTION_GROUP_TYPES.SOON
+    ) {
+      return -1;
+    }
+
+    if (
+      b.type === SUGGESTION_GROUP_TYPES.SOON &&
+      a.type !== SUGGESTION_GROUP_TYPES.SOON
+    ) {
+      return 1;
+    }
+    return 0;
+  });
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {[...additionalTaskGroups, ...orderedGroups].map((group, index) => {
+        const headerExtraSlot =
+          group.type === SUGGESTION_GROUP_TYPES.BALANCE_TARGET && group.data ? (
+            <Box sx={{ maxWidth: 40, flexGrow: 1 }}>
+              <LinearProgress
+                variant="determinate"
+                value={Math.min(
+                  (group.data.progress / group.data.targetAmount) * 100,
+                  100
+                )}
+                sx={{
+                  height: 4,
+                  borderRadius: 1,
+                  backgroundColor: "grey.200",
+                  "& .MuiLinearProgress-bar": {
+                    backgroundColor: "grey.500",
+                  },
+                }}
+              />
+            </Box>
+          ) : null;
+
+        return (
+          <TaskGroupCard
+            key={`${group.type}-${group.name}`}
+            title={group.name}
+            type={group.type as TaskGroupType}
+            headerExtraSlot={headerExtraSlot}
+          >
+            {group.tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                id={`task-suggestion-task-${task.id}`}
+                onClick={
+                  wasJustDragging
+                    ? undefined
+                    : () => {
+                        setOpenDetailsPanelEntity({
+                          id: task.id,
+                          type: "Task",
+                        });
+                      }
+                }
+                onMouseDown={(event) => handleMouseDown(task, event)}
+              >
+                {task.title}
+              </TaskCard>
+            ))}
+          </TaskGroupCard>
+        );
+      })}
+    </Box>
+  );
 };
