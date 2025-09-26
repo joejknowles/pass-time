@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import { isToday, isTomorrow, isYesterday } from "./utils";
 import { useDevice } from "@/app/lib/hooks/useDevice";
+import { useEffect } from "react";
 
 const CurrentDayHeader = ({
   currentDay,
@@ -25,6 +26,20 @@ const CurrentDayHeader = ({
       currentDay.getMonth() + 1
     } (${dayOfWeek})`;
   };
+
+  useEffect(() => {
+    const timeLastUpdated = new Date().toLocaleDateString();
+    const onWindowFocus = () => {
+      const currentDateString = new Date().toLocaleDateString();
+      if (timeLastUpdated !== currentDateString) {
+        updateCurrentDay(new Date());
+      }
+    };
+    window.addEventListener("focus", onWindowFocus);
+    return () => {
+      window.removeEventListener("focus", onWindowFocus);
+    };
+  }, [currentDay]);
 
   return (
     <Box
