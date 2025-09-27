@@ -176,8 +176,8 @@ export const mutationResolvers = {
         let startTime = null;
         if (start?.date && start?.hour != null && start?.minute != null) {
             startTime = new Date(start.date);
-            startTime.setHours(start.hour);
-            startTime.setMinutes(start.minute);
+            startTime.setUTCHours(start.hour);
+            startTime.setUTCMinutes(start.minute);
         }
 
         if (startTime || duration) {
