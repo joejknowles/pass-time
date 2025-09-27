@@ -142,7 +142,7 @@ export const TaskInstanceDetails = ({
     const suggestDefaultChange = taskInstance.duration !== (taskInstance.task.defaultDuration || 30);
 
     return (
-        <ClickAwayListener onClickAway={closeIfNotMoving}>
+        <ClickAwayListener mouseEvent="onMouseDown" onClickAway={closeIfNotMoving}>
             <Box
                 ref={detailsRef}
                 sx={{
