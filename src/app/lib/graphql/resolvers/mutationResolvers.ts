@@ -4,11 +4,39 @@ import { BalanceTarget } from '@prisma/client';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { Context, prisma } from './helpers/helpers';
 import { isTaskHierarchyValid } from './helpers/isTaskHierarchyValid';
+import { TZDateMini } from "@date-fns/tz";
 
 const validSpecificDays = [
     "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY",
     "EVERYDAY", "WEEKDAY", "WEEKEND"
 ];
+
+function toUtcDateUsingTZ(
+  {
+    date, // "YYYY-MM-DD"
+    hour, // 0-23
+    minute, // 0-59
+  }: {
+    date: string;
+    hour: number;
+    minute: number;
+  },
+  timeZone: string
+) {
+    console.log('toUtcDateUsingTZ input:', { date, hour, minute, timeZone });
+  const [y, m, d] = date.split("-").map(Number);
+
+  // Create a date anchored to the user's timezone at local midnight
+  const tz = new TZDateMini(y, m - 1, d, timeZone);
+
+  // Set the wall clock time in that timezone
+  tz.setHours(hour, minute, 0, 0);
+
+  console.log('output UTC date:', new Date(tz.getTime()));
+  // Persist as a real UTC instant
+  return new Date(tz.getTime()); // JS Date in UTC
+}
+
 
 export const mutationResolvers = {
     createUser: async (_: any, args: { email: string, firebaseId: string, token: string }) => {
@@ -127,15 +155,11 @@ export const mutationResolvers = {
             throw new Error('No task found or created');
         }
 
-        const startTime = new Date(args.input.start.date);
-        startTime.setHours(args.input.start.hour);
-        startTime.setMinutes(args.input.start.minute);
-
         const newTaskInstance = await prisma.taskInstance.create({
             data: {
                 userId: user.id,
                 taskId: task?.id,
-                startTime,
+                startTime: toUtcDateUsingTZ(args.input.start, context.timeZone),
                 duration: task.defaultDuration || 30,
             },
             include: {
@@ -175,9 +199,7 @@ export const mutationResolvers = {
 
         let startTime = null;
         if (start?.date && start?.hour != null && start?.minute != null) {
-            startTime = new Date(start.date);
-            startTime.setUTCHours(start.hour);
-            startTime.setUTCMinutes(start.minute);
+            startTime = toUtcDateUsingTZ(start as { date: string; hour: number; minute: number }, context.timeZone);
         }
 
         if (startTime || duration) {

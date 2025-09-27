@@ -12,11 +12,13 @@ const httpLink = new HttpLink({
     uri: '/api/graphql',
 });
 
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 const authLink = setContext(async (_, { headers }) => {
     const user = auth.currentUser;
 
     if (!user) {
-        return { headers };
+        return { headers, "x-time-zone": timeZone, };
     }
 
     try {
@@ -25,6 +27,7 @@ const authLink = setContext(async (_, { headers }) => {
             headers: {
                 ...headers,
                 Authorization: `Bearer ${token}`,
+                "x-time-zone": timeZone,
             },
         };
     } catch (error) {

@@ -63,7 +63,7 @@ export const DayCalendar = ({
                 date: currentDay.toLocaleDateString('en-CA'),
             },
         },
-        pollInterval: minutesToMs(15)
+        pollInterval: minutesToMs(15),
     });
     const taskInstances = taskInstancesData?.taskInstances;
     const { tasks, refetchTasks, error: errorFromGetTasks, loading: loadingTasks } = useTasks();

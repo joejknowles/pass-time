@@ -1,17 +1,13 @@
 /** @jsxImportSource @emotion/react */
 import { Box, ClickAwayListener, Button } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { Task } from "./types";
+import { ClientDateTime, Task } from "./types";
 import BasicTaskInstanceCard from "./taskInstanceCards/BasicTaskInstanceCard";
 import CreateOrSelectTask from "./CreateOrSelectTask";
 
 interface DraftTaskInstance {
     title: string;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
+    start: ClientDateTime;
     duration: number;
     taskId?: string;
 }

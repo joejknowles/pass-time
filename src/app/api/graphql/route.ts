@@ -34,7 +34,6 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
-      console.log('context handler decodedToken:', decodedToken);
       const user = await prisma.user.findUnique({
         where: { firebaseId: decodedToken.uid },
       });
@@ -42,7 +41,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
       if (!user) {
         console.error('User not found');
       }
-      return { user };
+
+      const tz = req.headers.get("x-time-zone");
+      const timeZone = typeof tz === "string" && tz ? tz : "UTC";
+      return { user, timeZone };
     } catch (error) {
       console.error('Token verification failed:', error);
       throw new Error('Invalid or expired token');

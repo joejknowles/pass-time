@@ -4,6 +4,7 @@ import { GraphQLError, GraphQLResolveInfo } from "graphql";
 import { parseResolveInfo } from "graphql-parse-resolve-info";
 import { getNestedChildTaskIds } from "./helpers/getNestedChildTasks";
 import { progressOverTime } from "./helpers/progressOverTime";
+import { TZDateMini } from "@date-fns/tz";
 
 
 function isFieldRequested(info: GraphQLResolveInfo, path: string[]): boolean {
@@ -64,15 +65,22 @@ export const additionalFields = {
             }
         },
     },
-    TaskInstance: {
-        start: (parent: TaskInstance) => {
-            const startTime = new Date(parent.startTime);
-            return {
-                date: startTime.toLocaleDateString('en-CA'),
-                hour: startTime.getUTCHours(),
-                minute: startTime.getUTCMinutes(),
-            };
-        },
+    TaskInstance: {start: (parent: TaskInstance, _args: any, context: Context) => {
+      const timeZone = context.timeZone;
+
+      const utcDate = new Date(parent.startTime);
+
+      const z = new TZDateMini(utcDate, timeZone);
+
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const date = `${z.getFullYear()}-${pad(z.getMonth() + 1)}-${pad(z.getDate())}`;
+
+      return {
+        date,                 // "YYYY-MM-DD" in viewer's zone
+        hour: z.getHours(),   // local hour
+        minute: z.getMinutes()// local minute
+      };
+    },
     },
     BalanceTarget: {
         progress: async (parent: BalanceTarget, _args: any, context: Context) => {

@@ -24,34 +24,28 @@ export type DetailedTask = Task & {
     }
 }
 
+export interface ClientDateTime {
+    date: string;
+    hour: number;
+    minute: number;
+}
+
 export interface BasicTaskInstance {
     id: string;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
+    start: ClientDateTime;
     duration: number;
 }
 
 export interface TaskInstance {
     id: string;
     task: Task;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
+    start: ClientDateTime;
     duration: number;
 }
 
 export interface DraftTaskInstance {
     title: string;
-    start: {
-        date: string;
-        hour: number;
-        minute: number;
-    };
+    start: ClientDateTime;
     duration: number;
     taskId?: string;
 }
