@@ -69,8 +69,8 @@ export const additionalFields = {
             const startTime = new Date(parent.startTime);
             return {
                 date: startTime.toLocaleDateString('en-CA'),
-                hour: startTime.getUTCHours(),
-                minute: startTime.getUTCMinutes(),
+                hour: startTime.getHours(),
+                minute: startTime.getMinutes(),
             };
         },
     },
