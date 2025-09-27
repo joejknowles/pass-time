@@ -1,16 +1,20 @@
-import { GraphQLError } from 'graphql';
-import { Context, prisma } from '../helpers/helpers';
+import { GraphQLError } from "graphql";
+import { Context, prisma } from "../helpers/helpers";
 
-export const balanceTargetsQueryResolver = async (_parent: any, _args: any, context: Context) => {
-    if (!context.user) {
-        throw new GraphQLError('User not authenticated', {
-            extensions: {
-                code: 'UNAUTHENTICATED',
-            },
-        });
-    }
-    return await prisma.balanceTarget.findMany({
-        where: { userId: context.user.id },
-        include: { task: true },
+export const balanceTargetsQueryResolver = async (
+  _parent: any,
+  _args: any,
+  context: Context
+) => {
+  if (!context.user) {
+    throw new GraphQLError("User not authenticated", {
+      extensions: {
+        code: "UNAUTHENTICATED",
+      },
     });
+  }
+  return await prisma.balanceTarget.findMany({
+    where: { userId: context.user.id },
+    include: { task: true },
+  });
 };

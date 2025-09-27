@@ -1,4 +1,4 @@
-import { gql } from 'graphql-tag';
+import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
   type User {
@@ -44,17 +44,17 @@ export const typeDefs = gql`
   }
 
   type TaskInstance {
-      id: ID!
-      task: Task!
-      user: User!
-      start: Start!
-      duration: Int!
+    id: ID!
+    task: Task!
+    user: User!
+    start: Start!
+    duration: Int!
   }
 
   type Start {
-      date: String!
-      hour: Int!
-      minute: Int!
+    date: String!
+    hour: Int!
+    minute: Int!
   }
 
   enum TimeWindow {
@@ -174,6 +174,8 @@ export const typeDefs = gql`
     updateTaskInstance(input: UpdateTaskInstanceInput!): TaskInstance!
     updateTask(input: UpdateTaskInput!): Task!
     createBalanceTarget(input: CreateBalanceTargetInput!): BalanceTarget!
-    updateTaskSuggestionConfig(input: UpdateTaskSuggestionConfigInput!): TaskSuggestionConfig!
+    updateTaskSuggestionConfig(
+      input: UpdateTaskSuggestionConfigInput!
+    ): TaskSuggestionConfig!
   }
 `;

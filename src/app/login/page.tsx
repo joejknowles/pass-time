@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Container,
   Box,
@@ -7,22 +7,21 @@ import {
   Typography,
   Button,
   CircularProgress,
-} from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-import { useRouter } from 'next/navigation';
-import { authErrorMessages } from '../signup/authErrorMessages';
-import { withSignedOutLayout } from '../components/SignedOutLayout';
-
+} from "@mui/material";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { authErrorMessages } from "../signup/authErrorMessages";
+import { withSignedOutLayout } from "../components/SignedOutLayout";
 
 const validationSchema = Yup.object({
   email: Yup.string()
-    .email('Invalid email format')
-    .required('Email is required'),
-  password: Yup.string().required('Password is required'),
+    .email("Invalid email format")
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
 });
 
 const LoginPage = () => {
@@ -44,7 +43,7 @@ const LoginPage = () => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
 
-      router.push('/');
+      router.push("/");
     } catch (error: any) {
       setError(authErrorMessages[error.code] || error.message);
     } finally {
@@ -57,9 +56,9 @@ const LoginPage = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
@@ -68,7 +67,7 @@ const LoginPage = () => {
         <Box
           component="form"
           onSubmit={handleSubmit(onSubmit)}
-          sx={{ width: '100%', marginTop: 1 }}
+          sx={{ width: "100%", marginTop: 1 }}
         >
           <TextField
             variant="outlined"
@@ -78,7 +77,7 @@ const LoginPage = () => {
             label="Email Address"
             autoComplete="email"
             autoFocus
-            {...register('email')}
+            {...register("email")}
             error={!!errors.email}
             helperText={errors.email?.message}
             disabled={loading}
@@ -91,7 +90,7 @@ const LoginPage = () => {
             type="password"
             id="password"
             autoComplete="current-password"
-            {...register('password')}
+            {...register("password")}
             error={!!errors.password}
             helperText={errors.password?.message}
             disabled={loading}
@@ -104,7 +103,7 @@ const LoginPage = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Log In'}
+            {loading ? <CircularProgress size={24} /> : "Log In"}
           </Button>
           {error && <Typography color="error">{error}</Typography>}
         </Box>

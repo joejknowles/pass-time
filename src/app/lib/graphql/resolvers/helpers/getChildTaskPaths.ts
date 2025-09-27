@@ -1,7 +1,13 @@
 import { prisma } from "./helpers";
 
-export const getChildTaskPaths = async (taskId: number, userId: number): Promise<{ id: number; title: string }[][]> => {
-    const result = await prisma.$queryRawUnsafe<{ path: { id: number; title: string }[] }[]>(`
+export const getChildTaskPaths = async (
+  taskId: number,
+  userId: number
+): Promise<{ id: number; title: string }[][]> => {
+  const result = await prisma.$queryRawUnsafe<
+    { path: { id: number; title: string }[] }[]
+  >(
+    `
         WITH RECURSIVE task_paths AS (
             -- Start recursion with the child tasks of the main taskId
             SELECT ARRAY[json_build_object('id', t.id, 'title', t.title, 'defaultDuration', t."defaultDuration", 'isSuggestingEnabled', t."isSuggestingEnabled")] AS path, 1 AS depth
@@ -20,8 +26,10 @@ export const getChildTaskPaths = async (taskId: number, userId: number): Promise
         SELECT DISTINCT ON (path[array_length(path, 1)]->>'id') path
         FROM task_paths
         ORDER BY path[array_length(path, 1)]->>'id', depth DESC;
-    `, taskId, userId);
+    `,
+    taskId,
+    userId
+  );
 
-    return result.map(({ path }) => path);
+  return result.map(({ path }) => path);
 };
-

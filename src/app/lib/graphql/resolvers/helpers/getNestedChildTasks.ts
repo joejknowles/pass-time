@@ -1,7 +1,11 @@
 import { prisma } from "./helpers";
 
-export const getNestedChildTaskIds = async (taskId: number, userId: number): Promise<number[]> => {
-    const result = await prisma.$queryRawUnsafe<{ id: number }[]>(`
+export const getNestedChildTaskIds = async (
+  taskId: number,
+  userId: number
+): Promise<number[]> => {
+  const result = await prisma.$queryRawUnsafe<{ id: number }[]>(
+    `
         WITH RECURSIVE task_ids AS (
             -- Start recursion with the child tasks of the main taskId
             SELECT t.id
@@ -19,7 +23,10 @@ export const getNestedChildTaskIds = async (taskId: number, userId: number): Pro
         )
         SELECT id
         FROM task_ids;
-    `, taskId, userId);
+    `,
+    taskId,
+    userId
+  );
 
-    return result.map(({ id }) => id);
+  return result.map(({ id }) => id);
 };

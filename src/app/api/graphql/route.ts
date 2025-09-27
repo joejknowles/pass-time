@@ -1,11 +1,11 @@
-import { NextRequest } from 'next/server';
-import { ApolloServer } from '@apollo/server';
-import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { typeDefs } from '@/app/lib/graphql/schema';
-import { resolvers } from '@/app/lib/graphql/resolvers/resolvers';
-import { Context } from '@/app/lib/graphql/resolvers/helpers/helpers';
-import { admin } from '@/lib/firebaseAdmin';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest } from "next/server";
+import { ApolloServer } from "@apollo/server";
+import { startServerAndCreateNextHandler } from "@as-integrations/next";
+import { typeDefs } from "@/app/lib/graphql/schema";
+import { resolvers } from "@/app/lib/graphql/resolvers/resolvers";
+import { Context } from "@/app/lib/graphql/resolvers/helpers/helpers";
+import { admin } from "@/lib/firebaseAdmin";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient({
   datasources: {
@@ -23,13 +23,13 @@ const server = new ApolloServer({
 
 const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
   context: async (req: NextRequest) => {
-    const authHeader = req.headers.get('authorization') || '';
-    console.log('context handler authHeader:', authHeader);
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const authHeader = req.headers.get("authorization") || "";
+    console.log("context handler authHeader:", authHeader);
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
     if (!token) {
-      console.error('Authorization token is missing');
-      throw new Error('Authorization token is missing');
+      console.error("Authorization token is missing");
+      throw new Error("Authorization token is missing");
     }
 
     try {
@@ -37,17 +37,17 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, {
       const user = await prisma.user.findUnique({
         where: { firebaseId: decodedToken.uid },
       });
-      console.log('context handler user: ', user);
+      console.log("context handler user: ", user);
       if (!user) {
-        console.error('User not found');
+        console.error("User not found");
       }
 
       const tz = req.headers.get("x-time-zone");
       const timeZone = typeof tz === "string" && tz ? tz : "UTC";
       return { user, timeZone };
     } catch (error) {
-      console.error('Token verification failed:', error);
-      throw new Error('Invalid or expired token');
+      console.error("Token verification failed:", error);
+      throw new Error("Invalid or expired token");
     }
   },
 });

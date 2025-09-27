@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_BALANCE_TARGETS = gql`
   query GetBalanceTargets {
@@ -70,9 +70,9 @@ export const GET_TASK_INSTANCES = gql`
         email
       }
       task {
-        id,
-        title,
-        defaultDuration,
+        id
+        title
+        defaultDuration
         parentTasks {
           id
           title
@@ -106,12 +106,12 @@ export const GET_TASKS = gql`
         title
       }
       taskInstances {
-        id,
+        id
         start {
           date
           hour
           minute
-        },
+        }
         duration
       }
     }

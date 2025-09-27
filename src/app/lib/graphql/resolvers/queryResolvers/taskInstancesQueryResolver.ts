@@ -1,13 +1,14 @@
-import { GraphQLError } from 'graphql';
-import { Context, prisma } from '../helpers/helpers';
-import { TZDateMini } from '@date-fns/tz';
+import { GraphQLError } from "graphql";
+import { Context, prisma } from "../helpers/helpers";
+import { TZDateMini } from "@date-fns/tz";
 
-function utcRangeForLocalDate({
-date,
-}:{
+function utcRangeForLocalDate(
+  {
+    date,
+  }: {
     date: string;
-},
-    timeZone: string
+  },
+  timeZone: string
 ): [Date, Date] {
   const [y, m, d] = date.split("-").map(Number);
 
@@ -24,43 +25,47 @@ date,
   return [new Date(startLocal.getTime()), new Date(endLocal.getTime())];
 }
 
-export const taskInstancesQueryResolver = async (_parent: any, args: {
+export const taskInstancesQueryResolver = async (
+  _parent: any,
+  args: {
     input: {
-        date: string;
-    }
-}, context: Context) => {
-    if (!context.user) {
-        throw new GraphQLError('User not authenticated', {
-            extensions: {
-                code: 'UNAUTHENTICATED',
-            },
-        });
-    }
-
-    const [startUtc, endUtc] = utcRangeForLocalDate(args.input, context.timeZone);
-    const startTimeIsToday = {
-        startTime: {
-            gte: startUtc,
-            lt: endUtc,
-        }
-    }
-
-    return await prisma.taskInstance.findMany({
-        where: {
-            ...startTimeIsToday,
-            userId: context.user.id
-        },
-        include: {
-            user: true,
-            task: {
-                include: {
-                    parentTasks: true,
-                    childTasks: true,
-                },
-            }
-        },
-        orderBy: {
-            startTime: 'asc'
-        }
+      date: string;
+    };
+  },
+  context: Context
+) => {
+  if (!context.user) {
+    throw new GraphQLError("User not authenticated", {
+      extensions: {
+        code: "UNAUTHENTICATED",
+      },
     });
+  }
+
+  const [startUtc, endUtc] = utcRangeForLocalDate(args.input, context.timeZone);
+  const startTimeIsToday = {
+    startTime: {
+      gte: startUtc,
+      lt: endUtc,
+    },
+  };
+
+  return await prisma.taskInstance.findMany({
+    where: {
+      ...startTimeIsToday,
+      userId: context.user.id,
+    },
+    include: {
+      user: true,
+      task: {
+        include: {
+          parentTasks: true,
+          childTasks: true,
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
 };

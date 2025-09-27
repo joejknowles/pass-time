@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const CREATE_USER = gql`
   mutation CreateUser($email: String!, $firebaseId: String!, $token: String!) {
@@ -26,7 +26,7 @@ export const CREATE_TASK_INSTANCE = gql`
         email
       }
       task {
-        id,
+        id
         title
       }
     }
@@ -53,7 +53,7 @@ export const CREATE_TASK = gql`
         title
       }
       taskInstances {
-        id,
+        id
         start {
           date
           hour
@@ -126,7 +126,9 @@ export const CREATE_BALANCE_TARGET = gql`
 `;
 
 export const UPDATE_TASK_SUGGESTION_CONFIG = gql`
-  mutation UpdateTaskSuggestionConfig($input: UpdateTaskSuggestionConfigInput!) {
+  mutation UpdateTaskSuggestionConfig(
+    $input: UpdateTaskSuggestionConfigInput!
+  ) {
     updateTaskSuggestionConfig(input: $input) {
       id
       taskId

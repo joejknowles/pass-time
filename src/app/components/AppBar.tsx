@@ -1,4 +1,12 @@
-import { AppBar as MuiAppBar, Toolbar, Typography, Button, Menu, MenuItem, Box } from "@mui/material";
+import {
+  AppBar as MuiAppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Menu,
+  MenuItem,
+  Box,
+} from "@mui/material";
 import Link from "next/link";
 import { useState } from "react";
 import { User, signOut } from "firebase/auth";
@@ -11,8 +19,14 @@ interface AppBarProps {
   onBalanceTargetsOpen: () => void;
 }
 
-export default function AppBar({ hasLoadedUser, user, onBalanceTargetsOpen }: AppBarProps) {
-  const { values: { padding } } = useDevice({
+export default function AppBar({
+  hasLoadedUser,
+  user,
+  onBalanceTargetsOpen,
+}: AppBarProps) {
+  const {
+    values: { padding },
+  } = useDevice({
     padding: {
       smallPhoneWidthOrLess: "2px 2px 2px 8px",
       largePhoneWidthOrLess: "4px 16px",
@@ -45,16 +59,13 @@ export default function AppBar({ hasLoadedUser, user, onBalanceTargetsOpen }: Ap
       sx={{
         bgcolor: "white",
         color: "black",
-
       }}
     >
-      <Toolbar disableGutters sx={{ padding, minHeight: '0 !important' }}>
+      <Toolbar disableGutters sx={{ padding, minHeight: "0 !important" }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           PassTime
         </Typography>
-        {!hasLoadedUser && (
-          <Box sx={{ height: 36.5, width: 1 }} />
-        )}
+        {!hasLoadedUser && <Box sx={{ height: 36.5, width: 1 }} />}
 
         {hasLoadedUser && user && (
           <>
@@ -87,23 +98,23 @@ export default function AppBar({ hasLoadedUser, user, onBalanceTargetsOpen }: Ap
                 horizontal: "right",
               }}
             >
-              <MenuItem onClick={handleBalanceTargetsOpenAndClose}>Targets</MenuItem>
+              <MenuItem onClick={handleBalanceTargetsOpenAndClose}>
+                Targets
+              </MenuItem>
               <MenuItem onClick={handleSignOutAndClose}>Sign out</MenuItem>
             </Menu>
           </>
-        )
-        }
-        {
-          hasLoadedUser && !user && (
-            <>
-              <Button color="inherit" component={Link} href="/login">
-                Log in
-              </Button>
-              <Button color="inherit" component={Link} href="/signup">
-                Sign up
-              </Button>
-            </>
-          )}
+        )}
+        {hasLoadedUser && !user && (
+          <>
+            <Button color="inherit" component={Link} href="/login">
+              Log in
+            </Button>
+            <Button color="inherit" component={Link} href="/signup">
+              Sign up
+            </Button>
+          </>
+        )}
       </Toolbar>
     </MuiAppBar>
   );

@@ -6,66 +6,76 @@ import { getNestedChildTaskIds } from "./helpers/getNestedChildTasks";
 import { progressOverTime } from "./helpers/progressOverTime";
 import { TZDateMini } from "@date-fns/tz";
 
-
 function isFieldRequested(info: GraphQLResolveInfo, path: string[]): boolean {
-    let current = parseResolveInfo(info);
-    for (const field of path) {
-        if (!current || !current.fieldsByTypeName) return false;
-        const fields = Object.values(current.fieldsByTypeName).flat();
-        current = fields.find((f: any) => f[field])[field];
-    }
-    return !!current;
+  let current = parseResolveInfo(info);
+  for (const field of path) {
+    if (!current || !current.fieldsByTypeName) return false;
+    const fields = Object.values(current.fieldsByTypeName).flat();
+    current = fields.find((f: any) => f[field])[field];
+  }
+  return !!current;
 }
 
 export const additionalFields = {
-    Task: {
-        defaultDuration: (parent: Task) => {
-            return parent.defaultDuration || 30;
-        },
-        isSuggestingEnabled: (parent: Task) => {
-            return parent.isSuggestingEnabled ?? false;
-        },
-        stats: async (parent: BalanceTarget, _args: any, context: Context, info: GraphQLResolveInfo) => {
-            if (!context.user) {
-                throw new GraphQLError('User not authenticated', {
-                    extensions: {
-                        code: 'UNAUTHENTICATED',
-                    },
-                });
-            }
-
-
-            let totals
-            if (isFieldRequested(info, ['totals'])) {
-                const allTime = Math.round(await calculateProgress(parent.id, 'ALL_TIME', context.user.id));
-                const today = Math.round(await calculateProgress(parent.id, 'DAILY', context.user.id));
-                const thisWeek = Math.round(await calculateProgress(parent.id, 'WEEKLY', context.user.id));
-                totals = { today, thisWeek, allTime };
-            }
-
-            let data
-            if (isFieldRequested(info, ['data', 'daily'])) {
-                const taskIds = await getNestedChildTaskIds(parent.id, context.user.id);
-                const aWeekAgo = new Date();
-                aWeekAgo.setDate(aWeekAgo.getDate() - 7);
-                const dailyData = await progressOverTime(
-                    [parent.id, ...taskIds],
-                    context.user.id,
-                    { from: aWeekAgo, to: new Date() },
-                    'DAILY'
-                );
-                data = {
-                    daily: dailyData,
-                }
-            }
-
-            return {
-                totals,
-                data
-            }
-        },
+  Task: {
+    defaultDuration: (parent: Task) => {
+      return parent.defaultDuration || 30;
     },
-    TaskInstance: {start: (parent: TaskInstance, _args: any, context: Context) => {
+    isSuggestingEnabled: (parent: Task) => {
+      return parent.isSuggestingEnabled ?? false;
+    },
+    stats: async (
+      parent: BalanceTarget,
+      _args: any,
+      context: Context,
+      info: GraphQLResolveInfo
+    ) => {
+      if (!context.user) {
+        throw new GraphQLError("User not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+
+      let totals;
+      if (isFieldRequested(info, ["totals"])) {
+        const allTime = Math.round(
+          await calculateProgress(parent.id, "ALL_TIME", context.user.id)
+        );
+        const today = Math.round(
+          await calculateProgress(parent.id, "DAILY", context.user.id)
+        );
+        const thisWeek = Math.round(
+          await calculateProgress(parent.id, "WEEKLY", context.user.id)
+        );
+        totals = { today, thisWeek, allTime };
+      }
+
+      let data;
+      if (isFieldRequested(info, ["data", "daily"])) {
+        const taskIds = await getNestedChildTaskIds(parent.id, context.user.id);
+        const aWeekAgo = new Date();
+        aWeekAgo.setDate(aWeekAgo.getDate() - 7);
+        const dailyData = await progressOverTime(
+          [parent.id, ...taskIds],
+          context.user.id,
+          { from: aWeekAgo, to: new Date() },
+          "DAILY"
+        );
+        data = {
+          daily: dailyData,
+        };
+      }
+
+      return {
+        totals,
+        data,
+      };
+    },
+  },
+  TaskInstance: {
+    start: (parent: TaskInstance, _args: any, context: Context) => {
       const timeZone = context.timeZone;
 
       const utcDate = new Date(parent.startTime);
@@ -73,25 +83,33 @@ export const additionalFields = {
       const z = new TZDateMini(utcDate, timeZone);
 
       const pad = (n: number) => String(n).padStart(2, "0");
-      const date = `${z.getFullYear()}-${pad(z.getMonth() + 1)}-${pad(z.getDate())}`;
+      const date = `${z.getFullYear()}-${pad(z.getMonth() + 1)}-${pad(
+        z.getDate()
+      )}`;
 
       return {
-        date,                 // "YYYY-MM-DD" in viewer's zone
-        hour: z.getHours(),   // local hour
-        minute: z.getMinutes()// local minute
+        date, // "YYYY-MM-DD" in viewer's zone
+        hour: z.getHours(), // local hour
+        minute: z.getMinutes(), // local minute
       };
     },
+  },
+  BalanceTarget: {
+    progress: async (parent: BalanceTarget, _args: any, context: Context) => {
+      if (!context.user) {
+        throw new GraphQLError("User not authenticated", {
+          extensions: {
+            code: "UNAUTHENTICATED",
+          },
+        });
+      }
+      return Math.round(
+        await calculateProgress(
+          parent.taskId,
+          parent.timeWindow,
+          context.user.id
+        )
+      );
     },
-    BalanceTarget: {
-        progress: async (parent: BalanceTarget, _args: any, context: Context) => {
-            if (!context.user) {
-                throw new GraphQLError('User not authenticated', {
-                    extensions: {
-                        code: 'UNAUTHENTICATED',
-                    },
-                });
-            }
-            return Math.round(await calculateProgress(parent.taskId, parent.timeWindow, context.user.id));
-        },
-    },
-}
+  },
+};
