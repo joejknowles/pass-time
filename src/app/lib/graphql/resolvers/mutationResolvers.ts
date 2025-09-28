@@ -3,8 +3,9 @@ import { admin } from "@/lib/firebaseAdmin";
 import { BalanceTarget } from "@prisma/client";
 import { GraphQLError, GraphQLResolveInfo } from "graphql";
 import { Context, prisma } from "./helpers/helpers";
-import { isTaskHierarchyValid } from "./helpers/isTaskHierarchyValid";
 import { TZDateMini } from "@date-fns/tz";
+import { validateAddParent } from "./helpers/validateAddRelationship/validateAddParent";
+import { validateAddChild } from "./helpers/validateAddRelationship/validateAddChild";
 
 const validSpecificDays = [
   "SUNDAY",
@@ -315,6 +316,9 @@ export const mutationResolvers = {
         id: string;
         title?: string;
         parentTaskId?: number;
+        childTaskId?: number;
+        removeParentTaskId?: number;
+        removeChildTaskId?: number;
         defaultDuration?: number;
         isSuggestingEnabled?: boolean;
       };
@@ -323,8 +327,16 @@ export const mutationResolvers = {
     _info: GraphQLResolveInfo
   ) => {
     const { user } = context;
-    const { id, title, parentTaskId, defaultDuration, isSuggestingEnabled } =
-      args.input;
+    const {
+      id,
+      title,
+      parentTaskId,
+      childTaskId,
+      removeParentTaskId,
+      removeChildTaskId,
+      defaultDuration,
+      isSuggestingEnabled,
+    } = args.input;
 
     if (!user) {
       throw new Error("User not authenticated");
@@ -371,7 +383,7 @@ export const mutationResolvers = {
     }
 
     if (parentTaskId) {
-      const hasValidHierarchy = await isTaskHierarchyValid(
+      const hasValidHierarchy = await validateAddParent(
         taskId,
         parentTaskId,
         user.id
@@ -385,6 +397,37 @@ export const mutationResolvers = {
         where: { id: parentTaskId, userId: user.id },
         data: {
           childTasks: {
+            connect: { id: taskId },
+          },
+        },
+      });
+
+      task = await prisma.task.findUnique({
+        where: { id: taskId, userId: user.id },
+        include: {
+          user: true,
+          taskInstances: true,
+          parentTasks: true,
+          childTasks: true,
+        },
+      });
+    }
+
+    if (childTaskId) {
+      const hasValidHierarchy = await validateAddChild(
+        taskId,
+        childTaskId,
+        user.id
+      );
+
+      if (!hasValidHierarchy) {
+        throw new Error("Invalid task hierarchy");
+      }
+
+      await prisma.task.update({
+        where: { id: childTaskId, userId: user.id },
+        data: {
+          parentTasks: {
             connect: { id: taskId },
           },
         },

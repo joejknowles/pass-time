@@ -152,6 +152,9 @@ export const typeDefs = gql`
     id: ID!
     title: String
     parentTaskId: Int
+    childTaskId: Int
+    removeParentTaskId: Int
+    removeChildTaskId: Int
     defaultDuration: Int
     isSuggestingEnabled: Boolean
   }

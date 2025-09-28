@@ -54,7 +54,10 @@ export const additionalFields = {
 
       let data;
       if (isFieldRequested(info, ["data", "daily"])) {
-        const taskIds = await getNestedChildTaskIds(parent.id, context.user.id);
+        const { taskIds } = await getNestedChildTaskIds(
+          parent.id,
+          context.user.id
+        );
         const aWeekAgo = new Date();
         aWeekAgo.setDate(aWeekAgo.getDate() - 7);
         const dailyData = await progressOverTime(

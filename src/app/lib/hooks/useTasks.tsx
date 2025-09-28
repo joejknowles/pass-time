@@ -13,7 +13,9 @@ interface TasksContextType {
     updates: Partial<Task> & { parentTaskId?: string; childTaskId?: string }
   ) => Promise<Task>;
   error: any;
+  updateError: any;
   loading: boolean;
+  resetUpdateError: () => void;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -26,7 +28,8 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
     loading,
   } = useQuery<{ tasks: Task[] }>(GET_TASKS);
   const [createTaskMutation] = useMutation(CREATE_TASK);
-  const [updateTaskMutation] = useMutation(UPDATE_TASK);
+  const [updateTaskMutation, { error: updateError, reset: resetUpdateError }] =
+    useMutation(UPDATE_TASK);
   const tasks = taskData?.tasks;
 
   const createTask = async (title: string): Promise<Task> => {
@@ -54,7 +57,16 @@ export const TasksProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <TasksContext.Provider
-      value={{ tasks, refetchTasks, createTask, updateTask, error, loading }}
+      value={{
+        tasks,
+        refetchTasks,
+        createTask,
+        updateTask,
+        error,
+        loading,
+        updateError,
+        resetUpdateError,
+      }}
     >
       {children}
     </TasksContext.Provider>
